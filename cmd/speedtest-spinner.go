@@ -23,11 +23,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
@@ -119,10 +119,10 @@ func (m *speedTestUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *speedTestUI) View() string {
+func (m *speedTestUI) View() tea.View {
 	// Quit when there is an error
 	if m.result.Err != "" {
-		return fmt.Sprintf("\n%s: %s (Err: %s)\n", m.result.Type.Name(), crossTickCell, m.result.Err)
+		return tea.NewView(fmt.Sprintf("\n%s: %s (Err: %s)\n", m.result.Type.Name(), crossTickCell, m.result.Err))
 	}
 
 	var s strings.Builder
@@ -334,5 +334,5 @@ func (m *speedTestUI) View() string {
 		renderPlainTable(table)
 	}
 
-	return s.String()
+	return tea.NewView(s.String())
 }

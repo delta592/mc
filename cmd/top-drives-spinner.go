@@ -23,10 +23,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/minio/madmin-go/v3"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
@@ -231,7 +231,7 @@ func sortDriveIOStat(sortBy drivesSorter, asc bool, data []driveIOStat) {
 	})
 }
 
-func (m *topDriveUI) View() string {
+func (m *topDriveUI) View() tea.View {
 	var s strings.Builder
 	s.WriteString("\n")
 
@@ -296,5 +296,5 @@ func (m *topDriveUI) View() string {
 
 		s.WriteString(fmt.Sprintf("\n%s \u25C0 Pool %d \u25B6 | Sort By: %s (u,t,r,w,d,a,U) | (O)rder: %s ", m.spinner.View(), m.pool+1, m.sortBy, order))
 	}
-	return s.String() + "\n"
+	return tea.NewView(s.String() + "\n")
 }

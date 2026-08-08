@@ -23,9 +23,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -52,7 +52,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case string:
 		m.content += msg
-		m.viewport.SetContent(wordwrap.String(m.content, m.viewport.Width-2))
+		m.viewport.SetContent(wordwrap.String(m.content, m.viewport.Width()-2))
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
@@ -69,14 +69,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// we can initialize the viewport. The initial dimensions come in
 			// quickly, though asynchronously, which is why we wait for them
 			// here.
-			m.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
+			m.viewport = viewport.New(viewport.WithWidth(msg.Width), viewport.WithHeight(msg.Height-verticalMarginHeight))
 			m.viewport.YPosition = headerHeight
 			m.viewport.SetContent(m.content)
 			m.ready = true
 			close(m.renderedOnce)
 		} else {
-			m.viewport.Width = msg.Width
-			m.viewport.Height = msg.Height - verticalMarginHeight
+			m.viewport.SetWidth(msg.Width)
+			m.viewport.SetHeight(msg.Height - verticalMarginHeight)
 		}
 	}
 
@@ -87,22 +87,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if !m.ready {
-		return "\n  Initializing..."
+		return tea.NewView("\n  Initializing...")
 	}
-	return fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
+	return tea.NewView(fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView()))
 }
 
 func (m model) headerView() string {
 	info := " (q)uit/esc"
-	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(info)))
+	line := strings.Repeat("─", max(0, m.viewport.Width()-lipgloss.Width(info)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
 func (m model) footerView() string {
 	// Disables printing if the viewport is not ready
-	if m.viewport.Width == 0 {
+	if m.viewport.Width() == 0 {
 		return ""
 	}
 	if math.IsNaN(m.viewport.ScrollPercent()) {
@@ -111,7 +111,7 @@ func (m model) footerView() string {
 
 	viewP := int(m.viewport.ScrollPercent() * 100)
 	info := fmt.Sprintf(" %s", percentStyle.Render(fmt.Sprintf("%d%%", viewP)))
-	totalLength := m.viewport.Width - lipgloss.Width(info)
+	totalLength := m.viewport.Width() - lipgloss.Width(info)
 	finishedCount := int((float64(totalLength) / 100) * float64(viewP))
 
 	return lipgloss.JoinHorizontal(
