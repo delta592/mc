@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
+	"math"
 	"io"
 	"maps"
 	"net"
@@ -2478,7 +2479,10 @@ func (c *S3Client) SetObjectLockConfig(ctx context.Context, mode minio.Retention
 	}
 
 	// FIXME: This is too ugly, fix minio-go
-	vuint := (uint)(validity)
+	if validity > math.MaxUint {
+		return errInvalidArgument().Trace(fmt.Sprintf("%d", validity))
+	}
+	vuint := uint(validity)
 	if mode != "" && vuint > 0 && unit != "" {
 		e := c.api.SetBucketObjectLockConfig(ctx, bucket, &mode, &vuint, &unit)
 		if e != nil {
