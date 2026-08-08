@@ -1,8 +1,6 @@
 module github.com/minio/mc
 
-go 1.24.0
-
-toolchain go1.24.9
+go 1.25.0
 
 // Install tools using 'go install tool'.
 tool (
@@ -47,7 +45,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	github.com/vbauerster/mpb/v8 v8.9.3
 	golang.org/x/net v0.46.0
-	golang.org/x/sys v0.37.0
+	golang.org/x/sys v0.44.0
 	golang.org/x/term v0.36.0
 	golang.org/x/text v0.30.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
