@@ -20,6 +20,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -113,11 +114,15 @@ func getRetainUntilDate(validity uint64, unit minio.ValidityUnit) (string, *prob
 	if validity == 0 {
 		return "", probe.NewError(fmt.Errorf("invalid validity '%v'", validity))
 	}
+	if validity > uint64(math.MaxInt) {
+		return "", probe.NewError(fmt.Errorf("invalid validity '%v'", validity))
+	}
+	validityInt := int(validity)
 	t := UTCNow()
 	if unit == minio.Years {
-		t = t.AddDate(int(validity), 0, 0)
+		t = t.AddDate(validityInt, 0, 0)
 	} else {
-		t = t.AddDate(0, 0, int(validity))
+		t = t.AddDate(0, 0, validityInt)
 	}
 	timeStr := t.Format(time.RFC3339)
 
