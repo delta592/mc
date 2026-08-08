@@ -133,7 +133,7 @@ func endpointToPools(endpoint string, c clusterInfo) (pools []int) {
 type clusterStruct struct {
 	Status string             `json:"status"`
 	Error  string             `json:"error,omitempty"`
-	Info   madmin.InfoMessage `json:"info,omitempty"`
+	Info   madmin.InfoMessage `json:"info"`
 
 	onlyOffline bool
 }

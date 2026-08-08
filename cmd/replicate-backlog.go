@@ -118,8 +118,8 @@ func (m replicateMRFMessage) String() string {
 
 type replicateBacklogMessage struct {
 	Op       string                `json:"op"`
-	Diff     madmin.DiffInfo       `json:"diff,omitempty"`
-	MRF      madmin.ReplicationMRF `json:"mrf,omitempty"`
+	Diff     madmin.DiffInfo       `json:"diff"`
+	MRF      madmin.ReplicationMRF `json:"mrf"`
 	OpStatus string                `json:"opStatus"`
 	arn      string                `json:"-"`
 	verbose  bool                  `json:"-"`

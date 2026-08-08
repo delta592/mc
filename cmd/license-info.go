@@ -63,7 +63,7 @@ const (
 
 type licInfoMessage struct {
 	Status string  `json:"status"`
-	Info   licInfo `json:"info,omitempty"`
+	Info   licInfo `json:"info"`
 	Error  string  `json:"error,omitempty"`
 }
 

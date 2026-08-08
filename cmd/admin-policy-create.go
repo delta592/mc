@@ -69,7 +69,7 @@ type userPolicyMessage struct {
 	op          string
 	Status      string            `json:"status"`
 	Policy      string            `json:"policy,omitempty"`
-	PolicyInfo  madmin.PolicyInfo `json:"policyInfo,omitempty"`
+	PolicyInfo  madmin.PolicyInfo `json:"policyInfo"`
 	UserOrGroup string            `json:"userOrGroup,omitempty"`
 	IsGroup     bool              `json:"isGroup"`
 }
