@@ -57,6 +57,11 @@ func Test_FullSuite(t *testing.T) {
 		postRunCleanup(t)
 	}()
 
+	loadTestSuiteEnv()
+	if !minioServerAvailable() {
+		t.Skipf("MinIO server not reachable at %s%s; run `make test-integration` to start one automatically", protocol, serverEndpoint)
+	}
+
 	preflightCheck(t)
 	// initializeTestSuite builds the mc client and creates local files which are used for testing
 	initializeTestSuite(t)
@@ -198,6 +203,7 @@ var (
 	skipBuild                = false
 	mcCmd                    = ".././mc"
 	preCmdParameters         = make([]string, 0)
+	lastCommandOutput        = ""
 	buildPath                = "../."
 	metaPrefix               = "X-Amz-Meta-"
 	includeDeprecatedMethods = false
@@ -245,16 +251,10 @@ func GetMBSizeInBytes(MB int) int64 {
 	return int64(MB * len(oneMBSlice))
 }
 
-func initializeTestSuite(t *testing.T) {
+func loadTestSuiteEnv() {
 	shouldSkipBuild := os.Getenv("MC_TEST_SKIP_BUILD")
 	skipBuild, _ = strconv.ParseBool(shouldSkipBuild)
-	fmt.Println("SKIP BUILD:", skipBuild)
-	if !skipBuild {
-		err := BuildCLI()
-		if err != nil {
-			os.Exit(1)
-		}
-	}
+
 	envBuildPath := os.Getenv("MC_TEST_BUILD_PATH")
 	if envBuildPath != "" {
 		buildPath = envBuildPath
@@ -307,6 +307,33 @@ func initializeTestSuite(t *testing.T) {
 	envCMD := os.Getenv("MC_TEST_BINARY_PATH")
 	if envCMD != "" {
 		mcCmd = envCMD
+	}
+}
+
+func minioServerAvailable() bool {
+	client := &http.Client{
+		Timeout: 3 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipInsecure},
+		},
+	}
+
+	resp, err := client.Get(protocol + serverEndpoint + "/minio/health/live")
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	return resp.StatusCode == http.StatusOK
+}
+
+func initializeTestSuite(t *testing.T) {
+	fmt.Println("SKIP BUILD:", skipBuild)
+	if !skipBuild {
+		err := BuildCLI()
+		if err != nil {
+			os.Exit(1)
+		}
 	}
 
 	var err error
@@ -2654,6 +2681,9 @@ func fatalIfErrorWMsg(err error, msg string, t *testing.T) {
 func fatalIfError(err error, t *testing.T) {
 	if err != nil {
 		fmt.Println(failIndicator)
+		if lastCommandOutput != "" {
+			fmt.Println(lastCommandOutput)
+		}
 		t.Fatal(err)
 	}
 }
@@ -3033,10 +3063,11 @@ func RunMC(parameters ...string) (out string, err error) {
 	fmt.Println(mcCmd, strings.Join(preCmdParameters, " "), strings.Join(parameters, " "))
 
 	outBytes, outErr = exec.Command(mcCmd, append(preCmdParameters, parameters...)...).CombinedOutput()
-	if printRawOut {
-		fmt.Println(string(outBytes))
-	}
 	out = string(outBytes)
+	lastCommandOutput = out
+	if printRawOut {
+		fmt.Println(out)
+	}
 	err = outErr
 	return
 }

@@ -102,15 +102,14 @@ test-386: ## Run short tests on linux/386
 	@CGO_ENABLED=0 GOOS=linux GOARCH=386 go test $(UNIT_TEST_FLAGS) -short $(TESTPKG)
 
 test-integration: build ## Run the full integration test suite
-	@echo "Running integration tests"
-	@MC_TEST_RUN_FULL_SUITE=true CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v $(TESTPKG) -run Test_FullSuite
+	@env bash $(PWD)/buildscripts/run-integration-tests.sh
 
 verify: build ## Build with race detector and run integration tests
 	@echo "Verifying race-enabled build"
 	@CGO_ENABLED=1 go build -race -tags $(BUILD_TAGS) -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/mc
 	@$(MAKE) test-integration
 
-check: test ## Alias for the full local validation target
+check: verifiers test-short test-race build ## Run local validation checks (no MinIO server required)
 
 ci: verifiers test-short test-race test-coverage test-386 build ## Run CI checks (no MinIO server required)
 
