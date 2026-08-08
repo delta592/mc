@@ -24,7 +24,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
@@ -133,8 +133,8 @@ func mainQuotaSet(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(quotaStr), "Unable to parse quota")
 
 	fatalIf(probe.NewError(client.SetBucketQuota(globalContext, targetURL, &madmin.BucketQuota{
-		Quota: quota,
-		Type:  qType,
+		Size: quota,
+		Type: qType,
 	})).Trace(args...), "Unable to set bucket quota")
 
 	printMsg(quotaMessage{

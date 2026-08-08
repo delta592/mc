@@ -28,7 +28,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
@@ -67,9 +67,9 @@ EXAMPLES:
 
 // serverUpdateMessage is container for ServerUpdate success and failure messages.
 type serverUpdateMessage struct {
-	Status             string                      `json:"status"`
-	ServerURL          string                      `json:"serverURL"`
-	ServerUpdateStatus madmin.ServerUpdateStatusV2 `json:"serverUpdateStatus"`
+	Status             string                    `json:"status"`
+	ServerURL          string                    `json:"serverURL"`
+	ServerUpdateStatus madmin.ServerUpdateStatus `json:"serverUpdateStatus"`
 }
 
 // String colorized serverUpdate message.
@@ -146,7 +146,7 @@ func mainAdminServerUpdate(ctx *cli.Context) error {
 
 	// Update the specified MinIO server, optionally also
 	// with the provided update URL.
-	us, e := client.ServerUpdateV2(globalContext, madmin.ServerUpdateOpts{
+	us, e := client.ServerUpdate(globalContext, madmin.ServerUpdateOpts{
 		DryRun:    ctx.Bool("dry-run"),
 		UpdateURL: updateURL,
 	})
