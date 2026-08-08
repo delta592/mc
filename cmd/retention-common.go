@@ -20,7 +20,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"math"
 	"strconv"
 	"time"
 
@@ -114,15 +113,15 @@ func getRetainUntilDate(validity uint64, unit minio.ValidityUnit) (string, *prob
 	if validity == 0 {
 		return "", probe.NewError(fmt.Errorf("invalid validity '%v'", validity))
 	}
-	if validity > uint64(math.MaxInt) {
+	validityInt, e := strconv.ParseInt(strconv.FormatUint(validity, 10), 10, strconv.IntSize)
+	if e != nil {
 		return "", probe.NewError(fmt.Errorf("invalid validity '%v'", validity))
 	}
-	validityInt := int(validity)
 	t := UTCNow()
 	if unit == minio.Years {
-		t = t.AddDate(validityInt, 0, 0)
+		t = t.AddDate(int(validityInt), 0, 0)
 	} else {
-		t = t.AddDate(0, 0, validityInt)
+		t = t.AddDate(0, 0, int(validityInt))
 	}
 	timeStr := t.Format(time.RFC3339)
 
@@ -157,7 +156,7 @@ func setRetentionSingle(ctx context.Context, op lockOpType, alias, url, versionI
 func parseRetentionValidity(validityStr string) (uint64, minio.ValidityUnit, *probe.Error) {
 	unitStr := string(validityStr[len(validityStr)-1])
 	validityStr = validityStr[:len(validityStr)-1]
-	validity, e := strconv.ParseUint(validityStr, 10, 64)
+	validity, e := strconv.ParseUint(validityStr, 10, strconv.IntSize)
 	if e != nil {
 		return 0, "", probe.NewError(e).Trace(validityStr)
 	}
