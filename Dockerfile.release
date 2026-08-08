@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1785906621 AS build
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1785906621@sha256:dd334afa72444fa46238fcf9e6bd399245adf746378735348cf84b9dfdca38f1 AS build
 
 RUN microdnf update --nodocs --assumeyes && \
     microdnf install ca-certificates --nodocs --assumeyes
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1784702951
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1784702951@sha256:b1e86b97028b8fcfb6d85f997c39e6b6b67496163ef8d80d243220a4918e8bef
 
 ARG TARGETARCH
 ARG RELEASE
