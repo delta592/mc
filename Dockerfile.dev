@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8
 
 LABEL maintainer="MinIO Inc <dev@min.io>"
@@ -6,9 +8,8 @@ COPY mc /usr/bin/
 COPY CREDITS /licenses/CREDITS
 COPY LICENSE /licenses/LICENSE
 
-RUN  \
-     microdnf update --nodocs --assumeyes && \
-     microdnf install ca-certificates --nodocs --assumeyes && \
-     microdnf clean all
+RUN microdnf update --nodocs --assumeyes && \
+    microdnf install ca-certificates --nodocs --assumeyes && \
+    microdnf clean all
 
 ENTRYPOINT ["mc"]
