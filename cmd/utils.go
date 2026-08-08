@@ -286,8 +286,8 @@ func parseAttribute(meta map[string]string) (map[string]string, error) {
 
 	parseAttrs := func(attrs string) error {
 		var err error
-		param := strings.Split(attrs, "/")
-		for _, val := range param {
+		param := strings.SplitSeq(attrs, "/")
+		for val := range param {
 			attr := strings.TrimSpace(val)
 			if attr == "" {
 				err = ErrInvalidFileSystemAttribute

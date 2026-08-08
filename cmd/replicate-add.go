@@ -313,8 +313,8 @@ func mainReplicateAdd(cliCtx *cli.Context) error {
 	deleteReplicationStatus := disableStatus
 	replicaSync := enableStatus
 	existingReplicationStatus := disableStatus
-	replSlice := strings.Split(cliCtx.String("replicate"), ",")
-	for _, opt := range replSlice {
+	replSlice := strings.SplitSeq(cliCtx.String("replicate"), ",")
+	for opt := range replSlice {
 		switch strings.TrimSpace(strings.ToLower(opt)) {
 		case "delete-marker":
 			dmReplicateStatus = enableStatus
