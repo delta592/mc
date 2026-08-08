@@ -378,32 +378,32 @@ type BucketInfo struct {
 	Versioning struct {
 		Status    string `json:"status"`
 		MFADelete string `json:"MFADelete"`
-	} `json:"Versioning,omitempty"`
+	} `json:"Versioning"`
 	Encryption struct {
 		Algorithm string `json:"algorithm,omitempty"`
 		KeyID     string `json:"keyId,omitempty"`
-	} `json:"Encryption,omitempty"`
+	} `json:"Encryption"`
 	Locking struct {
 		Enabled  string              `json:"enabled"`
 		Mode     minio.RetentionMode `json:"mode"`
 		Validity string              `json:"validity"`
-	} `json:"ObjectLock,omitempty"`
+	} `json:"ObjectLock"`
 	Replication struct {
 		Enabled bool               `json:"enabled"`
-		Config  replication.Config `json:"config,omitempty"`
+		Config  replication.Config `json:"config"`
 	} `json:"Replication"`
 	Policy struct {
 		Type string `json:"type"`
 		Text string `json:"policy,omitempty"`
-	} `json:"Policy,omitempty"`
+	} `json:"Policy"`
 	Location string            `json:"location"`
 	Tagging  map[string]string `json:"tagging,omitempty"`
 	ILM      struct {
 		Config *lifecycle.Configuration `json:"config,omitempty"`
-	} `json:"ilm,omitempty"`
+	} `json:"ilm"`
 	Notification struct {
-		Config notification.Configuration `json:"config,omitempty"`
-	} `json:"notification,omitempty"`
+		Config notification.Configuration `json:"config"`
+	} `json:"notification"`
 }
 
 // Tags returns stringified tag list.

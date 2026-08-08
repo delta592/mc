@@ -26,7 +26,7 @@ import (
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/mc/pkg/probe"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var batchListFlags = []cli.Flag{
@@ -78,21 +78,13 @@ func (c batchListMessage) String() string {
 	var s strings.Builder
 
 	// Set table header
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	// Add a new "STATUS" column to the table header
-	table.SetHeader([]string{"ID", "TYPE", "USER", "STARTED", "STATUS"})
+	table.Header("ID", "TYPE", "USER", "STARTED", "STATUS")
 	data := make([][]string, 0, 5)
 
 	// Fetch the status for the batch job using BatchJobStatus API
@@ -123,8 +115,8 @@ func (c batchListMessage) String() string {
 		})
 	}
 
-	table.AppendBulk(data)
-	table.Render()
+	_ = table.Bulk(data)
+	renderPlainTable(table)
 
 	return s.String()
 }
@@ -134,7 +126,7 @@ func (c batchListMessage) JSON() string {
 	c.Status = "success"
 
 	// Create a temporary slice to hold jobs with derived statuses
-	jobsWithStatus := make([]map[string]interface{}, len(c.Jobs))
+	jobsWithStatus := make([]map[string]any, len(c.Jobs))
 
 	// Fetch the status for the batch job using BatchJobStatus API
 	for i, job := range c.Jobs {
@@ -155,7 +147,7 @@ func (c batchListMessage) JSON() string {
 		}
 
 		// Add the job details along with the derived status
-		jobsWithStatus[i] = map[string]interface{}{
+		jobsWithStatus[i] = map[string]any{
 			"id":      job.ID,
 			"type":    job.Type,
 			"user":    job.User,
@@ -165,7 +157,7 @@ func (c batchListMessage) JSON() string {
 	}
 
 	// Marshal the updated jobs into JSON
-	batchListMessageBytes, e := json.MarshalIndent(map[string]interface{}{
+	batchListMessageBytes, e := json.MarshalIndent(map[string]any{
 		"status": c.Status,
 		"jobs":   jobsWithStatus,
 	}, "", " ")

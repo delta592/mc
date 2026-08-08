@@ -34,7 +34,7 @@ import (
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var replicateStatusFlags = []cli.Flag{
@@ -139,14 +139,10 @@ func (s replicateStatusMessage) String() string {
 	}
 	var sb strings.Builder
 
-	// Set table header
-	table := tablewriter.NewWriter(&sb)
-	table.SetAutoWrapText(false)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetRowLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
+	table := newPlainTable(&sb, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	uiFn := func(theme string) func(string) string {
 		return func(s string) string {
@@ -162,7 +158,7 @@ func (s replicateStatusMessage) String() string {
 
 	addRowF := func(format string, vals ...any) {
 		s := fmt.Sprintf(format, vals...)
-		table.Append([]string{s})
+		_ = table.Append([]string{s})
 	}
 	var arns []string
 	for arn := range rs.Stats {
@@ -265,7 +261,7 @@ func (s replicateStatusMessage) String() string {
 		addRowF(titleui("Errors:                       ")+"%s in last 1 minute; %s in last 1hr; %s since uptime", valueui(humanize.Comma(int64(failed.LastMinute.Count))), valueui(humanize.Comma(int64(failed.LastHour.Count))), valueui(humanize.Comma(int64(failed.Totals.Count))))
 	}
 
-	table.Render()
+	renderPlainTable(table)
 	return sb.String()
 }
 

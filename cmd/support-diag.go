@@ -437,7 +437,7 @@ type HealthDataTypeSlice []madmin.HealthDataType
 
 // Set - sets the flag to the given value
 func (d *HealthDataTypeSlice) Set(value string) error {
-	for _, v := range strings.Split(value, ",") {
+	for v := range strings.SplitSeq(value, ",") {
 		if supportDiagData, ok := madmin.HealthDataTypesMap[strings.Trim(v, " ")]; ok {
 			*d = append(*d, supportDiagData)
 		} else {
@@ -517,11 +517,11 @@ func (f HealthDataTypeFlag) Apply(set *flag.FlagSet) {
 // ApplyWithError - applies with error
 func (f HealthDataTypeFlag) ApplyWithError(set *flag.FlagSet) error {
 	if f.EnvVar != "" {
-		for _, envVar := range strings.Split(f.EnvVar, ",") {
+		for envVar := range strings.SplitSeq(f.EnvVar, ",") {
 			envVar = strings.TrimSpace(envVar)
 			if envVal, ok := syscall.Getenv(envVar); ok {
 				newVal := &HealthDataTypeSlice{}
-				for _, s := range strings.Split(envVal, ",") {
+				for s := range strings.SplitSeq(envVal, ",") {
 					s = strings.TrimSpace(s)
 					if e := newVal.Set(s); e != nil {
 						return fmt.Errorf("could not parse %s as health datatype value for flag %s: %s", envVal, f.Name, e)
@@ -533,7 +533,7 @@ func (f HealthDataTypeFlag) ApplyWithError(set *flag.FlagSet) error {
 		}
 	}
 
-	for _, name := range strings.Split(f.Name, ",") {
+	for name := range strings.SplitSeq(f.Name, ",") {
 		name = strings.Trim(name, " ")
 		if f.Value == nil {
 			f.Value = &HealthDataTypeSlice{}

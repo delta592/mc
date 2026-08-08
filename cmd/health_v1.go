@@ -41,8 +41,8 @@ type HwServerV1 struct {
 	Addr    string      `json:"addr"`
 	CPUs    []HwCPUV1   `json:"cpus,omitempty"`
 	Drives  []HwDriveV1 `json:"drives,omitempty"`
-	MemInfo HwMemV1     `json:"meminfo,omitempty"`
-	Perf    HwPerfV1    `json:"perf,omitempty"`
+	MemInfo HwMemV1     `json:"meminfo"`
+	Perf    HwPerfV1    `json:"perf"`
 }
 
 // HwCPUV1 - CPU Info
@@ -69,8 +69,8 @@ type HwMemV1 struct {
 
 // HwPerfV1 - hardware performance
 type HwPerfV1 struct {
-	Net   HwNetPerfV1   `json:"net,omitempty"`
-	Drive HwDrivePerfV1 `json:"drives,omitempty"`
+	Net   HwNetPerfV1   `json:"net"`
+	Drive HwDrivePerfV1 `json:"drives"`
 }
 
 // HwNetPerfV1 - Network performance info
@@ -88,13 +88,13 @@ type HwDrivePerfV1 struct {
 
 // SwInfoV1 - software health Info
 type SwInfoV1 struct {
-	Minio  MinioHealthInfoV1     `json:"minio,omitempty"`
+	Minio  MinioHealthInfoV1     `json:"minio"`
 	OsInfo []madmin.ServerOsInfo `json:"osinfos,omitempty"`
 }
 
 // MinioHealthInfoV1 - Health info of the MinIO cluster
 type MinioHealthInfoV1 struct {
-	Info     madmin.InfoMessage      `json:"info,omitempty"`
+	Info     madmin.InfoMessage      `json:"info"`
 	Config   any                     `json:"config,omitempty"`
 	ProcInfo []madmin.ServerProcInfo `json:"procinfos,omitempty"`
 	Error    string                  `json:"error,omitempty"`
@@ -102,11 +102,11 @@ type MinioHealthInfoV1 struct {
 
 // ClusterHealthV1 - main struct of the health report
 type ClusterHealthV1 struct {
-	TimeStamp time.Time   `json:"timestamp,omitempty"`
+	TimeStamp time.Time   `json:"timestamp"`
 	Status    string      `json:"status"`
 	Error     string      `json:"error,omitempty"`
-	Hardware  HwServersV1 `json:"hardware,omitempty"`
-	Software  SwInfoV1    `json:"software,omitempty"`
+	Hardware  HwServersV1 `json:"hardware"`
+	Software  SwInfoV1    `json:"software"`
 }
 
 func (ch ClusterHealthV1) String() string {

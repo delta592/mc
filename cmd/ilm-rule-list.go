@@ -83,7 +83,7 @@ type ilmListMessage struct {
 	Target    string                   `json:"target"`
 	Context   *cli.Context             `json:"-"`
 	Config    *lifecycle.Configuration `json:"config"`
-	UpdatedAt time.Time                `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time                `json:"updatedAt"`
 }
 
 func (i ilmListMessage) String() string {

@@ -28,7 +28,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v3"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var whiteStyle = lipgloss.NewStyle().
@@ -127,19 +127,10 @@ func (m *speedTestUI) View() string {
 
 	var s strings.Builder
 
-	// Set table header
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	ores := m.result.ObjectResult
 	nres := m.result.NetResult
@@ -162,7 +153,7 @@ func (m *speedTestUI) View() string {
 	}
 
 	if ores != nil {
-		table.SetHeader([]string{"", "Throughput", "IOPS"})
+		table.Header("", "Throughput", "IOPS")
 		data := make([][]string, 2)
 
 		if ores.Version == "" {
@@ -188,8 +179,8 @@ func (m *speedTestUI) View() string {
 				whiteStyle.Render(humanize.Comma(int64(ores.GETStats.ObjectsPerSec)) + " objs/s"),
 			}
 		}
-		table.AppendBulk(data)
-		table.Render()
+		_ = table.Bulk(data)
+		renderPlainTable(table)
 
 		if m.quitting {
 			s.WriteString("\n" + objectTestShortResult(ores))
@@ -200,7 +191,7 @@ func (m *speedTestUI) View() string {
 			s.WriteString("\n")
 		}
 	} else if nres != nil {
-		table.SetHeader([]string{"Node", "RX", "TX", ""})
+		table.Header("Node", "RX", "TX", "")
 		data := make([][]string, 0, len(nres.NodeResults))
 
 		if len(nres.NodeResults) == 0 {
@@ -229,10 +220,10 @@ func (m *speedTestUI) View() string {
 			return data[i][0] < data[j][0]
 		})
 
-		table.AppendBulk(data)
-		table.Render()
+		_ = table.Bulk(data)
+		renderPlainTable(table)
 	} else if sres != nil {
-		table.SetHeader([]string{"Endpoint", "RX", "TX", ""})
+		table.Header("Endpoint", "RX", "TX", "")
 		data := make([][]string, 0, len(sres.NodeResults))
 		if len(sres.NodeResults) == 0 {
 			data = append(data, []string{
@@ -280,10 +271,10 @@ func (m *speedTestUI) View() string {
 			return data[i][0] < data[j][0]
 		})
 
-		table.AppendBulk(data)
-		table.Render()
+		_ = table.Bulk(data)
+		renderPlainTable(table)
 	} else if dres != nil {
-		table.SetHeader([]string{"Node", "Path", "Read", "Write", ""})
+		table.Header("Node", "Path", "Read", "Write", "")
 		data := make([][]string, 0, len(dres))
 
 		if len(dres) == 0 {
@@ -317,10 +308,10 @@ func (m *speedTestUI) View() string {
 				}
 			}
 		}
-		table.AppendBulk(data)
-		table.Render()
+		_ = table.Bulk(data)
+		renderPlainTable(table)
 	} else if cres != nil {
-		table.SetHeader([]string{"Endpoint", "Tx"})
+		table.Header("Endpoint", "Tx")
 		data := make([][]string, 0, 2)
 		tx := uint64(0)
 		if cres.TimeSpent > 0 {
@@ -339,8 +330,8 @@ func (m *speedTestUI) View() string {
 				cres.Error,
 			})
 		}
-		table.AppendBulk(data)
-		table.Render()
+		_ = table.Bulk(data)
+		renderPlainTable(table)
 	}
 
 	return s.String()

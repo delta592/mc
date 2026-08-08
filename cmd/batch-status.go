@@ -16,7 +16,7 @@ import (
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var batchStatusCmd = cli.Command{
@@ -218,18 +218,10 @@ func (m *batchJobMetricsUI) View() string {
 	var s strings.Builder
 
 	// Set table header
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	var data [][]string
 	addLine := func(prefix string, value any) {
@@ -299,8 +291,8 @@ func (m *batchJobMetricsUI) View() string {
 		}
 	}
 
-	table.AppendBulk(data)
-	table.Render()
+	_ = table.Bulk(data)
+	renderPlainTable(table)
 
 	if m.quitting {
 		s.WriteString("\n")

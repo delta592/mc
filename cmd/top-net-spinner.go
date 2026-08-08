@@ -29,7 +29,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v3"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/prometheus/procfs"
 )
 
@@ -95,19 +95,11 @@ func (m *topNetUI) calculationRate(prev, curr uint64, dur time.Duration) uint64 
 func (m *topNetUI) View() string {
 	var s strings.Builder
 	// Set table header
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_CENTER)
-	table.SetAlignment(tablewriter.ALIGN_CENTER)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
-	table.SetHeader([]string{"SERVER", "INTERFACE", "RECEIVE", "TRANSMIT", ""})
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignCenter,
+		autoFormatHeader: true,
+	})
+	table.Header("SERVER", "INTERFACE", "RECEIVE", "TRANSMIT", "")
 
 	data := make([]topNetResult, 0, len(m.currTopMap))
 
@@ -157,8 +149,8 @@ func (m *topNetUI) View() string {
 		}
 	}
 
-	table.AppendBulk(dataRender)
-	table.Render()
+	_ = table.Bulk(dataRender)
+	renderPlainTable(table)
 	return s.String()
 }
 

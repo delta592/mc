@@ -123,8 +123,8 @@ func checkAdminProfileSyntax(ctx *cli.Context) {
 		string(madmin.ProfilerRuntime),
 	)
 	// Check if the provided profiler type is known and supported
-	profilers := strings.Split(strings.ToLower(ctx.String("type")), ",")
-	for _, profiler := range profilers {
+	profilers := strings.SplitSeq(strings.ToLower(ctx.String("type")), ",")
+	for profiler := range profilers {
 		if profiler != "" {
 			if !s.Contains(profiler) {
 				fatalIf(errDummy().Trace(ctx.String("type")),

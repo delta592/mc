@@ -64,7 +64,7 @@ type encryptInfoMessage struct {
 	Encryption struct {
 		Algorithm string `json:"algorithm,omitempty"`
 		KeyID     string `json:"keyId,omitempty"`
-	} `json:"encryption,omitempty"`
+	} `json:"encryption"`
 }
 
 func (v encryptInfoMessage) JSON() string {

@@ -188,19 +188,19 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 
 		// Each entry is a HOST[:PORT]=IP pair. This is very similar to cURL's syntax.
 		for _, e := range dnsEntries {
-			i := strings.IndexByte(e, '=')
-			if i < 0 {
+			before, after, ok := strings.Cut(e, "=")
+			if !ok {
 				return fmt.Errorf("invalid DNS resolve entry %s", e)
 			}
 
-			if strings.ContainsRune(e[:i], ':') {
-				if _, _, err := net.SplitHostPort(e[:i]); err != nil {
+			if strings.ContainsRune(before, ':') {
+				if _, _, err := net.SplitHostPort(before); err != nil {
 					return fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
 				}
 			}
 
-			host := e[:i]
-			addr, err := netip.ParseAddr(e[i+1:])
+			host := before
+			addr, err := netip.ParseAddr(after)
 			if err != nil {
 				return fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
 			}

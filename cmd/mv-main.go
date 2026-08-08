@@ -156,15 +156,13 @@ type removeManager struct {
 }
 
 func (rm *removeManager) readErrors(resultCh <-chan RemoveResult, targetURL string) {
-	rm.wg.Add(1)
-	go func() {
-		defer rm.wg.Done()
+	rm.wg.Go(func() {
 		for result := range resultCh {
 			if result.Err != nil {
 				errorIf(result.Err.Trace(targetURL), "Failed to remove in `%s`.", targetURL)
 			}
 		}
-	}()
+	})
 }
 
 // This function should be parallel-safe because it is executed by ParallelManager

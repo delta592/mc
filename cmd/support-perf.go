@@ -176,7 +176,7 @@ type ObjGETPerfResults struct {
 // ObjGETStats - GET stats of all the servers
 type ObjGETStats struct {
 	ObjPUTStats
-	TTFB madmin.Timings `json:"ttfb,omitempty"`
+	TTFB madmin.Timings `json:"ttfb"`
 }
 
 // NetStats - Network performance stats

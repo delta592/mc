@@ -57,7 +57,7 @@ type ilmExportMessage struct {
 	Status    string                   `json:"status"`
 	Target    string                   `json:"target"`
 	Config    *lifecycle.Configuration `json:"config"`
-	UpdatedAt time.Time                `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time                `json:"updatedAt"`
 }
 
 func (i ilmExportMessage) String() string {
