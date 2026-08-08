@@ -31,6 +31,7 @@ import (
 	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -110,11 +111,11 @@ func promptTrustSelfSignedCert(ctx context.Context, endpoint, alias string) (*x5
 		return nil, probe.NewError(te)
 	}
 
-	// Now, we fetch the peer certificate, compute the SHA-256 of
-	// public key and let the user confirm the fingerprint.
+	// Extract the peer certificate from the TLS verification error, compute
+	// the SHA-256 of public key and let the user confirm the fingerprint.
 	// If the user confirms, we store the peer certificate in the CAs
 	// directory and retry.
-	peerCert, e := fetchPeerCertificate(ctx, endpoint)
+	peerCert, e := peerCertificateFromError(te)
 	if e != nil {
 		return nil, probe.NewError(e)
 	}
@@ -158,26 +159,24 @@ func promptTrustSelfSignedCert(ctx context.Context, endpoint, alias string) (*x5
 	return peerCert, nil
 }
 
-// fetchPeerCertificate uses the given transport to fetch the peer
-// certificate from the given endpoint.
-func fetchPeerCertificate(ctx context.Context, endpoint string) (*x509.Certificate, error) {
-	req, e := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
-	if e != nil {
-		return nil, e
+// peerCertificateFromError extracts the peer certificate from a TLS
+// handshake verification error returned by the standard library.
+func peerCertificateFromError(err error) (*x509.Certificate, error) {
+	var certErr *tls.CertificateVerificationError
+	if errors.As(err, &certErr) {
+		if len(certErr.UnverifiedCertificates) > 0 {
+			return certErr.UnverifiedCertificates[0], nil
+		}
+		var authErr x509.UnknownAuthorityError
+		if errors.As(certErr.Err, &authErr) && authErr.Cert != nil {
+			return authErr.Cert, nil
+		}
 	}
-	client := http.Client{
-		Transport: &http.Transport{
-			DialTLSContext: newCustomDialTLSContext(&tls.Config{
-				InsecureSkipVerify: true,
-			}),
-		},
+
+	var authErr x509.UnknownAuthorityError
+	if errors.As(err, &authErr) && authErr.Cert != nil {
+		return authErr.Cert, nil
 	}
-	resp, e := client.Do(req)
-	if e != nil {
-		return nil, e
-	}
-	if resp.TLS == nil || len(resp.TLS.PeerCertificates) == 0 {
-		return nil, fmt.Errorf("Unable to read remote TLS certificate")
-	}
-	return resp.TLS.PeerCertificates[0], nil
+
+	return nil, fmt.Errorf("Unable to read remote TLS certificate: %w", err)
 }
