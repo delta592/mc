@@ -56,8 +56,8 @@ import (
 	"github.com/minio/minio-go/v7/pkg/tags"
 	"github.com/minio/pkg/v3/mimedb"
 
-	"github.com/minio/mc/pkg/deadlineconn"
-	"github.com/minio/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/deadlineconn"
+	"github.com/delta592/mc/pkg/probe"
 )
 
 // S3Client construct

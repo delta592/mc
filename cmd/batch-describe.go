@@ -21,8 +21,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 )
 
 var batchDescribeCmd = cli.Command{

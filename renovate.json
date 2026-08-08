@@ -128,9 +128,9 @@
             "groupName": "Go Docker images"
         },
         {
-            "description": "Ignore self-reference in upstream-style Dockerfile build",
+            "description": "Ignore self-reference in Dockerfile go install",
             "matchPackageNames": [
-                "github.com/minio/mc"
+                "github.com/delta592/mc"
             ],
             "enabled": false
         },

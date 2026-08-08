@@ -31,11 +31,11 @@ import (
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/klauspost/compress/zstd"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
@@ -435,9 +435,9 @@ func (m *topRPCUI) View() tea.View {
 	}
 	s.WriteString(pre)
 	if truncate {
-		s.WriteString(fmt.Sprintf("SHOWING %s Host %d to %d of %d%s. ↑ and ↓ available. <tab>=TO/FROM r=RECON q=Q p=PING.", dir, 1+m.offset, m.offset+hostsShown, len(allhosts), sortBy))
+		fmt.Fprintf(&s, "SHOWING %s Host %d to %d of %d%s. ↑ and ↓ available. <tab>=TO/FROM r=RECON q=Q p=PING.", dir, 1+m.offset, m.offset+hostsShown, len(allhosts), sortBy)
 	} else {
-		s.WriteString(fmt.Sprintf("SHOWING traffic %s hosts%s. <tab>=TO/FROM r=RECON q=Q p=PING.", dir, sortBy))
+		fmt.Fprintf(&s, "SHOWING traffic %s hosts%s. <tab>=TO/FROM r=RECON q=Q p=PING.", dir, sortBy)
 	}
 	return tea.NewView(s.String())
 }

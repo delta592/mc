@@ -24,9 +24,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/rs/xid"
 )
@@ -208,11 +208,6 @@ func strPtr(s string) *string {
 func intPtr(i int) *int {
 	ptr := i
 	return &ptr
-}
-
-//go:fix inline
-func int64Ptr(i int64) *int64 {
-	return new(i)
 }
 
 func boolPtr(b bool) *bool {

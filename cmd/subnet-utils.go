@@ -33,10 +33,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/google/uuid"
 	"github.com/minio/cli"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/licverifier"
 	"github.com/minio/pkg/v3/subnet"
 	"github.com/tidwall/gjson"
@@ -109,7 +109,7 @@ func checkURLReachable(url string) *probe.Error {
 
 func subnetURLWithAuth(reqURL, apiKey string) (string, map[string]string, error) {
 	if len(apiKey) == 0 {
-		// API key not available in minio/mc config.
+		// API key not available in delta592/mc config.
 		// Ask the user to log in to get auth token
 		token, e := subnetLogin()
 		if e != nil {

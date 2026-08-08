@@ -38,10 +38,10 @@ import (
 	"github.com/pkg/xattr"
 	"github.com/rjeczalik/notify"
 
+	"github.com/delta592/mc/pkg/disk"
+	"github.com/delta592/mc/pkg/hookreader"
+	"github.com/delta592/mc/pkg/probe"
 	xfilepath "github.com/minio/filepath"
-	"github.com/minio/mc/pkg/disk"
-	"github.com/minio/mc/pkg/hookreader"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/cors"
 	"github.com/minio/minio-go/v7/pkg/encrypt"

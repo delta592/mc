@@ -94,8 +94,8 @@ func (m *traceStatsUI) View() tea.View {
 	var s strings.Builder
 
 	dur := m.current.Latest.Sub(m.current.Oldest)
-	s.WriteString(fmt.Sprintf("%s %s\n",
-		console.Colorize("metrics-top-title", "Duration: "+dur.Round(time.Second).String()), m.meter.View()))
+	fmt.Fprintf(&s, "%s %s\n",
+		console.Colorize("metrics-top-title", "Duration: "+dur.Round(time.Second).String()), m.meter.View())
 
 	table := newPlainTable(&s, plainTableConfig{
 		align:            tw.AlignLeft,

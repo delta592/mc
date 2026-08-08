@@ -38,8 +38,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/delta592/mc/pkg/disk"
 	"github.com/google/uuid"
-	"github.com/minio/mc/pkg/disk"
 )
 
 // RUN: go test -v ./... -run Test_FullSuite

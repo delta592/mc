@@ -1,4 +1,6 @@
-module github.com/minio/mc
+// Module github.com/delta592/mc is the community fork of archived upstream
+// github.com/minio/mc. Do not add github.com/minio/mc as a dependency.
+module github.com/delta592/mc
 
 go 1.26.5
 

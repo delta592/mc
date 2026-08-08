@@ -33,13 +33,13 @@ import (
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zstd"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
 )
@@ -170,13 +170,10 @@ func (b bucketScanMsg) String() string {
 
 	if fullScan {
 		took := latestESScan.Sub(earliestESScan)
-		sb.WriteString(
-			fmt.Sprintf(
-				"%s %s (took %s)\n",
-				console.Colorize("FullScan", "Full bucket scan: "),
-				humanize.RelTime(now, latestESScan, "", "ago"),
-				fmt.Sprintf("%dd%dh%dm", int(took.Hours()/24), int(took.Hours())%24, int(took.Minutes())%60)),
-		)
+		fmt.Fprintf(&sb, "%s %s (took %s)\n",
+			console.Colorize("FullScan", "Full bucket scan: "),
+			humanize.RelTime(now, latestESScan, "", "ago"),
+			fmt.Sprintf("%dd%dh%dm", int(took.Hours()/24), int(took.Hours())%24, int(took.Minutes())%60))
 	}
 
 	sb.WriteString("\n")
@@ -373,7 +370,7 @@ func (m *scannerMetricsUI) View() tea.View {
 	var s strings.Builder
 
 	if !m.quitting {
-		s.WriteString(fmt.Sprintf("%s %s\n", console.Colorize("metrics-top-title", "Scanner Activity:"), m.spinner.View()))
+		fmt.Fprintf(&s, "%s %s\n", console.Colorize("metrics-top-title", "Scanner Activity:"), m.spinner.View())
 	}
 
 	table := newPlainTable(&s, plainTableConfig{

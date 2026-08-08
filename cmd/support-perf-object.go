@@ -23,10 +23,10 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 )
 
 var adminSpeedtestCmd = cli.Command{

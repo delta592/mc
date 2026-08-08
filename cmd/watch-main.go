@@ -23,11 +23,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/notification"
 	"github.com/minio/pkg/v3/console"
 )
@@ -173,7 +173,6 @@ func mainWatch(cliCtx *cli.Context) error {
 
 	// Start routine to watching on events.
 	wg.Go(func() {
-
 		// Wait for all events.
 		for {
 			select {

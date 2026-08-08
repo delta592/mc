@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -84,7 +84,7 @@ type versionEnableMessage struct {
 		Status           string   `json:"status"`
 		MFADelete        string   `json:"MFADelete"`
 		ExcludedPrefixes []string `json:"ExcludedPrefixes,omitempty"`
-		ExcludeFolders   bool     `json:"ExcludeFolders,,omitempty"`
+		ExcludeFolders   bool     `json:"ExcludeFolders,omitempty"`
 	} `json:"versioning"`
 }
 

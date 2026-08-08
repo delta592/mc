@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/minio/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/quick"
 )
 

@@ -37,8 +37,8 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7"
 
+	"github.com/delta592/mc/pkg/probe"
 	jwtgo "github.com/golang-jwt/jwt/v5"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 

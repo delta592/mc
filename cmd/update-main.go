@@ -36,11 +36,11 @@ import (
 
 	_ "crypto/sha256" // needed for selfupdate hashers
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/env"
 	"github.com/minio/selfupdate"
 )
@@ -194,7 +194,7 @@ func IsSourceBuild() bool {
 //	mc (<OS>; <ARCH>[; dcos][; kubernetes][; docker][; source]) mc/<VERSION> mc/<RELEASE-TAG> mc/<COMMIT-ID>
 //
 // Any change here should be discussed by opening an issue at
-// https://github.com/minio/mc/issues.
+// https://github.com/delta592/mc/issues.
 func getUserAgent() string {
 	userAgentParts := []string{}
 	// Helper function to concisely append a pair of strings to a
@@ -316,7 +316,7 @@ func getDownloadURL(customReleaseURL, releaseTag string) (downloadURL string) {
 	// Check if we are docker environment, return docker update command
 	if IsDocker() {
 		// Construct release tag name.
-		return fmt.Sprintf("docker pull minio/mc:%s", releaseTag)
+		return fmt.Sprintf("docker pull delta592/mc:%s", releaseTag)
 	}
 
 	if customReleaseURL == "" {

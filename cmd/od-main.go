@@ -25,9 +25,9 @@ import (
 
 	json "github.com/minio/colorjson"
 
+	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 )
 
 // make a bucket.

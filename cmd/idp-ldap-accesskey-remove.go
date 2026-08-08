@@ -18,8 +18,8 @@
 package cmd
 
 import (
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 )
 
 var idpLdapAccesskeyRemoveCmd = cli.Command{

@@ -39,8 +39,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/mc/pkg/probe"
 )
 
 func marshalPublicKey(pub any) (publicKeyBytes []byte, e error) {

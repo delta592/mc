@@ -27,11 +27,11 @@ import (
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -113,7 +113,7 @@ func (m *serviceRestartUI) View() tea.View {
 		return tea.NewView(s.String())
 	}
 
-	s.WriteString(fmt.Sprintf("Service status: %s ", m.meter.View()))
+	fmt.Fprintf(&s, "Service status: %s ", m.meter.View())
 
 	msg := msgI.(serviceRestartMessage)
 	state := msg.State

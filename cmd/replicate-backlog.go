@@ -34,10 +34,10 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/compat"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -482,7 +482,7 @@ func (m *replicateBacklogUI) helpView() string {
 func (m *replicateBacklogUI) View() tea.View {
 	var sb strings.Builder
 	if !m.quitting {
-		sb.WriteString(fmt.Sprintf("%s\n", m.spinner.View()))
+		fmt.Fprintf(&sb, "%s\n", m.spinner.View())
 	}
 
 	if m.count > 0 {

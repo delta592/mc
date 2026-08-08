@@ -42,7 +42,6 @@ func TestBuffConnReadTimeout(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Go(func() {
-
 		tcpConn, terr := tcpListener.AcceptTCP()
 		if terr != nil {
 			t.Errorf("failed to accept new connection. %v", terr)

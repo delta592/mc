@@ -22,10 +22,10 @@ import (
 	"os"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 )
 
 func mainAdminSpeedTestDrive(ctx *cli.Context, aliasedURL string, outCh chan<- PerfTestResult) error {

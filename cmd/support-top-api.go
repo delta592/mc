@@ -21,9 +21,9 @@ import (
 	"context"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 )
 
 var supportTopAPIFlags = []cli.Flag{
