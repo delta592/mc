@@ -50,14 +50,14 @@ func TestOptionFilter(t *testing.T) {
 		ObjectSizeLessThan: 100 * humanize.MiByte,
 	}
 	optsWithSzLt := LifecycleOptions{
-		ObjectSizeLessThan: int64Ptr(100 * humanize.MiByte),
+		ObjectSizeLessThan: new(int64(100 * humanize.MiByte)),
 	}
 
 	filterWithSzGt := lifecycle.Filter{
 		ObjectSizeGreaterThan: 1 * humanize.MiByte,
 	}
 	optsWithSzGt := LifecycleOptions{
-		ObjectSizeGreaterThan: int64Ptr(1 * humanize.MiByte),
+		ObjectSizeGreaterThan: new(int64(1 * humanize.MiByte)),
 	}
 
 	filterWithAnd := lifecycle.Filter{
@@ -76,8 +76,8 @@ func TestOptionFilter(t *testing.T) {
 	optsWithAnd := LifecycleOptions{
 		Prefix:                strPtr("doc/"),
 		Tags:                  strPtr("key1=value1"),
-		ObjectSizeLessThan:    int64Ptr(100 * humanize.MiByte),
-		ObjectSizeGreaterThan: int64Ptr(1 * humanize.MiByte),
+		ObjectSizeLessThan:    new(int64(100 * humanize.MiByte)),
+		ObjectSizeGreaterThan: new(int64(1 * humanize.MiByte)),
 	}
 
 	tests := []struct {
