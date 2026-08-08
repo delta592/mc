@@ -156,7 +156,7 @@ fabric.properties
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
 
 # Thumbnails
 ._*
@@ -241,6 +241,7 @@ $RECYCLE.BIN/
 
 ### Project ###
 # Local build output and release artifacts
+/.cache/
 /mc
 /mc.exe
 /build/
