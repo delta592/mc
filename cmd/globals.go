@@ -31,12 +31,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/colorprofile"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/muesli/termenv"
 	"golang.org/x/net/http/httpguts"
 )
 
@@ -144,7 +144,7 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 	// Disable colorified messages if requested.
 	if globalNoColor || globalQuiet {
 		console.SetColorOff()
-		lipgloss.SetColorProfile(termenv.Ascii)
+		lipgloss.Writer.Profile = colorprofile.ASCII
 	}
 
 	globalConnReadDeadline = ctx.Duration("conn-read-deadline")

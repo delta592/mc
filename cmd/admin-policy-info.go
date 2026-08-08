@@ -22,7 +22,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/minio/cli"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
@@ -70,21 +70,7 @@ func checkAdminPolicyInfoSyntax(ctx *cli.Context) {
 }
 
 func getPolicyInfo(client *madmin.AdminClient, policyName string) (*madmin.PolicyInfo, error) {
-	pinfo, e := client.InfoCannedPolicyV2(globalContext, policyName)
-	if e != nil {
-		return nil, e
-	}
-
-	if pinfo.PolicyName == "" {
-		// Likely server only supports the older version.
-		// nolint:staticcheck
-		pinfo.Policy, e = client.InfoCannedPolicy(globalContext, policyName)
-		if e != nil {
-			return nil, e
-		}
-		pinfo.PolicyName = policyName
-	}
-	return pinfo, nil
+	return client.InfoCannedPolicy(globalContext, policyName)
 }
 
 // mainAdminPolicyInfo is the handler for "mc admin policy info" command.

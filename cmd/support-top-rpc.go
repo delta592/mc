@@ -28,13 +28,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/klauspost/compress/zstd"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/olekukonko/tablewriter/tw"
 )
@@ -240,7 +240,7 @@ func (m *topRPCUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.sortBy = rpcSortQueue
 		case "p":
 			m.sortBy = rpcSortPing
-		case tea.KeySpace.String():
+		case " ":
 			if m.frozen == nil {
 				freeze := m.curr
 				m.frozen = &freeze
@@ -268,7 +268,7 @@ func (m *topRPCUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *topRPCUI) View() string {
+func (m *topRPCUI) View() tea.View {
 	var s strings.Builder
 	// Set table header
 	table := newPlainTable(&s, plainTableConfig{
@@ -286,11 +286,11 @@ func (m *topRPCUI) View() string {
 	if rpc == nil || len(rpc.ByDestination) == 0 {
 		renderPlainTable(table)
 		s.WriteString("\n(no rpc connections)\n")
-		return s.String()
+		return tea.NewView(s.String())
 	}
 	hosts := make([]string, 0, len(rpc.ByDestination))
-	intoHost := make(map[string]madmin.RPCMetrics, len(rpc.ByDestination))
-	fromHost := make(map[string]madmin.RPCMetrics, len(rpc.ByDestination))
+	intoHost := make(map[string]madmin.ConnectionStats, len(rpc.ByDestination))
+	fromHost := make(map[string]madmin.ConnectionStats, len(rpc.ByDestination))
 	for k, v := range rpc.ByDestination {
 		k = strings.TrimPrefix(k, "http://")
 		k = strings.TrimPrefix(k, "https://")
@@ -300,7 +300,7 @@ func (m *topRPCUI) View() string {
 	if len(byhost) > 0 {
 		for k, v := range byhost {
 			if v.RPC != nil {
-				fromHost[k] = *v.RPC
+				fromHost[k] = v.RPC.ConnectionStats
 			}
 		}
 	}
@@ -388,7 +388,7 @@ func (m *topRPCUI) View() string {
 					fmt.Sprintf("To %s", host),
 					fmt.Sprintf("%d", v.Connected),
 					fmt.Sprintf("%0.1fms", v.LastPingMS),
-					fmt.Sprintf("%ds ago", v.CollectedAt.Sub(v.LastPongTime)/time.Second),
+					fmt.Sprintf("%ds ago", rpc.CollectedAt.Sub(v.LastPongTime)/time.Second),
 					fmt.Sprintf("%d", v.OutQueue),
 					fmt.Sprintf("%d", v.ReconnectCount),
 					fmt.Sprintf("->%d", v.IncomingStreams),
@@ -408,7 +408,7 @@ func (m *topRPCUI) View() string {
 				fmt.Sprintf("From %s", host),
 				fmt.Sprintf("%d", v.Connected),
 				fmt.Sprintf("%0.1fms", v.LastPingMS),
-				fmt.Sprintf("%ds ago", v.CollectedAt.Sub(v.LastPongTime)/time.Second),
+				fmt.Sprintf("%ds ago", rpc.CollectedAt.Sub(v.LastPongTime)/time.Second),
 				fmt.Sprintf("%d", v.OutQueue),
 				fmt.Sprintf("%d", v.ReconnectCount),
 				fmt.Sprintf("->%d", v.IncomingStreams),
@@ -439,7 +439,7 @@ func (m *topRPCUI) View() string {
 	} else {
 		s.WriteString(fmt.Sprintf("SHOWING traffic %s hosts%s. <tab>=TO/FROM r=RECON q=Q p=PING.", dir, sortBy))
 	}
-	return s.String()
+	return tea.NewView(s.String())
 }
 
 func initTopRPCUI() *topRPCUI {

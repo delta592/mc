@@ -30,15 +30,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zstd"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
@@ -369,7 +369,7 @@ func (m *scannerMetricsUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *scannerMetricsUI) View() string {
+func (m *scannerMetricsUI) View() tea.View {
 	var s strings.Builder
 
 	if !m.quitting {
@@ -396,41 +396,44 @@ func (m *scannerMetricsUI) View() string {
 	sc := m.current.Aggregated.Scanner
 	if sc == nil {
 		s.WriteString("(waiting for data)")
-		return s.String()
+		return tea.NewView(s.String())
 	}
 
 	title := metricsTitle
 	ui := metricsUint64
 	addRow("")
 
-	if sc.CurrentCycle == 0 && sc.CurrentStarted.IsZero() && sc.CyclesCompletedAt == nil {
+	cyclesCompletedAt := scannerCyclesCompletedAt(sc)
+	currentCycle, currentStarted := scannerCurrentCycle(sc)
+
+	if currentCycle == 0 && currentStarted.IsZero() && len(cyclesCompletedAt) == 0 {
 		addRowF("     "+title("Scanning:")+" %d bucket(s)", sc.OngoingBuckets)
 	} else {
 		const wantCycles = 16
-		if len(sc.CyclesCompletedAt) < 2 {
+		if len(cyclesCompletedAt) < 2 {
 			addRow("Last full scan time:             Unknown (not enough data)")
 		} else {
 			addRow("Overall Statistics")
 			addRow("------------------")
-			sort.Slice(sc.CyclesCompletedAt, func(i, j int) bool {
-				return sc.CyclesCompletedAt[i].After(sc.CyclesCompletedAt[j])
+			sort.Slice(cyclesCompletedAt, func(i, j int) bool {
+				return cyclesCompletedAt[i].After(cyclesCompletedAt[j])
 			})
-			if len(sc.CyclesCompletedAt) >= wantCycles {
-				sinceLast := sc.CyclesCompletedAt[0].Sub(sc.CyclesCompletedAt[wantCycles-1])
+			if len(cyclesCompletedAt) >= wantCycles {
+				sinceLast := cyclesCompletedAt[0].Sub(cyclesCompletedAt[wantCycles-1])
 				perMonth := float64(30*24*time.Hour) / float64(sinceLast)
 				cycleTime := console.Colorize("metrics-number", fmt.Sprintf("%dd%dh%dm", int(sinceLast.Hours()/24), int(sinceLast.Hours())%24, int(sinceLast.Minutes())%60))
 				perms := console.Colorize("metrics-number", fmt.Sprintf("%.02f", perMonth))
 				addRowF(title("Last full scan time:")+"   %s; Estimated %s/month", cycleTime, perms)
 			} else {
-				sinceLast := sc.CyclesCompletedAt[0].Sub(sc.CyclesCompletedAt[1]) * time.Duration(wantCycles)
+				sinceLast := cyclesCompletedAt[0].Sub(cyclesCompletedAt[1]) * time.Duration(wantCycles)
 				perMonth := float64(30*24*time.Hour) / float64(sinceLast)
 				cycleTime := console.Colorize("metrics-number", fmt.Sprintf("%dd%dh%dm", int(sinceLast.Hours()/24), int(sinceLast.Hours())%24, int(sinceLast.Minutes())%60))
 				perms := console.Colorize("metrics-number", fmt.Sprintf("%.02f", perMonth))
 				addRowF(title("Est. full scan time:")+"   %s; Estimated %s/month", cycleTime, perms)
 			}
 		}
-		if sc.CurrentCycle > 0 {
-			addRowF(title("Current cycle:")+"         %s; Started: %v", ui(sc.CurrentCycle), console.Colorize("metrics-date", sc.CurrentStarted))
+		if currentCycle > 0 {
+			addRowF(title("Current cycle:")+"         %s; Started: %v", ui(currentCycle), console.Colorize("metrics-date", currentStarted))
 		} else {
 			addRowF("%s", title("Current cycle:")+"         (between cycles)")
 		}
@@ -534,7 +537,29 @@ func (m *scannerMetricsUI) View() string {
 		}
 	}
 	renderPlainTable(table)
-	return s.String()
+	return tea.NewView(s.String())
+}
+
+func scannerCyclesCompletedAt(sc *madmin.ScannerMetrics) []time.Time {
+	var cycles []time.Time
+	for _, stats := range sc.PerBucketStats {
+		for _, st := range stats {
+			cycles = append(cycles, st.Completed...)
+		}
+	}
+	return cycles
+}
+
+func scannerCurrentCycle(sc *madmin.ScannerMetrics) (cycle uint64, started time.Time) {
+	for _, stats := range sc.PerBucketStats {
+		for _, st := range stats {
+			if st.Ongoing && st.Cycle >= cycle {
+				cycle = st.Cycle
+				started = st.LastStarted
+			}
+		}
+	}
+	return cycle, started
 }
 
 func metricsDuration(d time.Duration) string {

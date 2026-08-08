@@ -24,13 +24,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
@@ -104,13 +104,13 @@ func (m *serviceRestartUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *serviceRestartUI) View() string {
+func (m *serviceRestartUI) View() tea.View {
 	var s strings.Builder
 
 	msgI := m.current.Load()
 	if msgI == nil {
 		s.WriteString("(waiting for data)")
-		return s.String()
+		return tea.NewView(s.String())
 	}
 
 	s.WriteString(fmt.Sprintf("Service status: %s ", m.meter.View()))
@@ -168,7 +168,7 @@ func (m *serviceRestartUI) View() string {
 		fatalIf(probe.NewError(m.tbl.PopulateTable(&s, cellText)), "unable to populate the table")
 	}
 
-	return s.String()
+	return tea.NewView(s.String())
 }
 
 func initServiceRestartUI(rowCount int, currentCh chan serviceRestartMessage) *serviceRestartUI {

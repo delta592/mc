@@ -94,7 +94,7 @@ func mainAdminServiceUnfreeze(ctx *cli.Context) error {
 	defer cancel()
 
 	// Unfreeze the specified MinIO server
-	e := client.ServiceUnfreezeV2(ctxt)
+	e := client.ServiceUnfreeze(ctxt)
 	if e != nil {
 		// Attempt an older API server might be old
 		// nolint:staticcheck

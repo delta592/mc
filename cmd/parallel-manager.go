@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v4/mem"
 )
 
 const (

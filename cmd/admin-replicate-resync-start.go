@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 
 	"github.com/fatih/color"
 	"github.com/minio/cli"

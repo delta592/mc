@@ -25,12 +25,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/muesli/reflow/truncate"
 	"github.com/olekukonko/tablewriter/tw"
@@ -90,7 +90,7 @@ func (m *traceStatsUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *traceStatsUI) View() string {
+func (m *traceStatsUI) View() tea.View {
 	var s strings.Builder
 
 	dur := m.current.Latest.Sub(m.current.Oldest)
@@ -119,7 +119,7 @@ func (m *traceStatsUI) View() string {
 	m.current.mu.Unlock()
 	if len(entries) == 0 {
 		s.WriteString("(waiting for data)")
-		return s.String()
+		return tea.NewView(s.String())
 	}
 	sort.Slice(entries, func(i, j int) bool {
 		if entries[i].Count == entries[j].Count {
@@ -280,7 +280,7 @@ func (m *traceStatsUI) View() string {
 
 	renderPlainTable(table)
 	if globalTermWidth <= 10 {
-		return s.String()
+		return tea.NewView(s.String())
 	}
 	w := globalTermWidth
 	if nw, _, e := term.GetSize(int(os.Stdout.Fd())); e == nil {
@@ -290,7 +290,7 @@ func (m *traceStatsUI) View() string {
 	for i, line := range split {
 		split[i] = truncate.StringWithTail(line, uint(w), "»")
 	}
-	return strings.Join(split, "\n")
+	return tea.NewView(strings.Join(split, "\n"))
 }
 
 // ibytesShort returns a short un-padded version of the value from humanize.IBytes.

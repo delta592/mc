@@ -24,11 +24,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
 	"github.com/prometheus/procfs"
 )
@@ -92,7 +92,7 @@ func (m *topNetUI) calculationRate(prev, curr uint64, dur time.Duration) uint64 
 	return uint64(float64(curr-prev) / dur.Seconds())
 }
 
-func (m *topNetUI) View() string {
+func (m *topNetUI) View() tea.View {
 	var s strings.Builder
 	// Set table header
 	table := newPlainTable(&s, plainTableConfig{
@@ -151,7 +151,7 @@ func (m *topNetUI) View() string {
 
 	_ = table.Bulk(dataRender)
 	renderPlainTable(table)
-	return s.String()
+	return tea.NewView(s.String())
 }
 
 func initTopNetUI() *topNetUI {

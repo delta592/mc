@@ -25,17 +25,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/table"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/table"
 	"github.com/fatih/color"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/compat"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
@@ -447,14 +448,14 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
-var descStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
-	Light: "#B2B2B2",
-	Dark:  "#4A4A4A",
+var descStyle = lipgloss.NewStyle().Foreground(compat.AdaptiveColor{
+	Light: lipgloss.Color("#B2B2B2"),
+	Dark:  lipgloss.Color("#4A4A4A"),
 })
 
 var (
-	subtle  = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
-	special = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+	subtle  = compat.AdaptiveColor{Light: lipgloss.Color("#D9DCCF"), Dark: lipgloss.Color("#383838")}
+	special = compat.AdaptiveColor{Light: lipgloss.Color("#43BF6D"), Dark: lipgloss.Color("#73F59F")}
 
 	divider = lipgloss.NewStyle().
 		SetString("•").
@@ -478,7 +479,7 @@ func (m *replicateBacklogUI) helpView() string {
 	})
 }
 
-func (m *replicateBacklogUI) View() string {
+func (m *replicateBacklogUI) View() tea.View {
 	var sb strings.Builder
 	if !m.quitting {
 		sb.WriteString(fmt.Sprintf("%s\n", m.spinner.View()))
@@ -498,7 +499,7 @@ func (m *replicateBacklogUI) View() string {
 	}
 	sb.WriteString(m.helpView())
 
-	return sb.String()
+	return tea.NewView(sb.String())
 }
 
 func mainReplicateBacklog(cliCtx *cli.Context) error {

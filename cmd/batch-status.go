@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/madmin-go/v3"
+	"github.com/minio/madmin-go/v4"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
@@ -214,7 +214,7 @@ func (m *batchJobMetricsUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m *batchJobMetricsUI) View() string {
+func (m *batchJobMetricsUI) View() tea.View {
 	var s strings.Builder
 
 	// Set table header
@@ -297,5 +297,5 @@ func (m *batchJobMetricsUI) View() string {
 	if m.quitting {
 		s.WriteString("\n")
 	}
-	return s.String()
+	return tea.NewView(s.String())
 }
