@@ -210,8 +210,9 @@ func intPtr(i int) *int {
 	return &ptr
 }
 
+//go:fix inline
 func int64Ptr(i int64) *int64 {
-	return &i
+	return new(i)
 }
 
 func boolPtr(b bool) *bool {
@@ -281,7 +282,7 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 			return LifecycleOptions{}, probe.NewError(fmt.Errorf("size-lt value %s is invalid", szStr))
 		}
 
-		sizeLt = int64Ptr(int64(szLt))
+		sizeLt = new(int64(szLt))
 	}
 	if ctx.IsSet("size-gt") {
 		szStr := ctx.String("size-gt")
@@ -289,7 +290,7 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 		if err != nil || szGt > math.MaxInt64 {
 			return LifecycleOptions{}, probe.NewError(fmt.Errorf("size-gt value %s is invalid", szStr))
 		}
-		sizeGt = int64Ptr(int64(szGt))
+		sizeGt = new(int64(szGt))
 	}
 
 	// For backward-compatibility
