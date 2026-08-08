@@ -21,17 +21,87 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/minio/cli"
-	"github.com/posener/complete"
+	"github.com/posener/complete/v2"
+	"github.com/posener/complete/v2/predict"
 )
+
+// completionArgs holds parsed command-line context for bash completion.
+type completionArgs struct {
+	Completed     []string
+	Last          string
+	LastCompleted string
+}
+
+func completionArgsFromEnv(prefix string) completionArgs {
+	line := os.Getenv("COMP_LINE")
+	pointStr := os.Getenv("COMP_POINT")
+	if line == "" {
+		return completionArgs{Last: prefix}
+	}
+	point, err := strconv.Atoi(pointStr)
+	if err != nil {
+		point = len(line)
+	}
+	if point > len(line) {
+		point = len(line)
+	}
+
+	parts := splitCompletionFields(line[:point])
+	var all, completed []string
+	if len(parts) > 0 {
+		all = parts[1:]
+		completed = removeLastCompletionField(all)
+	}
+	last := lastCompletionField(parts)
+	if prefix != "" {
+		last = prefix
+	}
+	return completionArgs{
+		Completed:     completed,
+		Last:          last,
+		LastCompleted: lastCompletionField(completed),
+	}
+}
+
+func splitCompletionFields(line string) []string {
+	parts := strings.Fields(line)
+	if len(line) > 0 && line[len(line)-1] == ' ' {
+		parts = append(parts, "")
+	}
+	if len(parts) == 0 {
+		return parts
+	}
+	last := parts[len(parts)-1]
+	if before, after, ok := strings.Cut(last, "="); ok {
+		parts = append(parts[:len(parts)-1], before, after)
+	}
+	return parts
+}
+
+func removeLastCompletionField(fields []string) []string {
+	if len(fields) > 0 {
+		return fields[:len(fields)-1]
+	}
+	return fields
+}
+
+func lastCompletionField(fields []string) string {
+	if len(fields) == 0 {
+		return ""
+	}
+	return fields[len(fields)-1]
+}
 
 // fsComplete knows how to complete file/dir names by the given path
 type fsComplete struct{}
 
 // predictPathWithTilde completes an FS path which starts with a `~/`
-func (fs fsComplete) predictPathWithTilde(a complete.Args) []string {
+func (fs fsComplete) predictPathWithTilde(prefix string) []string {
+	a := completionArgsFromEnv(prefix)
 	homeDir, e := os.UserHomeDir()
 	if e != nil || homeDir == "" {
 		return nil
@@ -41,7 +111,7 @@ func (fs fsComplete) predictPathWithTilde(a complete.Args) []string {
 
 	// Replace the first occurrence of ~ with the real path and complete
 	a.Last = strings.Replace(a.Last, "~", homeDir, 1)
-	predictions := complete.PredictFiles("*").Predict(a)
+	predictions := predict.Files("*").Predict(a.Last)
 
 	// Restore ~ to avoid disturbing the completion user experience
 	for i := range predictions {
@@ -51,11 +121,11 @@ func (fs fsComplete) predictPathWithTilde(a complete.Args) []string {
 	return predictions
 }
 
-func (fs fsComplete) Predict(a complete.Args) []string {
-	if strings.HasPrefix(a.Last, "~/") {
-		return fs.predictPathWithTilde(a)
+func (fs fsComplete) Predict(prefix string) []string {
+	if strings.HasPrefix(prefix, "~/") {
+		return fs.predictPathWithTilde(prefix)
 	}
-	return complete.PredictFiles("*").Predict(a)
+	return predict.Files("*").Predict(prefix)
 }
 
 func completeAdminConfigKeys(aliasPath, keyPrefix string) (prediction []string) {
@@ -118,7 +188,8 @@ func completeS3Path(s3Path string) (prediction []string) {
 
 type adminConfigComplete struct{}
 
-func (adm adminConfigComplete) Predict(a complete.Args) (prediction []string) {
+func (adm adminConfigComplete) Predict(prefix string) (prediction []string) {
+	a := completionArgsFromEnv(prefix)
 	defer func() {
 		sort.Strings(prediction)
 	}()
@@ -129,14 +200,25 @@ func (adm adminConfigComplete) Predict(a complete.Args) (prediction []string) {
 		return
 	}
 
-	// We have already predicted the keys, we are done.
-	if len(a.Completed) == 3 {
+	posCompleted := a.Completed
+	if len(posCompleted) >= 3 && posCompleted[0] == "admin" && posCompleted[1] == "config" {
+		posCompleted = posCompleted[3:]
+	}
+
+	// Positional args are alias and optional config key prefix.
+	if len(posCompleted) >= 2 {
 		return
 	}
 
 	arg := a.Last
 	lastArg := a.LastCompleted
-	if _, ok := conf.Aliases[filepath.Clean(a.LastCompleted)]; !ok {
+	if len(posCompleted) == 1 {
+		lastArg = posCompleted[0]
+	} else if len(posCompleted) == 0 {
+		lastArg = ""
+	}
+
+	if _, ok := conf.Aliases[filepath.Clean(lastArg)]; !ok {
 		if strings.IndexByte(arg, '/') == -1 {
 			// Only predict alias since '/' is not found
 			for alias := range conf.Aliases {
@@ -158,7 +240,8 @@ type s3Complete struct {
 	deepLevel int
 }
 
-func (s3 s3Complete) Predict(a complete.Args) (prediction []string) {
+func (s3 s3Complete) Predict(prefix string) (prediction []string) {
+	a := completionArgsFromEnv(prefix)
 	defer func() {
 		sort.Strings(prediction)
 	}()
@@ -198,7 +281,8 @@ func (s3 s3Complete) Predict(a complete.Args) (prediction []string) {
 // aliasComplete only completes aliases
 type aliasComplete struct{}
 
-func (al aliasComplete) Predict(a complete.Args) (prediction []string) {
+func (al aliasComplete) Predict(prefix string) (prediction []string) {
+	a := completionArgsFromEnv(prefix)
 	defer func() {
 		sort.Strings(prediction)
 	}()
@@ -230,22 +314,22 @@ var (
 // with their bash completer function
 var completeCmds = map[string]complete.Predictor{
 	// S3 API level commands
-	"/ls":        complete.PredictOr(s3Completer, fsCompleter),
-	"/cp":        complete.PredictOr(s3Completer, fsCompleter),
-	"/mv":        complete.PredictOr(s3Completer, fsCompleter),
-	"/rm":        complete.PredictOr(s3Completer, fsCompleter),
-	"/rb":        complete.PredictOr(s3Complete{deepLevel: 2}, fsCompleter),
-	"/cat":       complete.PredictOr(s3Completer, fsCompleter),
-	"/head":      complete.PredictOr(s3Completer, fsCompleter),
-	"/diff":      complete.PredictOr(s3Completer, fsCompleter),
-	"/find":      complete.PredictOr(s3Completer, fsCompleter),
-	"/mirror":    complete.PredictOr(s3Completer, fsCompleter),
-	"/pipe":      complete.PredictOr(s3Completer, fsCompleter),
-	"/stat":      complete.PredictOr(s3Completer, fsCompleter),
-	"/watch":     complete.PredictOr(s3Completer, fsCompleter),
-	"/anonymous": complete.PredictOr(s3Completer, fsCompleter),
-	"/tree":      complete.PredictOr(s3Complete{deepLevel: 2}, fsCompleter),
-	"/du":        complete.PredictOr(s3Complete{deepLevel: 2}, fsCompleter),
+	"/ls":        predict.Or(s3Completer, fsCompleter),
+	"/cp":        predict.Or(s3Completer, fsCompleter),
+	"/mv":        predict.Or(s3Completer, fsCompleter),
+	"/rm":        predict.Or(s3Completer, fsCompleter),
+	"/rb":        predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
+	"/cat":       predict.Or(s3Completer, fsCompleter),
+	"/head":      predict.Or(s3Completer, fsCompleter),
+	"/diff":      predict.Or(s3Completer, fsCompleter),
+	"/find":      predict.Or(s3Completer, fsCompleter),
+	"/mirror":    predict.Or(s3Completer, fsCompleter),
+	"/pipe":      predict.Or(s3Completer, fsCompleter),
+	"/stat":      predict.Or(s3Completer, fsCompleter),
+	"/watch":     predict.Or(s3Completer, fsCompleter),
+	"/anonymous": predict.Or(s3Completer, fsCompleter),
+	"/tree":      predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
+	"/du":        predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
 
 	"/retention/set":   s3Completer,
 	"/retention/clear": s3Completer,
@@ -534,28 +618,22 @@ var completeCmds = map[string]complete.Predictor{
 	"/quota/set":   aliasCompleter,
 	"/quota/info":  aliasCompleter,
 	"/quota/clear": aliasCompleter,
-	"/put":         complete.PredictOr(s3Completer, fsCompleter),
-	"/get":         complete.PredictOr(s3Completer, fsCompleter),
+	"/put":         predict.Or(s3Completer, fsCompleter),
+	"/get":         predict.Or(s3Completer, fsCompleter),
 
 	"/cors/set":    s3Complete{deepLevel: 2},
 	"/cors/get":    s3Complete{deepLevel: 2},
 	"/cors/remove": s3Complete{deepLevel: 2},
 }
 
-// flagsToCompleteFlags transforms a cli.Flag to complete.Flags
+// flagsToCompleteFlags transforms a cli.Flag to flag predictors
 // understood by posener/complete library.
-func flagsToCompleteFlags(flags []cli.Flag) complete.Flags {
-	complFlags := make(complete.Flags)
+func flagsToCompleteFlags(flags []cli.Flag) map[string]complete.Predictor {
+	complFlags := make(map[string]complete.Predictor)
 	for _, f := range flags {
 		for s := range strings.SplitSeq(f.GetName(), ",") {
-			var flagName string
 			s = strings.TrimSpace(s)
-			if len(s) == 1 {
-				flagName = "-" + s
-			} else {
-				flagName = "--" + s
-			}
-			complFlags[flagName] = complete.PredictNothing
+			complFlags[s] = predict.Nothing
 		}
 	}
 	return complFlags
@@ -563,9 +641,10 @@ func flagsToCompleteFlags(flags []cli.Flag) complete.Flags {
 
 // This function recursively transforms cli.Command to complete.Command
 // understood by posener/complete library.
-func cmdToCompleteCmd(cmd cli.Command, parentPath string) complete.Command {
-	var complCmd complete.Command
-	complCmd.Sub = make(complete.Commands)
+func cmdToCompleteCmd(cmd cli.Command, parentPath string) *complete.Command {
+	complCmd := &complete.Command{
+		Sub: make(map[string]*complete.Command),
+	}
 
 	for _, subCmd := range cmd.Subcommands {
 		if subCmd.Hidden {
@@ -586,7 +665,7 @@ func cmdToCompleteCmd(cmd cli.Command, parentPath string) complete.Command {
 func mainComplete() error {
 	// Recursively register all commands and subcommands
 	// along with global and local flags
-	complCmds := make(complete.Commands)
+	complCmds := make(map[string]*complete.Command)
 	for _, cmd := range appCmds {
 		if cmd.Hidden {
 			continue
@@ -596,12 +675,11 @@ func mainComplete() error {
 			complCmds[alias] = cmdToCompleteCmd(cmd, "")
 		}
 	}
-	complFlags := flagsToCompleteFlags(globalFlags)
-	mcComplete := complete.Command{
-		Sub:         complCmds,
-		GlobalFlags: complFlags,
+	mcComplete := &complete.Command{
+		Sub:   complCmds,
+		Flags: flagsToCompleteFlags(globalFlags),
 	}
 	// Answer to bash completion call
-	complete.New(filepath.Base(os.Args[0]), mcComplete).Run()
+	mcComplete.Complete(filepath.Base(os.Args[0]))
 	return nil
 }
