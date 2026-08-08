@@ -2,5 +2,157 @@
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
         "github>delta592/renovate-config"
+    ],
+    "labels": [
+        "dependencies"
+    ],
+    "commitMessagePrefix": "chore(deps): ",
+    "ignorePaths": [
+        "testdata/**"
+    ],
+    "packageRules": [
+        {
+            "description": "Require dashboard approval for Go toolchain bumps (keep CI workflows in sync)",
+            "matchManagers": [
+                "gomod"
+            ],
+            "matchDepTypes": [
+                "toolchain"
+            ],
+            "dependencyDashboardApproval": true,
+            "labels": [
+                "go"
+            ]
+        },
+        {
+            "description": "Require dashboard approval for Go directive bumps",
+            "matchManagers": [
+                "gomod"
+            ],
+            "matchDepTypes": [
+                "golang"
+            ],
+            "dependencyDashboardApproval": true,
+            "labels": [
+                "go"
+            ]
+        },
+        {
+            "description": "Group MinIO ecosystem module updates",
+            "matchDatasources": [
+                "go"
+            ],
+            "matchPackageNames": [
+                "/^github\\.com\\/minio\\//"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "groupName": "MinIO modules (non-major)",
+            "labels": [
+                "go",
+                "minio"
+            ]
+        },
+        {
+            "description": "Group golang.org/x module updates",
+            "matchDatasources": [
+                "go"
+            ],
+            "matchPackageNames": [
+                "/^golang\\.org\\/x\\//"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "groupName": "golang.org/x modules (non-major)",
+            "labels": [
+                "go"
+            ]
+        },
+        {
+            "description": "Group Go toolchain tool dependencies",
+            "matchManagers": [
+                "gomod"
+            ],
+            "matchDepTypes": [
+                "tool"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "groupName": "Go tools (non-major)",
+            "labels": [
+                "go",
+                "tools"
+            ]
+        },
+        {
+            "description": "Group indirect Go module updates separately from direct deps",
+            "matchManagers": [
+                "gomod"
+            ],
+            "matchDepTypes": [
+                "indirect"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "groupName": "Go modules (indirect, non-major)",
+            "labels": [
+                "go"
+            ]
+        },
+        {
+            "description": "Group Red Hat UBI Docker image updates",
+            "matchDatasources": [
+                "docker"
+            ],
+            "matchPackageNames": [
+                "/^registry\\.access\\.redhat\\.com\\/ubi/"
+            ],
+            "groupName": "Red Hat UBI images"
+        },
+        {
+            "description": "Group official Go Docker image updates",
+            "matchDatasources": [
+                "docker"
+            ],
+            "matchPackageNames": [
+                "golang"
+            ],
+            "groupName": "Go Docker images"
+        },
+        {
+            "description": "Ignore self-reference in upstream-style Dockerfile build",
+            "matchPackageNames": [
+                "github.com/minio/mc"
+            ],
+            "enabled": false
+        },
+        {
+            "description": "Label MinIO major module updates for extra review",
+            "matchDatasources": [
+                "go"
+            ],
+            "matchPackageNames": [
+                "/^github\\.com\\/minio\\//"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "labels": [
+                "go",
+                "minio"
+            ]
+        }
+    ],
+    "prBodyNotes": [
+        "Run `make check` before merging.",
+        "For MinIO module updates, verify compatibility with minio-go and madmin-go APIs."
     ]
 }
