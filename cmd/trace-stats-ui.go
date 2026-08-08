@@ -33,7 +33,7 @@ import (
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/pkg/v3/console"
 	"github.com/muesli/reflow/truncate"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 	"golang.org/x/term"
 )
 
@@ -97,20 +97,11 @@ func (m *traceStatsUI) View() string {
 	s.WriteString(fmt.Sprintf("%s %s\n",
 		console.Colorize("metrics-top-title", "Duration: "+dur.Round(time.Second).String()), m.meter.View()))
 
-	// Set table header - akin to k8s style
-	// https://github.com/olekukonko/tablewriter#example-10---set-nowhitespace-and-tablepadding-option
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("  ") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		columnPadding:    "  ",
+		autoFormatHeader: true,
+	})
 	var entries []statItem
 
 	m.current.mu.Lock()
@@ -199,7 +190,7 @@ func (m *traceStatsUI) View() string {
 		console.Colorize("metrics-top-title", "Errors"),
 	)
 
-	table.Append(t)
+	_ = table.Append(t)
 
 	for i, v := range entries {
 		if v.Count <= 0 {
@@ -284,10 +275,10 @@ func (m *traceStatsUI) View() string {
 			}
 		}
 		t = append(t, sz, rate, errs)
-		table.Append(t)
+		_ = table.Append(t)
 	}
 
-	table.Render()
+	renderPlainTable(table)
 	if globalTermWidth <= 10 {
 		return s.String()
 	}

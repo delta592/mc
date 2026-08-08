@@ -33,7 +33,7 @@ import (
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var adminReplicateResyncStatusCmd = cli.Command{
@@ -191,19 +191,10 @@ func (m *resyncMetricsUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *resyncMetricsUI) View() string {
 	var s strings.Builder
 
-	// Set table header
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	var data [][]string
 	addLine := func(prefix string, value any) {
@@ -243,8 +234,8 @@ func (m *resyncMetricsUI) View() string {
 		addLine("Elapsed: ", accElapsedTime.String())
 		addLine("CurrObjName: ", fmt.Sprintf("%s/%s", m.current.Bucket, m.current.Object))
 	}
-	table.AppendBulk(data)
-	table.Render()
+	_ = table.Bulk(data)
+	renderPlainTable(table)
 
 	if m.quitting {
 		s.WriteString("\n")

@@ -41,7 +41,7 @@ import (
 	"github.com/minio/madmin-go/v3"
 	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var adminScannerInfoFlags = []cli.Flag{
@@ -376,30 +376,20 @@ func (m *scannerMetricsUI) View() string {
 		s.WriteString(fmt.Sprintf("%s %s\n", console.Colorize("metrics-top-title", "Scanner Activity:"), m.spinner.View()))
 	}
 
-	// Set table header - akin to k8s style
-	// https://github.com/olekukonko/tablewriter#example-10---set-nowhitespace-and-tablepadding-option
-	table := tablewriter.NewWriter(&s)
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table := newPlainTable(&s, plainTableConfig{
+		align:            tw.AlignLeft,
+		autoFormatHeader: true,
+	})
 
 	writtenRows := 0
 	addRow := func(s string) {
-		table.Append([]string{s})
+		_ = table.Append([]string{s})
 		writtenRows++
 	}
 	_ = addRow
 	addRowF := func(format string, vals ...any) {
 		s := fmt.Sprintf(format, vals...)
-		table.Append([]string{s})
+		_ = table.Append([]string{s})
 		writtenRows++
 	}
 
@@ -543,7 +533,7 @@ func (m *scannerMetricsUI) View() string {
 			addRow(console.Colorize("metrics-path", s))
 		}
 	}
-	table.Render()
+	renderPlainTable(table)
 	return s.String()
 }
 
