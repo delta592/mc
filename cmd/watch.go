@@ -124,12 +124,10 @@ func (w *Watcher) Join(ctx context.Context, client Client, recursive bool) *prob
 	w.o = append(w.o, wo)
 
 	// join monitoring waitgroup
-	w.wg.Add(1)
 
 	// wait for events and errors of individual client watchers
 	// and sent then to eventsChan and errorsChan
-	go func() {
-		defer w.wg.Done()
+	w.wg.Go(func() {
 
 		for {
 			select {
@@ -148,7 +146,7 @@ func (w *Watcher) Join(ctx context.Context, client Client, recursive bool) *prob
 				w.ErrorChan <- err
 			}
 		}
-	}()
+	})
 
 	return nil
 }

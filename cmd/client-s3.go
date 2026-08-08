@@ -2190,11 +2190,12 @@ func (c *S3Client) listIncompleteRecursiveInRoutine(ctx context.Context, content
 
 // Join bucket and object name, keep the leading slash for directory markers
 func (c *S3Client) joinPath(bucket string, objects ...string) string {
-	p := bucket
+	var p strings.Builder
+	p.WriteString(bucket)
 	for _, o := range objects {
-		p += string(c.targetURL.Separator) + o
+		p.WriteString(string(c.targetURL.Separator) + o)
 	}
-	return p
+	return p.String()
 }
 
 // Build new absolute URL path by joining path segments with URL path separator.

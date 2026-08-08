@@ -109,7 +109,7 @@ type watchMessage struct {
 		Host      string `json:"host,omitempty"`
 		Port      string `json:"port,omitempty"`
 		UserAgent string `json:"userAgent,omitempty"`
-	} `json:"source,omitempty"`
+	} `json:"source"`
 }
 
 func (u watchMessage) JSON() string {
@@ -170,11 +170,9 @@ func mainWatch(cliCtx *cli.Context) error {
 	var wg sync.WaitGroup
 
 	// Increment wait group to wait subsequent routine.
-	wg.Add(1)
 
 	// Start routine to watching on events.
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 
 		// Wait for all events.
 		for {
@@ -208,7 +206,7 @@ func mainWatch(cliCtx *cli.Context) error {
 				}
 			}
 		}
-	}()
+	})
 
 	// Wait on the routine to be finished or exit.
 	wg.Wait()

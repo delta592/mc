@@ -875,20 +875,16 @@ func (mj *mirrorJob) mirror(ctx context.Context) bool {
 
 	// Starts watcher loop for watching for new events.
 	if mj.opts.isWatch || mj.opts.activeActive {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			mj.watchMirror(ctx)
-		}()
+		})
 	}
 
 	// Start mirroring.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		// startMirror locks and blocks itself.
 		mj.startMirror(ctx)
-	}()
+	})
 
 	// Close statusCh when both watch & mirror quits
 	go func() {
