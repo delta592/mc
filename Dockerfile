@@ -8,10 +8,10 @@ ENV GOPATH=/go
 ENV CGO_ENABLED=0
 
 RUN apk add --no-cache ca-certificates curl && \
-    curl -s -q https://raw.githubusercontent.com/minio/mc/master/LICENSE -o /go/LICENSE && \
-    curl -s -q https://raw.githubusercontent.com/minio/mc/master/CREDITS -o /go/CREDITS
+    curl -s -q https://raw.githubusercontent.com/delta592/mc/master/LICENSE -o /go/LICENSE && \
+    curl -s -q https://raw.githubusercontent.com/delta592/mc/master/CREDITS -o /go/CREDITS
 
-RUN go install -v -ldflags "$(go run buildscripts/gen-ldflags.go)" "github.com/minio/mc@latest"
+RUN go install -v -ldflags "$(go run buildscripts/gen-ldflags.go)" "github.com/delta592/mc@latest"
 
 FROM scratch
 

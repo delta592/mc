@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/minio/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 )
 

@@ -1,0 +1,7 @@
+# Guard against accidentally depending on the archived upstream module path.
+blocked:
+  - module: github.com/minio/mc
+    match-type: exact
+    recommendations:
+      - github.com/delta592/mc
+    reason: "this fork uses module path github.com/delta592/mc"

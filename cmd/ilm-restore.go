@@ -23,9 +23,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/mc/pkg/probe"
 )
 
 // ilm restore specific flags.

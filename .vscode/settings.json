@@ -1,0 +1,16 @@
+{
+  "yaml.schemas": {
+    "https://goreleaser.com/static/schema.json": [
+      ".goreleaser.yml",
+      ".goreleaser.yaml",
+      ".config/goreleaser.yml",
+      ".config/goreleaser.yaml"
+    ]
+  },
+  "cSpell.ignorePaths": [
+    ".goreleaser.yml",
+    ".goreleaser.yaml",
+    ".config/goreleaser.yml",
+    ".config/goreleaser.yaml"
+  ]
+}

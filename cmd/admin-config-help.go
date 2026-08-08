@@ -22,10 +22,10 @@ import (
 	"text/tabwriter"
 	"text/template"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 )
 
 // HelpTmpl template used by all sub-systems

@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 

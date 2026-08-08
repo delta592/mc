@@ -23,11 +23,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
@@ -109,17 +109,17 @@ func (l replicateListMessage) String() string {
 
 	sb.WriteString(console.Colorize("EpVal", fmt.Sprintf("%s/%s\n", endpoint, destBucket)))
 
-	sb.WriteString(fmt.Sprintf("  Rule ID: %s\n", console.Colorize("Val", r.ID)))
-	sb.WriteString(fmt.Sprintf("  Priority: %s\n", console.Colorize("Val", r.Priority)))
-	sb.WriteString(fmt.Sprintf("  ARN: %s\n", console.Colorize("Val", r.Destination.Bucket)))
+	fmt.Fprintf(&sb, "  Rule ID: %s\n", console.Colorize("Val", r.ID))
+	fmt.Fprintf(&sb, "  Priority: %s\n", console.Colorize("Val", r.Priority))
+	fmt.Fprintf(&sb, "  ARN: %s\n", console.Colorize("Val", r.Destination.Bucket))
 	if r.Filter.And.Prefix != "" {
-		sb.WriteString(fmt.Sprintf("  Prefix: %s\n", console.Colorize("Val", r.Filter.And.Prefix)))
+		fmt.Fprintf(&sb, "  Prefix: %s\n", console.Colorize("Val", r.Filter.And.Prefix))
 	}
 	if r.Tags() != "" {
-		sb.WriteString(fmt.Sprintf("  Tags: %s\n", console.Colorize("Val", r.Tags())))
+		fmt.Fprintf(&sb, "  Tags: %s\n", console.Colorize("Val", r.Tags()))
 	}
 	if r.Destination.StorageClass != "" && r.Destination.StorageClass != "STANDARD" {
-		sb.WriteString(fmt.Sprintf("  StorageClass: %s\n", console.Colorize("Val", r.Destination.StorageClass)))
+		fmt.Fprintf(&sb, "  StorageClass: %s\n", console.Colorize("Val", r.Destination.StorageClass))
 	}
 	return sb.String() + "\n"
 }

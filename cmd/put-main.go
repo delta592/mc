@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
 )
 

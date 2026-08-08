@@ -6,71 +6,123 @@ TARGET_GOARCH ?= $(shell go env GOARCH)
 TARGET_GOOS ?= $(shell go env GOOS)
 
 VERSION ?= $(shell git describe --tags)
-TAG ?= "minio/mc:$(VERSION)"
+TAG ?= "delta592/mc:$(VERSION)"
 
-GOLANGCI = $(GOPATH)/bin/golangci-lint
+GOLANGCI := go tool golangci-lint
 
-all: build
+BUILD_TAGS ?= kqueue
+TESTPKG ?= ./...
+TEST_TIMEOUT ?= 20m
+UNIT_TEST_FLAGS := -tags $(BUILD_TAGS) -count=1 -timeout $(TEST_TIMEOUT)
+RACE_TEST_FLAGS := -race -tags $(BUILD_TAGS) -count=1 -timeout $(TEST_TIMEOUT)
+COVERAGE_FILE ?= coverage.out
 
-checks:
+.PHONY: all build checks getdeps crosscompile docker \
+	vet fmt fmt-check lint lint-fix verifiers \
+	test test-short test-race test-coverage test-386 test-integration \
+	verify check ci install clean help \
+	hotfix-vars hotfix hotfix-push docker-hotfix docker-hotfix-push
+
+.DEFAULT_GOAL := build
+
+##@ Build
+
+all: build ## Build the mc binary (default target)
+
+build: checks ## Build the mc binary to ./mc
+	@echo "Building mc binary to './mc'"
+	@GOOS=$(TARGET_GOOS) GOARCH=$(TARGET_GOARCH) CGO_ENABLED=0 go build -trimpath -tags $(BUILD_TAGS) --ldflags "$(LDFLAGS)" -o $(PWD)/mc
+
+install: build ## Install mc to $(GOPATH)/bin
+	@echo "Installing mc binary to '$(GOPATH)/bin/mc'"
+	@mkdir -p $(GOPATH)/bin && cp -f $(PWD)/mc $(GOPATH)/bin/mc
+	@echo "Installation successful. To learn more, try \"mc --help\"."
+
+checks: ## Verify build dependencies
 	@echo "Checking dependencies"
-	@(env bash $(PWD)/buildscripts/checkdeps.sh)
+	@env bash $(PWD)/buildscripts/checkdeps.sh
 
-getdeps:
-	@mkdir -p ${GOPATH}/bin
-	@echo "Installing tools" && go install tool
+crosscompile: ## Cross-compile mc for all supported platforms
+	@env bash $(PWD)/buildscripts/cross-compile.sh
 
-crosscompile:
-	@(env bash $(PWD)/buildscripts/cross-compile.sh)
-
-verifiers: getdeps vet lint
-
-docker: build
+docker: build ## Build development Docker image
 	@docker build -t $(TAG) . -f Dockerfile.dev
 
-vet:
-	@echo "Running $@"
-	@GO111MODULE=on go vet github.com/minio/mc/...
+##@ Code quality
 
-lint-fix: getdeps ## runs golangci-lint suite of linters with automatic fixes
-	@echo "Running $@ check"
-	@$(GOLANGCI) run --build-tags kqueue --timeout=10m --config ./.golangci.yml --fix
+getdeps: ## Install tools declared in go.mod
+	@echo "Installing tools from go.mod"
+	@go install tool
 
-lint: getdeps
-	@echo "Running $@ check"
-	@$(GOLANGCI) run --build-tags kqueue --timeout=10m --config ./.golangci.yml
+vet: ## Run go vet
+	@echo "Running go vet"
+	@go vet -tags $(BUILD_TAGS) ./...
 
-# Builds mc, runs the verifiers then runs the tests.
-check: test
-test: verifiers build
+fmt: getdeps ## Format code (gofmt, gofumpt, goimports)
+	@echo "Formatting code"
+	@$(GOLANGCI) fmt --config ./.golangci.yml
+
+fmt-check: getdeps ## Check code formatting without modifying files
+	@echo "Checking code formatting"
+	@$(GOLANGCI) fmt --config ./.golangci.yml --diff
+
+lint: getdeps ## Run golangci-lint
+	@echo "Running golangci-lint"
+	@$(GOLANGCI) run --config ./.golangci.yml
+
+lint-fix: getdeps ## Run golangci-lint with automatic fixes
+	@echo "Running golangci-lint with fixes"
+	@$(GOLANGCI) run --config ./.golangci.yml --fix
+
+verifiers: vet fmt-check lint ## Run vet, formatting, and lint checks
+
+##@ Tests
+
+test-short: ## Run unit tests (short mode, no race detector)
+	@echo "Running unit tests (short)"
+	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) -short $(TESTPKG)
+
+test: verifiers build ## Run unit tests and integration suite
 	@echo "Running unit tests"
-	@GO111MODULE=on CGO_ENABLED=0 go test -tags kqueue ./... 1>/dev/null
-	@echo "Running functional tests"
-	@GO111MODULE=on MC_TEST_RUN_FULL_SUITE=true go test -race -v --timeout 20m ./... -run Test_FullSuite
+	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) $(TESTPKG)
+	@echo "Running integration tests"
+	@MC_TEST_RUN_FULL_SUITE=true CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v $(TESTPKG) -run Test_FullSuite
 
-test-race: verifiers build
-	@echo "Running unit tests under -race"
-	@GO111MODULE=on go test -race -v --timeout 20m ./... 1>/dev/null
+test-race: build ## Run unit tests with the race detector
+	@echo "Running unit tests with race detector"
+	@CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v $(TESTPKG)
 
-# Verify mc binary
-verify:
-	@echo "Verifying build with race"
-	@GO111MODULE=on CGO_ENABLED=1 go build -race -tags kqueue -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/mc 1>/dev/null
-	@echo "Running functional tests"
-	@GO111MODULE=on MC_TEST_RUN_FULL_SUITE=true go test -race -v --timeout 20m ./... -run Test_FullSuite
+test-coverage: ## Run unit tests and write a coverage profile
+	@echo "Running tests with coverage"
+	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) -short -coverprofile=$(COVERAGE_FILE) -covermode=atomic $(TESTPKG)
+	@go tool cover -func=$(COVERAGE_FILE)
 
-# Builds mc locally.
-build: checks
-	@echo "Building mc binary to './mc'"
-	@GO111MODULE=on GOOS=$(TARGET_GOOS) GOARCH=$(TARGET_GOARCH) CGO_ENABLED=0 go build -trimpath -tags kqueue --ldflags "$(LDFLAGS)" -o $(PWD)/mc
+test-386: ## Run short tests on linux/386
+	@echo "Running short tests on linux/386"
+	@CGO_ENABLED=0 GOOS=linux GOARCH=386 go test $(UNIT_TEST_FLAGS) -short $(TESTPKG)
+
+test-integration: build ## Run the full integration test suite
+	@echo "Running integration tests"
+	@MC_TEST_RUN_FULL_SUITE=true CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v $(TESTPKG) -run Test_FullSuite
+
+verify: build ## Build with race detector and run integration tests
+	@echo "Verifying race-enabled build"
+	@CGO_ENABLED=1 go build -race -tags $(BUILD_TAGS) -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/mc
+	@$(MAKE) test-integration
+
+check: test ## Alias for the full local validation target
+
+ci: verifiers test-short test-race test-coverage test-386 build ## Run CI checks (no MinIO server required)
+
+##@ Release
 
 hotfix-vars:
 	$(eval LDFLAGS := $(shell MC_RELEASE="RELEASE" MC_HOTFIX="hotfix.$(shell git rev-parse --short HEAD)" go run buildscripts/gen-ldflags.go $(shell git describe --tags --abbrev=0 | \
-    sed 's#RELEASE\.\([0-9]\+\)-\([0-9]\+\)-\([0-9]\+\)T\([0-9]\+\)-\([0-9]\+\)-\([0-9]\+\)Z#\1-\2-\3T\4:\5:\6Z#')))
+	sed 's#RELEASE\.\([0-9]\+\)-\([0-9]\+\)-\([0-9]\+\)T\([0-9]\+\)-\([0-9]\+\)-\([0-9]\+\)Z#\1-\2-\3T\4:\5:\6Z#')))
 	$(eval VERSION := $(shell git describe --tags --abbrev=0).hotfix.$(shell git rev-parse --short HEAD))
-	$(eval TAG := "minio/mc:$(VERSION)")
+	$(eval TAG := "delta592/mc:$(VERSION)")
 
-hotfix: hotfix-vars install ## builds mc binary with hotfix tags
+hotfix: hotfix-vars install ## Build mc binary with hotfix tags
 	@mv -f ./mc ./mc.$(VERSION)
 	@minisign -qQSm ./mc.$(VERSION) -s "${CRED_DIR}/minisign.key" < "${CRED_DIR}/minisign-passphrase"
 	@sha256sum < ./mc.$(VERSION) | sed 's, -,mc.$(VERSION),g' > mc.$(VERSION).sha256sum
@@ -83,20 +135,19 @@ hotfix-push: hotfix
 docker-hotfix-push: docker-hotfix
 	@docker push -q $(TAG) && echo "Published new container $(TAG)"
 
-docker-hotfix: hotfix-push checks ## builds mc docker container with hotfix tags
+docker-hotfix: hotfix-push checks ## Build mc docker container with hotfix tags
 	@echo "Building mc docker image '$(TAG)'"
 	@docker build -q --no-cache -t $(TAG) --build-arg RELEASE=$(VERSION) . -f Dockerfile.hotfix
 
-# Builds MinIO and installs it to $GOPATH/bin.
-install: build
-	@echo "Installing mc binary to '$(GOPATH)/bin/mc'"
-	@mkdir -p $(GOPATH)/bin && cp -f $(PWD)/mc $(GOPATH)/bin/mc
-	@echo "Installation successful. To learn more, try \"mc --help\"."
-
-clean:
+clean: ## Remove build artifacts and test binaries
 	@echo "Cleaning up all the generated files"
 	@find . -name '*.test' | xargs rm -fv
 	@find . -name '*~' | xargs rm -fv
-	@rm -rvf mc
-	@rm -rvf build
-	@rm -rvf release
+	@rm -rvf mc build release $(COVERAGE_FILE)
+
+##@ Help
+
+help: ## Display this help
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} \
+		/^[a-zA-Z0-9][a-zA-Z0-9_-]*:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 } \
+		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST)

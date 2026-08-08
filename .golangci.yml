@@ -1,8 +1,13 @@
 version: "2"
+run:
+  timeout: 10m
+  build-tags:
+    - kqueue
+  tests: true
 linters:
   default: none
   enable:
-    - gomodguard
+    - gomodguard_v2
     - govet
     - ineffassign
     - misspell
@@ -12,6 +17,11 @@ linters:
   settings:
     misspell:
       locale: US
+    staticcheck:
+      checks:
+        - all
+        # Deprecated APIs are still required for compatibility with older servers.
+        - -SA1019
   exclusions:
     generated: lax
     rules:

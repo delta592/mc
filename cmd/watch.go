@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/minio/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/notification"
 )
 
@@ -128,7 +128,6 @@ func (w *Watcher) Join(ctx context.Context, client Client, recursive bool) *prob
 	// wait for events and errors of individual client watchers
 	// and sent then to eventsChan and errorsChan
 	w.wg.Go(func() {
-
 		for {
 			select {
 			case <-wo.DoneChan:

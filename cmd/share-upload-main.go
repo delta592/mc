@@ -24,8 +24,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/cli"
-	"github.com/minio/mc/pkg/probe"
 )
 
 var shareUploadFlags = []cli.Flag{
@@ -123,13 +123,13 @@ func makeCurlCmd(key, postURL string, isRecursive bool, uploadInfo map[string]st
 			key = v
 			continue
 		}
-		curlCommand.WriteString(fmt.Sprintf("-F %s=%s ", k, v))
+		fmt.Fprintf(&curlCommand, "-F %s=%s ", k, v)
 	}
 	// If key starts with is enabled prefix it with the output.
 	if isRecursive {
-		curlCommand.WriteString(fmt.Sprintf("-F key=%s<NAME> ", shellQuote(key))) // Object name.
+		fmt.Fprintf(&curlCommand, "-F key=%s<NAME> ", shellQuote(key)) // Object name.
 	} else {
-		curlCommand.WriteString(fmt.Sprintf("-F key=%s ", shellQuote(key))) // Object name.
+		fmt.Fprintf(&curlCommand, "-F key=%s ", shellQuote(key)) // Object name.
 	}
 	curlCommand.WriteString("-F file=@<FILE>") // File to upload.
 	return curlCommand.String(), nil

@@ -26,10 +26,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
-	"github.com/minio/mc/pkg/probe"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
@@ -497,9 +497,9 @@ loop:
 				errSeen = true
 				if progressReader, pgok := pg.(*progressBar); pgok {
 					if progressReader.Get() > 0 {
-						writeContSize := (int)(cpURLs.SourceContent.Size)
-						totalPGSize := (int)(progressReader.Total)
-						written := (int)(progressReader.Get())
+						writeContSize := int(cpURLs.SourceContent.Size)
+						totalPGSize := int(progressReader.Total)
+						written := int(progressReader.Get())
 						if totalPGSize > writeContSize && written > writeContSize {
 							progressReader.Set((written - writeContSize))
 							progressReader.Update()

@@ -1,15 +1,17 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
 project_name: mc
 
 release:
-   name_template: "Version {{.Version}}"
-   disable: true
-   github:
-    owner: minio
+  name_template: "Version {{.Version}}"
+  disable: true
+  github:
+    owner: delta592
     name: mc
 
 env:
   - CGO_ENABLED=0
-  - GO111MODULE=on
 
 before:
   hooks:
@@ -19,67 +21,43 @@ before:
     - go mod download
 
 builds:
-  -
-    goos:
-      - linux
-      - darwin
-      - windows
-      - freebsd
-
-    goarch:
-      - amd64
-      - arm64
-      - arm
-      - ppc64le
-      - s390x
-
-    goarm:
-      - 7
-
-    ignore:
-      - goos: darwin
-        goarch: arm64
-      - goos: darwin
-        goarch: arm
-      - goos: darwin
-        goarch: ppc64le
-      - goos: darwin
-        goarch: s390x
-      - goos: windows
-        goarch: arm64
-      - goos: windows
-        goarch: arm
-      - goos: windows
-        goarch: ppc64le
-      - goos: windows
-        goarch: s390x
-      - goos: freebsd
-        goarch: arm
-      - goos: freebsd
-        goarch: arm64
-      - goos: freebsd
-        goarch: ppc64le
-      - goos: freebsd
-        goarch: s390x
-
+  - id: mc
+    targets:
+      - linux_amd64
+      - linux_arm64
+      - linux_arm_7
+      - linux_ppc64le
+      - linux_s390x
+      - darwin_amd64
+      - windows_amd64
+      - freebsd_amd64
     flags:
       - -tags=kqueue
       - -trimpath
-
     ldflags:
-      - "-s -w -X github.com/minio/mc/cmd.Version={{.Version}} -X github.com/minio/mc/cmd.ReleaseTag={{.Tag}} -X github.com/minio/mc/cmd.CommitID={{.FullCommit}} -X github.com/minio/mc/cmd.ShortCommitID={{.ShortCommit}}"
+      - "-s -w -X github.com/delta592/mc/cmd.Version={{.Version}} -X github.com/delta592/mc/cmd.ReleaseTag={{.Tag}} -X github.com/delta592/mc/cmd.CommitID={{.FullCommit}} -X github.com/delta592/mc/cmd.ShortCommitID={{.ShortCommit}}"
+
+  - id: mc-cpuv1
+    targets:
+      - linux_amd64_v1
+      - linux_arm64
+      - linux_ppc64le
+    flags:
+      - -tags=kqueue
+      - -trimpath
+    ldflags:
+      - "-s -w -X github.com/delta592/mc/cmd.Version={{.Version}} -X github.com/delta592/mc/cmd.ReleaseTag={{.Tag}} -X github.com/delta592/mc/cmd.CommitID={{.FullCommit}} -X github.com/delta592/mc/cmd.ShortCommitID={{.ShortCommit}}"
 
 archives:
-  -
-    format: binary
+  - formats:
+      - binary
     name_template: "{{ .Binary }}-release/{{ .Os }}-{{ .Arch }}/{{ .Binary }}.{{ .Version }}"
 
 nfpms:
-  -
-    id: minio
+  - id: minio
     package_name: mc
     vendor: MinIO, Inc.
-    homepage: https://min.io/
+    homepage: https://github.com/delta592/mc
     maintainer: dev@min.io
     description: MinIO Client (mc) provides a modern alternative to UNIX commands like ls, cat, cp, mirror, diff, find etc. It supports filesystems and Amazon S3 compatible cloud storage service (AWS Signature v2 and v4).
     license: Apache 2.0
@@ -87,38 +65,30 @@ nfpms:
     formats:
       - deb
       - rpm
+    contents:
+      - src: NOTICE
+        dst: /usr/share/mc/NOTICE
+      - src: CREDITS
+        dst: /usr/share/mc/CREDITS
+      - src: LICENSE
+        dst: /usr/share/mc/LICENSE
+      - src: README.md
+        dst: /usr/share/mc/README.md
     overrides:
       deb:
-        file_name_template: "{{ .Binary }}-release/debs/{{ .ProjectName }}-{{ .Version }}_{{ .Arch }}"
-        replacements:
-          arm: armv7
-        files:
-          "NOTICE": "/usr/share/mc/NOTICE"
-          "CREDITS": "/usr/share/mc/CREDITS"
-          "LICENSE": "/usr/share/mc/LICENSE"
-          "README.md": "/usr/share/mc/README.md"
+        file_name_template: "{{ .Binary }}-release/debs/{{ .ProjectName }}-{{ .Version }}_{{ if eq .Arch \"arm\" }}armv7{{ else }}{{ .Arch }}{{ end }}"
       rpm:
-        file_name_template: "{{ .Binary }}-release/rpms/{{ .ProjectName }}-{{ .Version }}.{{ .Arch }}"
-        replacements:
-          amd64: x86_64
-          arm64: aarch64
-          arm: armv7
-        files:
-          "NOTICE": "/usr/share/mc/NOTICE"
-          "CREDITS": "/usr/share/mc/CREDITS"
-          "LICENSE": "/usr/share/mc/LICENSE"
-          "README.md": "/usr/share/mc/README.md"
+        file_name_template: "{{ .Binary }}-release/rpms/{{ .ProjectName }}-{{ .Version }}.{{ if eq .Arch \"amd64\" }}x86_64{{ else if eq .Arch \"arm64\" }}aarch64{{ else if eq .Arch \"arm\" }}armv7{{ else }}{{ .Arch }}{{ end }}"
 
 checksum:
   algorithm: sha256
 
 signs:
-  -
-    signature: "${artifact}.asc"
-    cmd: "sh"
+  - signature: "${artifact}.asc"
+    cmd: sh
     args:
-      - '-c'
-      - 'gpg --quiet --detach-sign -a ${artifact}'
+      - -c
+      - gpg --quiet --detach-sign -a ${artifact}
     artifacts: all
 
 changelog:
@@ -127,41 +97,50 @@ changelog:
     exclude:
       - '^Update yaml files'
 
-dockers:
-  -
-    goos: linux
-    goarch: amd64
+dockers_v2:
+  - id: mc
     dockerfile: Dockerfile.release
-    image_templates:
-      - minio/mc:{{ .Tag }}
-      - minio/mc:latest
+    ids:
+      - mc
+    images:
+      - delta592/mc
+      - quay.io/delta592/mc
+    tags:
+      - "{{ .Tag }}"
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
+      - linux/arm/v7
+      - linux/ppc64le
+      - linux/s390x
+    extra_files:
+      - LICENSE
+      - CREDITS
+    annotations:
+      org.opencontainers.image.description: "MinIO Client (mc), maintained at https://github.com/delta592/mc"
+      org.opencontainers.image.source: "https://github.com/delta592/mc"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.version: "{{ .Version }}"
 
-  -
-    goos: linux
-    goarch: ppc64le
-    dockerfile: Dockerfile.ppc64le.release
-    image_templates:
-      - minio/mc:{{ .Tag }}-ppc64le
-
-  -
-    goos: linux
-    goarch: s390x
-    dockerfile: Dockerfile.s390x.release
-    image_templates:
-      - minio/mc:{{ .Tag }}-s390x
-
-  -
-    goos: linux
-    goarch: arm64
-    goarm: ''
-    dockerfile: Dockerfile.arm64.release
-    image_templates:
-      - minio/mc:{{ .Tag }}-arm64
-
-  -
-    goos: linux
-    goarch: arm
-    goarm: '7'
-    dockerfile: Dockerfile.arm.release
-    image_templates:
-      - minio/mc:{{ .Tag }}-arm
+  - id: mc-cpuv1
+    dockerfile: Dockerfile.release.old_cpu
+    ids:
+      - mc-cpuv1
+    images:
+      - delta592/mc
+      - quay.io/delta592/mc
+    tags:
+      - "{{ .Tag }}-cpuv1"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+      - linux/ppc64le
+    extra_files:
+      - LICENSE
+      - CREDITS
+    annotations:
+      org.opencontainers.image.description: "MinIO Client (mc) build for older x86-64 CPUs"
+      org.opencontainers.image.source: "https://github.com/delta592/mc"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.version: "{{ .Version }}"

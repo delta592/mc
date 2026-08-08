@@ -1,5 +1,5 @@
 # MinIO客户端快速入门指南
-[![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io) [![Go Report Card](https://goreportcard.com/badge/minio/mc)](https://goreportcard.com/report/minio/mc) [![Docker Pulls](https://img.shields.io/docker/pulls/minio/mc.svg?maxAge=604800)](https://hub.docker.com/r/minio/mc/)
+[![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io) [![Go Report Card](https://goreportcard.com/badge/delta592/mc)](https://goreportcard.com/report/delta592/mc) [![Docker Pulls](https://img.shields.io/docker/pulls/delta592/mc.svg?maxAge=604800)](https://hub.docker.com/r/delta592/mc/)
 
 MinIO Client (mc)为ls，cat，cp，mirror，diff，find等UNIX命令提供了一种替代方案。它支持文件系统和兼容Amazon S3的云存储服务（AWS Signature v2和v4）。
 
@@ -27,20 +27,20 @@ version   输出版本信息。
 ## Docker容器
 ### 稳定版
 ```
-docker pull minio/mc
-docker run minio/mc ls play
+docker pull delta592/mc
+docker run delta592/mc ls play
 ```
 
 ### 尝鲜版
 ```
-docker pull minio/mc:edge
-docker run minio/mc:edge ls play
+docker pull delta592/mc:edge
+docker run delta592/mc:edge ls play
 ```
 
 **注意:** 上述示例默认使用MinIO[演示环境](#test-your-setup)做演示，如果想用`mc`操作其它S3兼容的服务，采用下面的方式来启动容器：
 
 ```
-docker run -it --entrypoint=/bin/sh minio/mc
+docker run -it --entrypoint=/bin/sh delta592/mc
 ```
 
 然后使用[`mc config`命令](#add-a-cloud-storage-service)。
@@ -81,9 +81,7 @@ mc.exe --help
 如果您没有Golang环境，请参照[如何安装Golang](https://golang.org/doc/install)。
 
 ```
-go get -d github.com/minio/mc
-cd ${GOPATH}/src/github.com/minio/mc
-make
+go install github.com/delta592/mc@latest
 ```
 
 ## 添加一个云存储服务
@@ -151,10 +149,10 @@ alias find='mc find'
 ```
 
 ### Shell自动补全
-你也可以下载[`autocomplete/bash_autocomplete`](https://raw.githubusercontent.com/minio/mc/master/autocomplete/bash_autocomplete)到`/etc/bash_completion.d/`，然后将其重命名为`mc`。别忘了在这个文件运行source命令让其在你的当前shell上可用。
+你也可以下载[`autocomplete/bash_autocomplete`](https://raw.githubusercontent.com/delta592/mc/master/autocomplete/bash_autocomplete)到`/etc/bash_completion.d/`，然后将其重命名为`mc`。别忘了在这个文件运行source命令让其在你的当前shell上可用。
 
 ```
-sudo wget https://raw.githubusercontent.com/minio/mc/master/autocomplete/bash_autocomplete -O /etc/bash_completion.d/mc
+sudo wget https://raw.githubusercontent.com/delta592/mc/master/autocomplete/bash_autocomplete -O /etc/bash_completion.d/mc
 source /etc/bash_completion.d/mc
 ```
 
@@ -170,4 +168,4 @@ cat      cp       events   mb       pipe     rm       share    version
 - [MinIO官方文档](https://docs.min.io/community/minio-object-store/index.html?ref=gh)
 
 ## 贡献
-请遵守MinIO[贡献者指南](https://github.com/minio/mc/blob/master/docs/zh_CN/CONTRIBUTING.md)
+请遵守[贡献者指南](https://github.com/delta592/mc/blob/master/CONTRIBUTING.md)
