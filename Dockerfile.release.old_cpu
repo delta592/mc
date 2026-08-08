@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea805825da76410c181273ba90b1
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1785825911@sha256:cb964eb2bf491814a681bc9887c83d32d6d4eac7b491c5c8c7fe641a5c586a09 AS build
 
@@ -7,8 +7,7 @@ RUN microdnf update --nodocs --assumeyes && \
 
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-1785301496@sha256:aebee49fbdff1791e32f483bfcff17e0be20dd36b2034d535076fd9d0e34ff89
 
-ARG TARGETARCH
-ARG RELEASE
+ARG TARGETPLATFORM
 
 LABEL maintainer="MinIO Inc <dev@min.io>"
 
@@ -20,7 +19,7 @@ COPY --from=build /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-
 COPY CREDITS /licenses/CREDITS
 COPY LICENSE /licenses/LICENSE
 
-ADD https://dl.minio.io/client/mc/release/linux-${TARGETARCH}/archive/mc.${RELEASE} /usr/bin/mc
+COPY $TARGETPLATFORM/mc /usr/bin/mc
 
 RUN chmod +x /usr/bin/mc
 

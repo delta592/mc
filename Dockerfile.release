@@ -7,8 +7,7 @@ RUN microdnf update --nodocs --assumeyes && \
 
 FROM registry.access.redhat.com/ubi9/ubi-micro:9.8-1784702951@sha256:b1e86b97028b8fcfb6d85f997c39e6b6b67496163ef8d80d243220a4918e8bef
 
-ARG TARGETARCH
-ARG RELEASE
+ARG TARGETPLATFORM
 
 LABEL maintainer="MinIO Inc <dev@min.io>"
 
@@ -20,7 +19,7 @@ COPY --from=build /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-
 COPY CREDITS /licenses/CREDITS
 COPY LICENSE /licenses/LICENSE
 
-ADD https://dl.minio.io/client/mc/release/linux-${TARGETARCH}/archive/mc.${RELEASE} /usr/bin/mc
+COPY $TARGETPLATFORM/mc /usr/bin/mc
 
 RUN chmod +x /usr/bin/mc
 

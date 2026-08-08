@@ -18,27 +18,128 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-sudo sysctl net.ipv6.conf.all.disable_ipv6=1
+set -euo pipefail
+
+if ! command -v docker >/dev/null; then
+	echo "docker is required"
+	exit 1
+fi
 
 release=$(git describe --abbrev=0 --tags)
+root=$(cd "$(dirname "$0")" && pwd)
+context=$(mktemp -d)
+trap 'rm -rf "$context"' EXIT
+
+LDFLAGS=$(go run "${root}/buildscripts/gen-ldflags.go")
+export CGO_ENABLED=0
+
+build_binary() {
+	local platform=$1
+	local output=$2
+
+	case "${platform}" in
+	linux/amd64)
+		export GOOS=linux GOARCH=amd64
+		unset GOARM GOAMD64
+		;;
+	linux/arm64)
+		export GOOS=linux GOARCH=arm64
+		unset GOARM GOAMD64
+		;;
+	linux/arm/v7)
+		export GOOS=linux GOARCH=arm GOARM=7
+		unset GOAMD64
+		;;
+	linux/ppc64le)
+		export GOOS=linux GOARCH=ppc64le
+		unset GOARM GOAMD64
+		;;
+	linux/s390x)
+		export GOOS=linux GOARCH=s390x
+		unset GOARM GOAMD64
+		;;
+	*)
+		echo "unsupported platform: ${platform}"
+		exit 1
+		;;
+	esac
+
+	mkdir -p "$(dirname "${output}")"
+	go build -tags kqueue -trimpath --ldflags "${LDFLAGS}" -o "${output}" .
+}
+
+build_binary_v1() {
+	local platform=$1
+	local output=$2
+
+	case "${platform}" in
+	linux/amd64)
+		export GOOS=linux GOARCH=amd64 GOAMD64=v1
+		unset GOARM
+		;;
+	linux/arm64)
+		export GOOS=linux GOARCH=arm64
+		unset GOARM GOAMD64
+		;;
+	linux/ppc64le)
+		export GOOS=linux GOARCH=ppc64le
+		unset GOARM GOAMD64
+		;;
+	*)
+		echo "unsupported cpuv1 platform: ${platform}"
+		exit 1
+		;;
+	esac
+
+	mkdir -p "$(dirname "${output}")"
+	go build -tags kqueue -trimpath --ldflags "${LDFLAGS}" -o "${output}" .
+}
+
+stage_release_context() {
+	local dockerfile=$1
+	shift
+	local platforms=("$@")
+
+	cp "${dockerfile}" "${context}/Dockerfile"
+	cp LICENSE CREDITS "${context}/"
+
+	for platform in "${platforms[@]}"; do
+		build_binary "${platform}" "${context}/${platform}/mc"
+	done
+}
+
+sudo sysctl net.ipv6.conf.all.disable_ipv6=1
+
+stage_release_context "${root}/Dockerfile.release" \
+	linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x
 
 docker buildx build --push --no-cache \
-	--build-arg RELEASE="${release}" \
-	-t "minio/mc:latest" \
-	-t "minio/mc:${release}" \
-	-t "quay.io/minio/mc:${release}" \
-	-t "quay.io/minio/mc:latest" \
-	--platform=linux/arm64,linux/amd64,linux/ppc64le \
-	-f Dockerfile.release .
+	-t "delta592/mc:latest" \
+	-t "delta592/mc:${release}" \
+	-t "quay.io/delta592/mc:${release}" \
+	-t "quay.io/delta592/mc:latest" \
+	--platform=linux/amd64,linux/arm64,linux/arm/v7,linux/ppc64le,linux/s390x \
+	"${context}"
 
 docker buildx prune -f
 
+rm -rf "${context}"/*
+trap - EXIT
+context=$(mktemp -d)
+trap 'rm -rf "$context"' EXIT
+
+cp "${root}/Dockerfile.release.old_cpu" "${context}/Dockerfile"
+cp LICENSE CREDITS "${context}/"
+
+for platform in linux/amd64 linux/arm64 linux/ppc64le; do
+	build_binary_v1 "${platform}" "${context}/${platform}/mc"
+done
+
 docker buildx build --push --no-cache \
-	--build-arg RELEASE="${release}" \
-	-t "minio/mc:${release}-cpuv1" \
-	-t "quay.io/minio/mc:${release}-cpuv1" \
-	--platform=linux/arm64,linux/amd64,linux/ppc64le \
-	-f Dockerfile.release.old_cpu .
+	-t "delta592/mc:${release}-cpuv1" \
+	-t "quay.io/delta592/mc:${release}-cpuv1" \
+	--platform=linux/amd64,linux/arm64,linux/ppc64le \
+	"${context}"
 
 docker buildx prune -f
 
