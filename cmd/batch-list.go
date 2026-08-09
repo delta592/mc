@@ -23,10 +23,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
+	"github.com/urfave/cli/v2"
 )
 
 var batchListFlags = []cli.Flag{
@@ -38,7 +38,7 @@ var batchListFlags = []cli.Flag{
 
 var batchListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list all current batch jobs",
 	Action:       mainBatchList,
 	OnUsageError: onUsageError,

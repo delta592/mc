@@ -27,8 +27,8 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
+	"github.com/urfave/cli/v2"
 )
 
 type sseKeyType int

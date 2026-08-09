@@ -23,9 +23,9 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var eventAddFlags = []cli.Flag{
@@ -43,9 +43,9 @@ var eventAddFlags = []cli.Flag{
 		Usage: "filter event associated to the specified suffix",
 	},
 	&cli.BoolFlag{
-		Name: "ignore-existing",
+		Name:    "ignore-existing",
 		Aliases: []string{"p"},
-		Usage: "ignore if event already exists",
+		Usage:   "ignore if event already exists",
 	},
 }
 

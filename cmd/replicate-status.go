@@ -29,25 +29,25 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
+	"github.com/urfave/cli/v2"
 )
 
 var replicateStatusFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "backlog",
+		Name:    "backlog",
 		Aliases: []string{"b"},
-		Usage: "show most recent failures for one or more nodes. Valid values are 'all', or node name",
-		Value: "all",
+		Usage:   "show most recent failures for one or more nodes. Valid values are 'all', or node name",
+		Value:   "all",
 	},
 	&cli.BoolFlag{
-		Name: "nodes",
+		Name:    "nodes",
 		Aliases: []string{"n"},
-		Usage: "show replication speed for all nodes",
+		Usage:   "show replication speed for all nodes",
 	},
 }
 

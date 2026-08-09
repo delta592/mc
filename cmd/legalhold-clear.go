@@ -22,21 +22,21 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var lhClearFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "clear legal hold recursively",
+		Usage:   "clear legal hold recursively",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "clear legal hold of a specific object version",
+		Usage:   "clear legal hold of a specific object version",
 	},
 	&cli.StringFlag{
 		Name:  "rewind",

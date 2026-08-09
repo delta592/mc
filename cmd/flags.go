@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
+	"github.com/urfave/cli/v2"
 )
 
 const envPrefix = "MC_"
@@ -33,58 +33,58 @@ const envPrefix = "MC_"
 // Collection of mc flags currently supported
 var globalFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "config-dir",
+		Name:    "config-dir",
 		Aliases: []string{"C"},
-		Value:  mustGetMcConfigDir(),
-		Usage:  "path to configuration folder",
+		Value:   mustGetMcConfigDir(),
+		Usage:   "path to configuration folder",
 		EnvVars: []string{envPrefix + "CONFIG_DIR"},
 	},
 	&cli.BoolFlag{
-		Name: "quiet",
+		Name:    "quiet",
 		Aliases: []string{"q"},
-		Usage:  "disable progress bar display",
+		Usage:   "disable progress bar display",
 		EnvVars: []string{envPrefix + "QUIET"},
 	},
 	&cli.BoolFlag{
-		Name: "disable-pager",
+		Name:    "disable-pager",
 		Aliases: []string{"dp"},
-		Usage:  "disable mc internal pager and print to raw stdout",
+		Usage:   "disable mc internal pager and print to raw stdout",
 		EnvVars: []string{envPrefix + globalDisablePagerEnv},
-		Hidden: false,
+		Hidden:  false,
 	},
 	&cli.BoolFlag{
-		Name:   "no-color",
-		Usage:  "disable color theme",
+		Name:    "no-color",
+		Usage:   "disable color theme",
 		EnvVars: []string{envPrefix + "NO_COLOR"},
 	},
 	&cli.BoolFlag{
-		Name:   "json",
-		Usage:  "enable JSON lines formatted output",
+		Name:    "json",
+		Usage:   "enable JSON lines formatted output",
 		EnvVars: []string{envPrefix + "JSON"},
 	},
 	&cli.BoolFlag{
-		Name:   "debug",
-		Usage:  "enable debug output",
+		Name:    "debug",
+		Usage:   "enable debug output",
 		EnvVars: []string{envPrefix + "DEBUG"},
 	},
 	&cli.StringSliceFlag{
-		Name:   "resolve",
-		Usage:  "resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1",
+		Name:    "resolve",
+		Usage:   "resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1",
 		EnvVars: []string{envPrefix + "RESOLVE"},
 	},
 	&cli.BoolFlag{
-		Name:   "insecure",
-		Usage:  "disable SSL certificate verification",
+		Name:    "insecure",
+		Usage:   "disable SSL certificate verification",
 		EnvVars: []string{envPrefix + "INSECURE"},
 	},
 	&cli.StringFlag{
-		Name:   "limit-upload",
-		Usage:  "limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
+		Name:    "limit-upload",
+		Usage:   "limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
 		EnvVars: []string{envPrefix + "LIMIT_UPLOAD"},
 	},
 	&cli.StringFlag{
-		Name:   "limit-download",
-		Usage:  "limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
+		Name:    "limit-download",
+		Usage:   "limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
 		EnvVars: []string{envPrefix + "LIMIT_DOWNLOAD"},
 	},
 	&cli.DurationFlag{
@@ -100,9 +100,9 @@ var globalFlags = []cli.Flag{
 		Value:  10 * time.Minute,
 	},
 	&cli.StringSliceFlag{
-		Name: "custom-header",
+		Name:    "custom-header",
 		Aliases: []string{"H"},
-		Usage: "add custom HTTP header to the request. 'key:value' format.",
+		Usage:   "add custom HTTP header to the request. 'key:value' format.",
 	},
 }
 
@@ -119,14 +119,14 @@ var encCFlag = &cli.StringSliceFlag{
 }
 
 var encKSMFlag = &cli.StringSliceFlag{
-	Name:   "enc-kms",
-	Usage:  "encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided)",
+	Name:    "enc-kms",
+	Usage:   "encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided)",
 	EnvVars: []string{envPrefix + "ENC_KMS"},
 }
 
 var encS3Flag = &cli.StringSliceFlag{
-	Name:   "enc-s3",
-	Usage:  "encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided).",
+	Name:    "enc-s3",
+	Usage:   "encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided).",
 	EnvVars: []string{envPrefix + "ENC_S3"},
 }
 

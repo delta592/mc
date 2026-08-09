@@ -23,7 +23,7 @@ import (
 
 var adminBucketRemoteRmCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove configured remote target",
 	Action:       mainAdminBucketRemoteRemove,
 	OnUsageError: onUsageError,

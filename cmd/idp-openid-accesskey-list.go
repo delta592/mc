@@ -23,9 +23,9 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var idpOpenIDAccesskeyListFlags = []cli.Flag{
@@ -57,7 +57,7 @@ var idpOpenIDAccesskeyListFlags = []cli.Flag{
 
 var idpOpenidAccesskeyListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list access key pairs for OpenID",
 	Action:       mainIDPOpenIDAccesskeyList,
 	Before:       setGlobalsFromContext,

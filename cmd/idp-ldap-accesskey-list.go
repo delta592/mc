@@ -22,8 +22,8 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var idpLdapAccesskeyListFlags = []cli.Flag{
@@ -51,7 +51,7 @@ var idpLdapAccesskeyListFlags = []cli.Flag{
 
 var idpLdapAccesskeyListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyList,
 	Before:       setGlobalsFromContext,

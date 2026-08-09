@@ -27,8 +27,8 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
+	"github.com/urfave/cli/v2"
 )
 
 const defaultILMDateFormat string = "2006-01-02"

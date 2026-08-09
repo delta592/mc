@@ -27,9 +27,9 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
+	"github.com/urfave/cli/v2"
 )
 
 var ilmListFlags = []cli.Flag{
@@ -45,7 +45,7 @@ var ilmListFlags = []cli.Flag{
 
 var ilmLsCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "lists lifecycle configuration rules set on a bucket",
 	Action:       mainILMList,
 	OnUsageError: onUsageError,

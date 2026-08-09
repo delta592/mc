@@ -26,16 +26,16 @@ import (
 
 var adminConsoleFlags = []cli.Flag{
 	&cli.IntFlag{
-		Name: "limit",
+		Name:    "limit",
 		Aliases: []string{"l"},
-		Usage: "show last n log entries",
-		Value: 10,
+		Usage:   "show last n log entries",
+		Value:   10,
 	},
 	&cli.StringFlag{
-		Name: "type",
+		Name:    "type",
 		Aliases: []string{"t"},
-		Usage: "list error logs by type. Valid options are '[minio, application, all]'",
-		Value: "all",
+		Usage:   "list error logs by type. Valid options are '[minio, application, all]'",
+		Value:   "all",
 	},
 }
 

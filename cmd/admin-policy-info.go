@@ -22,16 +22,16 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var policyInfoFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "policy-file",
+		Name:    "policy-file",
 		Aliases: []string{"f"},
-		Usage: "additionally (over-)write policy JSON to given file",
+		Usage:   "additionally (over-)write policy JSON to given file",
 	},
 }
 

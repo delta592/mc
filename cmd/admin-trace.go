@@ -38,22 +38,22 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zstd"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var adminTraceFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "verbose",
+		Name:    "verbose",
 		Aliases: []string{"v"},
-		Usage: "print verbose trace",
+		Usage:   "print verbose trace",
 	},
 	&cli.BoolFlag{
-		Name: "all",
+		Name:    "all",
 		Aliases: []string{"a"},
-		Usage: "trace all call types",
+		Usage:   "trace all call types",
 	},
 	&cli.StringSliceFlag{
 		Name:  "call",
@@ -88,9 +88,9 @@ var adminTraceFlags = []cli.Flag{
 		Usage: "trace only matching request queries",
 	},
 	&cli.BoolFlag{
-		Name: "errors",
+		Name:    "errors",
 		Aliases: []string{"e"},
-		Usage: "trace only failed requests",
+		Usage:   "trace only failed requests",
 	},
 	&cli.BoolFlag{
 		Name:  "stats",

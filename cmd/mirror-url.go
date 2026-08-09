@@ -26,9 +26,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/wildcard"
+	"github.com/urfave/cli/v2"
 )
 
 //

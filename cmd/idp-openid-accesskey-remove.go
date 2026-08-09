@@ -23,7 +23,7 @@ import (
 
 var idpOpenidAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "delete access key pairs for OpenID",
 	Action:       mainIDPOpenIDAccesskeyRemove,
 	Before:       setGlobalsFromContext,

@@ -28,23 +28,23 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // du specific flags.
 var (
 	duFlags = []cli.Flag{
 		&cli.IntFlag{
-			Name: "depth",
+			Name:    "depth",
 			Aliases: []string{"d"},
-			Usage: "print the total for a folder prefix only if it is N or fewer levels below the command line argument",
+			Usage:   "print the total for a folder prefix only if it is N or fewer levels below the command line argument",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "recursively print the total for a folder prefix",
+			Usage:   "recursively print the total for a folder prefix",
 		},
 		&cli.StringFlag{
 			Name:  "rewind",

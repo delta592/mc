@@ -28,14 +28,14 @@ import (
 
 var shareDownloadFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "share all objects recursively",
+		Usage:   "share all objects recursively",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "share a particular object version",
+		Usage:   "share a particular object version",
 	},
 	shareFlagExpire,
 }

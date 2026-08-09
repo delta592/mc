@@ -21,8 +21,8 @@ import (
 	"net/url"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 type supportProxySetMessage struct {

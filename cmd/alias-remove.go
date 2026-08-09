@@ -19,14 +19,14 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var aliasRemoveCmd = &cli.Command{
-	Name:      "remove",
+	Name:    "remove",
 	Aliases: []string{"rm"},
-	Usage:     "remove an alias from configuration file",
+	Usage:   "remove an alias from configuration file",
 	Action: func(ctx *cli.Context) error {
 		return mainAliasRemove(ctx)
 	},

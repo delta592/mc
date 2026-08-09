@@ -26,10 +26,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 func defaultPartSize() string {
@@ -39,9 +39,9 @@ func defaultPartSize() string {
 
 var pipeFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "storage-class",
+		Name:    "storage-class",
 		Aliases: []string{"sc"},
-		Usage: "set storage class for new object(s) on target",
+		Usage:   "set storage class for new object(s) on target",
 	},
 	&cli.StringFlag{
 		Name:  "attr",

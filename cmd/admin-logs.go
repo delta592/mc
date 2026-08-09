@@ -25,26 +25,26 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 const logTimeFormat string = "15:04:05 MST 01/02/2006"
 
 var logsShowFlags = []cli.Flag{
 	&cli.IntFlag{
-		Name: "last",
+		Name:    "last",
 		Aliases: []string{"l"},
-		Usage: "show last n log entries",
-		Value: 10,
+		Usage:   "show last n log entries",
+		Value:   10,
 	},
 	&cli.StringFlag{
-		Name: "type",
+		Name:    "type",
 		Aliases: []string{"t"},
-		Usage: "list error logs by type. Valid options are '[minio, application, all]'",
-		Value: "all",
+		Usage:   "list error logs by type. Valid options are '[minio, application, all]'",
+		Value:   "all",
 	},
 }
 

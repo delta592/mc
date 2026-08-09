@@ -22,8 +22,8 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var idpLdapAddCmd = &cli.Command{
@@ -159,7 +159,7 @@ func mainIDPLDAPUpdate(ctx *cli.Context) error {
 
 var idpLdapRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove LDAP IDP server configuration",
 	Action:       mainIDPLDAPRemove,
 	Before:       setGlobalsFromContext,
@@ -191,7 +191,7 @@ func mainIDPLDAPRemove(ctx *cli.Context) error {
 
 var idpLdapListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list LDAP IDP server configuration(s)",
 	Action:       mainIDPLDAPList,
 	Before:       setGlobalsFromContext,

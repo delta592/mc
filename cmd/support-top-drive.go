@@ -23,16 +23,16 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var supportTopDriveFlags = []cli.Flag{
 	&cli.IntFlag{
-		Name: "count",
+		Name:    "count",
 		Aliases: []string{"c"},
-		Usage: "show up to N drives",
-		Value: 10,
+		Usage:   "show up to N drives",
+		Value:   10,
 	},
 }
 

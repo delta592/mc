@@ -35,19 +35,19 @@ import (
 
 var headFlags = []cli.Flag{
 	&cli.Int64Flag{
-		Name: "n",
+		Name:    "n",
 		Aliases: []string{"lines"},
-		Usage: "print the first 'n' lines",
-		Value: 10,
+		Usage:   "print the first 'n' lines",
+		Value:   10,
 	},
 	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "select an object version at specified time",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "select an object version to display",
+		Usage:   "select an object version to display",
 	},
 	&cli.BoolFlag{
 		Name:  "zip",

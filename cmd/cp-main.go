@@ -28,10 +28,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // cp command flags.
@@ -42,14 +42,14 @@ var (
 			Usage: "roll back object(s) to current version at specified time",
 		},
 		&cli.StringFlag{
-			Name: "version-id",
+			Name:    "version-id",
 			Aliases: []string{"vid"},
-			Usage: "select an object version to copy",
+			Usage:   "select an object version to copy",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "copy recursively",
+			Usage:   "copy recursively",
 		},
 		&cli.StringFlag{
 			Name:  "older-than",
@@ -60,18 +60,18 @@ var (
 			Usage: "copy objects newer than value in duration string (e.g. 7d10h31s)",
 		},
 		&cli.StringFlag{
-			Name: "storage-class",
+			Name:    "storage-class",
 			Aliases: []string{"sc"},
-			Usage: "set storage class for new object(s) on target",
+			Usage:   "set storage class for new object(s) on target",
 		},
 		&cli.StringFlag{
 			Name:  "attr",
 			Usage: "add custom metadata for the object",
 		},
 		&cli.BoolFlag{
-			Name: "preserve",
+			Name:    "preserve",
 			Aliases: []string{"a"},
-			Usage: "preserve filesystem attributes (mode, ownership, timestamps)",
+			Usage:   "preserve filesystem attributes (mode, ownership, timestamps)",
 		},
 		&cli.BoolFlag{
 			Name:  "disable-multipart",

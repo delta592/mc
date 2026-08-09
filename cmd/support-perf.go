@@ -27,10 +27,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var supportPerfFlags = append([]cli.Flag{
@@ -40,9 +40,9 @@ var supportPerfFlags = append([]cli.Flag{
 		Value: "64MiB",
 	},
 	&cli.BoolFlag{
-		Name: "verbose",
+		Name:    "verbose",
 		Aliases: []string{"v"},
-		Usage: "display per-server stats",
+		Usage:   "display per-server stats",
 	},
 	&cli.StringFlag{
 		Name:   "duration",

@@ -35,10 +35,10 @@ import (
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/compat"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var replicateBacklogFlags = []cli.Flag{
@@ -47,31 +47,31 @@ var replicateBacklogFlags = []cli.Flag{
 		Usage: "unique role ARN",
 	},
 	&cli.BoolFlag{
-		Name: "verbose",
+		Name:    "verbose",
 		Aliases: []string{"v"},
-		Usage: "include replicated versions",
+		Usage:   "include replicated versions",
 	},
 	&cli.StringFlag{
-		Name: "nodes",
+		Name:    "nodes",
 		Aliases: []string{"n"},
-		Usage: "show most recent failures for one or more nodes. Valid values are 'all', or node name",
-		Value: "all",
+		Usage:   "show most recent failures for one or more nodes. Valid values are 'all', or node name",
+		Value:   "all",
 	},
 	&cli.BoolFlag{
-		Name: "full",
+		Name:    "full",
 		Aliases: []string{"a"},
-		Usage: "list and show all replication failures for bucket",
+		Usage:   "list and show all replication failures for bucket",
 	},
 }
 
 var replicateBacklogCmd = &cli.Command{
-	Name:          "backlog",
-	Aliases:       []string{"diff"},
-	Usage:         "show unreplicated object versions",
-	Action:        mainReplicateBacklog,
-	OnUsageError:  onUsageError,
-	Before:        setGlobalsFromContext,
-	Flags:         append(globalFlags, replicateBacklogFlags...),
+	Name:         "backlog",
+	Aliases:      []string{"diff"},
+	Usage:        "show unreplicated object versions",
+	Action:       mainReplicateBacklog,
+	OnUsageError: onUsageError,
+	Before:       setGlobalsFromContext,
+	Flags:        append(globalFlags, replicateBacklogFlags...),
 	CustomHelpTemplate: `NAME:
   {{.HelpName}} - {{.Usage}}
 

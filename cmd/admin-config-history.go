@@ -24,22 +24,22 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var historyListFlags = []cli.Flag{
 	&cli.IntFlag{
-		Name: "count",
+		Name:    "count",
 		Aliases: []string{"n"},
-		Usage: "list only last 'n' entries",
-		Value: 10,
+		Usage:   "list only last 'n' entries",
+		Value:   10,
 	},
 	&cli.BoolFlag{
-		Name: "clear",
+		Name:    "clear",
 		Aliases: []string{"c"},
-		Usage: "clear all history",
+		Usage:   "clear all history",
 	},
 }
 

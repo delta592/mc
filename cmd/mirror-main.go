@@ -34,7 +34,6 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
@@ -43,6 +42,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/urfave/cli/v2"
 )
 
 // mirror specific flags.
@@ -67,9 +67,9 @@ var (
 			Usage: "perform a fake mirror operation",
 		},
 		&cli.BoolFlag{
-			Name: "watch",
+			Name:    "watch",
 			Aliases: []string{"w"},
-			Usage: "watch and synchronize changes",
+			Usage:   "watch and synchronize changes",
 		},
 		&cli.BoolFlag{
 			Name:  "remove",
@@ -81,9 +81,9 @@ var (
 			Value: "us-east-1",
 		},
 		&cli.BoolFlag{
-			Name: "preserve",
+			Name:    "preserve",
 			Aliases: []string{"a"},
-			Usage: "preserve file(s)/object(s) attributes and bucket(s) policy/locking configuration(s) on target bucket(s)",
+			Usage:   "preserve file(s)/object(s) attributes and bucket(s) policy/locking configuration(s) on target bucket(s)",
 		},
 		&cli.BoolFlag{
 			Name:   "md5",
@@ -124,9 +124,9 @@ var (
 			Usage: "filter object(s) newer than value in duration string (e.g. 7d10h31s)",
 		},
 		&cli.StringFlag{
-			Name: "storage-class",
+			Name:    "storage-class",
 			Aliases: []string{"sc"},
-			Usage: "specify storage class for new object(s) on target",
+			Usage:   "specify storage class for new object(s) on target",
 		},
 		&cli.StringFlag{
 			Name:  "attr",

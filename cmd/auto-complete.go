@@ -24,9 +24,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/urfave/cli/v2"
 	"github.com/posener/complete/v2"
 	"github.com/posener/complete/v2/predict"
+	"github.com/urfave/cli/v2"
 )
 
 // completionArgs holds parsed command-line context for bash completion.

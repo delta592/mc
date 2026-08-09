@@ -30,9 +30,9 @@ import (
 
 var shareUploadFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "recursively upload any object matching the prefix",
+		Usage:   "recursively upload any object matching the prefix",
 	},
 	shareFlagExpire,
 	shareFlagContentType,

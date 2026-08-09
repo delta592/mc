@@ -27,17 +27,17 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var tagListFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "list tags of particular object version",
+		Usage:   "list tags of particular object version",
 	},
 	&cli.StringFlag{
 		Name:  "rewind",
@@ -48,9 +48,9 @@ var tagListFlags = []cli.Flag{
 		Usage: "list tags on all versions for an object",
 	},
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "recursivley show tags for all objects",
+		Usage:   "recursivley show tags for all objects",
 	},
 }
 

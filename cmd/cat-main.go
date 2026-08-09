@@ -40,9 +40,9 @@ var catFlags = []cli.Flag{
 		Usage: "display an earlier object version",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "display a specific version of an object",
+		Usage:   "display a specific version of an object",
 	},
 	&cli.BoolFlag{
 		Name:  "zip",

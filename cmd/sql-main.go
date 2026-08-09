@@ -32,22 +32,22 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/mimedb"
+	"github.com/urfave/cli/v2"
 )
 
 var sqlFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "query",
+		Name:    "query",
 		Aliases: []string{"e"},
-		Usage: "sql query expression",
-		Value: "select * from s3object",
+		Usage:   "sql query expression",
+		Value:   "select * from s3object",
 	},
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "sql query recursively",
+		Usage:   "sql query recursively",
 	},
 	&cli.StringFlag{
 		Name:  "csv-input",

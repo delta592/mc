@@ -28,11 +28,11 @@ import (
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/delta592/mc/pkg/textutil"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/delta592/mc/pkg/textutil"
 	"github.com/olekukonko/tablewriter/tw"
 	"golang.org/x/term"
 )

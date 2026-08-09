@@ -23,14 +23,14 @@ import (
 
 var adminDetachPolicyFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "user",
+		Name:    "user",
 		Aliases: []string{"u"},
-		Usage: "detach policy from user",
+		Usage:   "detach policy from user",
 	},
 	&cli.StringFlag{
-		Name: "group",
+		Name:    "group",
 		Aliases: []string{"g"},
-		Usage: "detach policy from group",
+		Usage:   "detach policy from group",
 	},
 }
 

@@ -27,8 +27,8 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -63,15 +63,15 @@ func (t treeMessage) JSON() string {
 
 var treeFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "files",
+		Name:    "files",
 		Aliases: []string{"f"},
-		Usage: "includes files in tree",
+		Usage:   "includes files in tree",
 	},
 	&cli.IntFlag{
-		Name: "depth",
+		Name:    "depth",
 		Aliases: []string{"d"},
-		Usage: "sets the depth threshold",
-		Value: -1,
+		Usage:   "sets the depth threshold",
+		Value:   -1,
 	},
 	&cli.StringFlag{
 		Name:  "rewind",

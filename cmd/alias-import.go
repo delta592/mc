@@ -28,7 +28,7 @@ import (
 
 var aliasImportCmd = &cli.Command{
 	Name:            "import",
-	Aliases: []string{"i"},
+	Aliases:         []string{"i"},
 	Usage:           "import configuration info to configuration file from a JSON formatted string ",
 	Action:          mainAliasImport,
 	OnUsageError:    onUsageError,
