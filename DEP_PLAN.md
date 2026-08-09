@@ -390,7 +390,7 @@ flowchart TD
 When a dependency is addressed, update this file:
 
 - [x] Phase 1 complete
-- [ ] Phase 2 complete
+- [x] Phase 2 complete
 - [ ] Phase 3 complete
 - [ ] Phase 4 scoped / scheduled
 - [ ] "Keep" decisions reviewed annually
