@@ -11,8 +11,10 @@ import (
 	"strings"
 )
 
-const all = ^Event(0)
-const sep = string(os.PathSeparator)
+const (
+	all = ^Event(0)
+	sep = string(os.PathSeparator)
+)
 
 var errDepth = errors.New("exceeded allowed iteration count (circular symlink?)")
 

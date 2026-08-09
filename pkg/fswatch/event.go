@@ -115,8 +115,10 @@ type isDirer interface {
 	isDir() (bool, error)
 }
 
-var _ fmt.Stringer = (*event)(nil)
-var _ isDirer = (*event)(nil)
+var (
+	_ fmt.Stringer = (*event)(nil)
+	_ isDirer      = (*event)(nil)
+)
 
 // String implements fmt.Stringer interface.
 func (e *event) String() string {

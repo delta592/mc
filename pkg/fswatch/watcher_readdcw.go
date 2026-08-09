@@ -170,7 +170,8 @@ type watched struct {
 // only directory Create/Remove actions. If all operations succeed, the Create
 // message is sent to I/O completion port queue for further processing.
 func newWatched(cph syscall.Handle, filter uint32, recursive bool,
-	path string) (wd *watched, err error) {
+	path string,
+) (wd *watched, err error) {
 	wd = &watched{
 		filter:    filter,
 		recursive: recursive,
@@ -200,7 +201,8 @@ func (wd *watched) recreate(cph syscall.Handle) (err error) {
 
 // TODO : doc
 func (wd *watched) updateGrip(idx int, cph syscall.Handle, reset bool,
-	newflag uint32) (err error) {
+	newflag uint32,
+) (err error) {
 	if reset {
 		wd.digrip[idx] = nil
 	} else {
@@ -246,7 +248,7 @@ func (wd *watched) closeHandle() (err error) {
 			// the handle but, since we can't close it anyway, there won't be
 			// any difference.
 			if atomic.CompareAndSwapUintptr((*uintptr)(&g.handle),
-				(uintptr)(handle), (uintptr)(syscall.InvalidHandle)) {
+				uintptr(handle), uintptr(syscall.InvalidHandle)) {
 				break
 			}
 		}
@@ -459,7 +461,8 @@ func (r *readdcw) Rewatch(path string, oldevent, newevent Event) error {
 
 // RecursiveRewatch implements notify.RecursiveRewatcher interface.
 func (r *readdcw) RecursiveRewatch(oldpath, newpath string, oldevent,
-	newevent Event) error {
+	newevent Event,
+) error {
 	if oldpath != newpath {
 		if err := r.unwatch(oldpath); err != nil {
 			return err

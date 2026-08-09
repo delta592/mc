@@ -42,7 +42,7 @@ var (
 // global dispatch queue which all streams are registered with
 var q C.dispatch_queue_t = C.dispatch_queue_create(
 	C.CString("com.github.rjeczalik.notify"),
-	(C.dispatch_queue_attr_t)(C.DISPATCH_QUEUE_SERIAL),
+	C.dispatch_queue_attr_t(C.DISPATCH_QUEUE_SERIAL),
 )
 
 // Errors returned when FSEvents functions fail.
@@ -77,7 +77,6 @@ func gostream(_, info uintptr, n C.size_t, paths, flags, ids uintptr) {
 				ID:    *(*uint64)(unsafe.Pointer(ids + i*offid)),
 			})
 		}
-
 	}
 	fn(ev)
 }
