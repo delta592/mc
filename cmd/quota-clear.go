@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var quotaClearCmd = &cli.Command{
@@ -48,21 +50,21 @@ EXAMPLES:
 }
 
 // checkQuotaClearSyntax - validate all the passed arguments
-func checkQuotaClearSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkQuotaClearSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainQuotaClear is the handler for "mc quota clear" command.
-func mainQuotaClear(ctx *cli.Context) error {
-	checkQuotaClearSyntax(ctx)
+func mainQuotaClear(_ context.Context, cmd *cli.Command) error {
+	checkQuotaClearSyntax(cmd)
 
 	console.SetColor("QuotaMessage", color.New(color.FgGreen))
 	console.SetColor("QuotaInfo", color.New(color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -74,7 +76,7 @@ func mainQuotaClear(ctx *cli.Context) error {
 		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to clear bucket quota config")
 	}
 	printMsg(quotaMessage{
-		op:     ctx.Command.Name,
+		op:     cmd.Name,
 		Bucket: targetURL,
 		Status: "success",
 	})

@@ -25,7 +25,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateRemoveFlags = []cli.Flag{
@@ -70,18 +70,18 @@ EXAMPLES:
 }
 
 // checkReplicateRemoveSyntax - validate all the passed arguments
-func checkReplicateRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
-	rmAll := ctx.Bool("all")
-	rmForce := ctx.Bool("force")
-	rID := ctx.String("id")
+	rmAll := cmd.Bool("all")
+	rmForce := cmd.Bool("force")
+	rID := cmd.String("id")
 
 	rmChk := (rmAll && rmForce) || (!rmAll && !rmForce)
 	if !rmChk {
 		fatalIf(errInvalidArgument(),
-			"It is mandatory to specify --all and --force flag together for mc "+ctx.Command.FullName()+".")
+			"It is mandatory to specify --all and --force flag together for mc "+cmd.FullName()+".")
 	}
 	if rmAll && rmForce {
 		return
@@ -113,16 +113,16 @@ func (l replicateRemoveMessage) String() string {
 	return console.Colorize("replicateRemoveMessage", "Replication configuration removed from "+l.URL+" successfully.")
 }
 
-func mainReplicateRemove(cliCtx *cli.Context) error {
+func mainReplicateRemove(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelReplicateRemove := context.WithCancel(globalContext)
 	defer cancelReplicateRemove()
 
 	console.SetColor("replicateRemoveMessage", color.New(color.FgGreen))
 
-	checkReplicateRemoveSyntax(cliCtx)
+	checkReplicateRemoveSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
@@ -130,13 +130,13 @@ func mainReplicateRemove(cliCtx *cli.Context) error {
 	rcfg, err := client.GetReplication(ctx)
 	fatalIf(err.Trace(args.Slice()...), "Unable to get replication configuration")
 
-	rmAll := cliCtx.Bool("all")
-	rmForce := cliCtx.Bool("force")
-	ruleID := cliCtx.String("id")
+	rmAll := cmd.Bool("all")
+	rmForce := cmd.Bool("force")
+	ruleID := cmd.String("id")
 
 	if rcfg.Empty() && !rmAll {
 		printMsg(replicateRemoveMessage{
-			Op:     cliCtx.Command.Name,
+			Op:     cmd.Name,
 			Status: "success",
 			URL:    aliasedURL,
 		})
@@ -163,7 +163,7 @@ func mainReplicateRemove(cliCtx *cli.Context) error {
 
 	}
 	printMsg(replicateRemoveMessage{
-		Op:     cliCtx.Command.Name,
+		Op:     cmd.Name,
 		Status: "success",
 		URL:    aliasedURL,
 		ID:     ruleID,

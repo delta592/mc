@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var ilmRuleSubcommands = []*cli.Command{
 	ilmAddCmd,
@@ -33,12 +37,12 @@ var ilmRuleCmd = &cli.Command{
 	Usage:           "manage bucket lifecycle rules",
 	Before:          setGlobalsFromContext,
 	Action:          mainILMRule,
-	Subcommands:     ilmRuleSubcommands,
+	Commands:        ilmRuleSubcommands,
 	Flags:           globalFlags,
 	HideHelpCommand: true,
 }
 
-func mainILMRule(ctx *cli.Context) error {
-	commandNotFound(ctx, ilmRuleSubcommands)
+func mainILMRule(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, ilmRuleSubcommands)
 	return nil
 }

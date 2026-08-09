@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -28,7 +29,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // profile command flags.
@@ -111,7 +112,7 @@ EXAMPLES:
 `,
 }
 
-func checkAdminProfileSyntax(ctx *cli.Context) {
+func checkAdminProfileSyntax(cmd *cli.Command) {
 	s := set.CreateStringSet(string(madmin.ProfilerCPU),
 		string(madmin.ProfilerMEM),
 		string(madmin.ProfilerBlock),
@@ -123,20 +124,20 @@ func checkAdminProfileSyntax(ctx *cli.Context) {
 		string(madmin.ProfilerRuntime),
 	)
 	// Check if the provided profiler type is known and supported
-	profilers := strings.SplitSeq(strings.ToLower(ctx.String("type")), ",")
+	profilers := strings.SplitSeq(strings.ToLower(cmd.String("type")), ",")
 	for profiler := range profilers {
 		if profiler != "" {
 			if !s.Contains(profiler) {
-				fatalIf(errDummy().Trace(ctx.String("type")),
+				fatalIf(errDummy().Trace(cmd.String("type")),
 					"Profiler type %s unrecognized. Possible values are: %v.", profiler, s)
 			}
 		}
 	}
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	if ctx.Int("duration") < 1 {
+	if cmd.Int("duration") < 1 {
 		fatal(errDummy().Trace(), "for any useful profiling one must run it for at least 1 second")
 	}
 }
@@ -196,16 +197,16 @@ func saveProfileFile(data io.ReadCloser) {
 }
 
 // mainSupportProfile is the handle for "mc support profile" command.
-func mainSupportProfile(ctx *cli.Context) error {
+func mainSupportProfile(ctx context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkAdminProfileSyntax(ctx)
+	checkAdminProfileSyntax(cmd)
 
 	setSuccessMessageColor()
 	setErrorMessageColor()
 
 	// Get the alias parameter from cli
-	aliasedURL := ctx.Args().Get(0)
-	alias, apiKey := initSubnetConnectivity(ctx, aliasedURL, true)
+	aliasedURL := cmd.Args().Get(0)
+	alias, apiKey := initSubnetConnectivity(ctx, cmd, aliasedURL, true)
 	if len(apiKey) == 0 {
 		// api key not passed as flag. Check that the cluster is registered.
 		apiKey = validateClusterRegistered(alias, true)
@@ -215,15 +216,15 @@ func mainSupportProfile(ctx *cli.Context) error {
 	client := getClient(aliasedURL)
 
 	// Main execution
-	execSupportProfile(ctx, client, alias, apiKey)
+	execSupportProfile(ctx, cmd, client, alias, apiKey)
 	return nil
 }
 
-func execSupportProfile(ctx *cli.Context, client *madmin.AdminClient, alias, apiKey string) {
+func execSupportProfile(_ context.Context, cmd *cli.Command, client *madmin.AdminClient, alias, apiKey string) {
 	var reqURL string
 	var headers map[string]string
-	profilers := ctx.String("type")
-	duration := ctx.Int("duration")
+	profilers := cmd.String("type")
+	duration := cmd.Int("duration")
 
 	if !globalAirgapped {
 		// Retrieve subnet credentials (login/license) beforehand as

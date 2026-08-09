@@ -20,6 +20,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -39,7 +40,7 @@ import (
 	"github.com/minio/pkg/v3/licverifier"
 	"github.com/minio/pkg/v3/subnet"
 	"github.com/tidwall/gjson"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -53,7 +54,7 @@ const (
 var subnetCommonFlags = append(supportGlobalFlags, &cli.StringFlag{
 	Name:    "api-key",
 	Usage:   "API Key of the account on SUBNET",
-	EnvVars: []string{"_MC_SUBNET_API_KEY"},
+	Sources: cli.EnvVars("_MC_SUBNET_API_KEY"),
 })
 
 // SubnetBaseURL - returns the base URL of SUBNET
@@ -722,8 +723,8 @@ func prepareSubnetUploadURL(uploadURL, alias, apiKey string) (string, map[string
 	return reqURL, headers
 }
 
-func getAPIKeyFlag(ctx *cli.Context) (string, error) {
-	apiKey := ctx.String("api-key")
+func getAPIKeyFlag(_ context.Context, cmd *cli.Command) (string, error) {
+	apiKey := cmd.String("api-key")
 
 	if len(apiKey) == 0 {
 		return "", nil
@@ -737,14 +738,14 @@ func getAPIKeyFlag(ctx *cli.Context) (string, error) {
 	return apiKey, nil
 }
 
-func initSubnetConnectivity(ctx *cli.Context, aliasedURL string, failOnConnErr bool) (string, string) {
-	if ctx.Bool("airgap") && len(ctx.String("api-key")) > 0 {
+func initSubnetConnectivity(ctx context.Context, cmd *cli.Command, aliasedURL string, failOnConnErr bool) (string, string) {
+	if cmd.Bool("airgap") && len(cmd.String("api-key")) > 0 {
 		fatal(errDummy().Trace(), "--api-key is not applicable in airgap mode")
 	}
 
 	alias, _ := url2Alias(aliasedURL)
 
-	apiKey, e := getAPIKeyFlag(ctx)
+	apiKey, e := getAPIKeyFlag(ctx, cmd)
 	fatalIf(probe.NewError(e), "Error in reading --api-key flag:")
 
 	// if `--airgap` is provided no need to test SUBNET connectivity.

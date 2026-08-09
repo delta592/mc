@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminConfigEnvFlags = []cli.Flag{
@@ -91,38 +92,38 @@ func (u configResetMessage) JSON() string {
 }
 
 // checkAdminConfigResetSyntax - validate all the passed arguments
-func checkAdminConfigResetSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminConfigResetSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // main config set function
-func mainAdminConfigReset(ctx *cli.Context) error {
+func mainAdminConfigReset(_ context.Context, cmd *cli.Command) error {
 	// Check command arguments
-	checkAdminConfigResetSyntax(ctx)
+	checkAdminConfigResetSyntax(cmd)
 
 	// Reset color preference of command outputs
 	console.SetColor("ResetConfigSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("ResetConfigFailure", color.New(color.FgRed, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	if ctx.Args().Len() == 1 {
+	if cmd.Args().Len() == 1 {
 		// Call get config API
-		hr, e := client.HelpConfigKV(globalContext, "", "", ctx.Bool("env"))
+		hr, e := client.HelpConfigKV(globalContext, "", "", cmd.Bool("env"))
 		fatalIf(probe.NewError(e), "Unable to get help for the sub-system")
 
 		// Print
 		printMsg(configHelpMessage{
 			Value:   hr,
-			envOnly: ctx.Bool("env"),
+			envOnly: cmd.Bool("env"),
 		})
 
 		return nil

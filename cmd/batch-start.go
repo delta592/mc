@@ -27,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var batchStartCmd = &cli.Command{
@@ -73,20 +73,20 @@ func (c batchStartMessage) JSON() string {
 }
 
 // checkBatchStartSyntax - validate all the passed arguments
-func checkBatchStartSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBatchStartSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainBatchStart is the handle for "mc batch create" command.
-func mainBatchStart(ctx *cli.Context) error {
-	checkBatchStartSyntax(ctx)
+func mainBatchStart(_ context.Context, cmd *cli.Command) error {
+	checkBatchStartSyntax(cmd)
 
 	console.SetColor("BatchStart", color.New(color.FgGreen, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Start a new MinIO Admin Client

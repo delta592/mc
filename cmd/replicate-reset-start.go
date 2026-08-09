@@ -28,7 +28,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateResyncStartFlags = []cli.Flag{
@@ -68,11 +68,11 @@ EXAMPLES:
 }
 
 // checkReplicateResyncStartSyntax - validate all the passed arguments
-func checkReplicateResyncStartSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateResyncStartSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
-	if ctx.String("remote-bucket") == "" {
+	if cmd.String("remote-bucket") == "" {
 		fatal(errDummy().Trace(), "--remote-bucket flag needs to be specified.")
 	}
 }
@@ -99,24 +99,24 @@ func (r replicateResyncMessage) String() string {
 	return console.Colorize("replicateResyncMessage", fmt.Sprintf("Replication reset started for %s", r.URL))
 }
 
-func mainReplicateResyncStart(cliCtx *cli.Context) error {
+func mainReplicateResyncStart(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelReplicateResyncStart := context.WithCancel(globalContext)
 	defer cancelReplicateResyncStart()
 
 	console.SetColor("replicateResyncMessage", color.New(color.FgGreen))
 
-	checkReplicateResyncStartSyntax(cliCtx)
+	checkReplicateResyncStartSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	var olderThanStr string
 	var olderThan time.Duration
-	if cliCtx.IsSet("older-than") {
-		olderThanStr = cliCtx.String("older-than")
+	if cmd.IsSet("older-than") {
+		olderThanStr = cmd.String("older-than")
 		if olderThanStr != "" {
 			days, e := ParseDuration(olderThanStr)
 			if e != nil || !strings.ContainsAny(olderThanStr, "dwy") {
@@ -129,10 +129,10 @@ func mainReplicateResyncStart(cliCtx *cli.Context) error {
 		}
 	}
 
-	rinfo, err := client.ResetReplication(ctx, olderThan, cliCtx.String("remote-bucket"))
+	rinfo, err := client.ResetReplication(ctx, olderThan, cmd.String("remote-bucket"))
 	fatalIf(err.Trace(args.Slice()...), "Unable to reset replication")
 	printMsg(replicateResyncMessage{
-		Op:                cliCtx.Command.Name,
+		Op:                cmd.Name,
 		URL:               aliasedURL,
 		ResyncTargetsInfo: rinfo,
 	})

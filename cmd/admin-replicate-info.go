@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -28,7 +29,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateInfoCmd = &cli.Command{
@@ -117,12 +118,12 @@ func (i srInfo) String() string {
 	return console.Colorize("UserMessage", strings.Join(messages, "\n"))
 }
 
-func mainAdminReplicationInfo(ctx *cli.Context) error {
+func mainAdminReplicationInfo(_ context.Context, cmd *cli.Command) error {
 	{
 		// Check argument count
-		argsNr := ctx.Args().Len()
+		argsNr := cmd.Args().Len()
 		if argsNr != 1 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 				"Need exactly one alias argument.")
 		}
 	}
@@ -132,7 +133,7 @@ func mainAdminReplicationInfo(ctx *cli.Context) error {
 	console.SetColor("TDetail", color.New(color.Bold, color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

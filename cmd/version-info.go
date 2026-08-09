@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var versionInfoCmd = &cli.Command{
@@ -52,9 +52,9 @@ EXAMPLES:
 }
 
 // checkVersionInfoSyntax - validate all the passed arguments
-func checkVersionInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkVersionInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -88,16 +88,16 @@ func (v versioningInfoMessage) String() string {
 	return console.Colorize("versioningInfoMessage", msg)
 }
 
-func mainVersionInfo(cliCtx *cli.Context) error {
+func mainVersionInfo(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelVersioningInfo := context.WithCancel(globalContext)
 	defer cancelVersioningInfo()
 
 	console.SetColor("versioningInfoMessage", color.New(color.FgGreen))
 
-	checkVersionInfoSyntax(cliCtx)
+	checkVersionInfoSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
@@ -105,7 +105,7 @@ func mainVersionInfo(cliCtx *cli.Context) error {
 	vConfig, e := client.GetVersion(ctx)
 	fatalIf(e, "Unable to get versioning info")
 	vMsg := versioningInfoMessage{
-		Op:     cliCtx.Command.Name,
+		Op:     cmd.Name,
 		Status: "success",
 		URL:    aliasedURL,
 	}

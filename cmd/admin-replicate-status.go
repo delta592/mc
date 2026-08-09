@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
@@ -30,7 +31,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateStatusFlags = []cli.Flag{
@@ -813,8 +814,8 @@ func (i srStatus) getILMExpiryStatusSummary(siteNames []string, nameIDMap map[st
 }
 
 // Calculate srstatus options for command line flags
-func srStatusOpts(ctx *cli.Context) (opts madmin.SRStatusOptions) {
-	if (!ctx.IsSet("buckets") && !ctx.IsSet("users") && !ctx.IsSet("groups") && !ctx.IsSet("policies") && !ctx.IsSet("ilm-expiry-rules") && !ctx.IsSet("bucket") && !ctx.IsSet("user") && !ctx.IsSet("group") && !ctx.IsSet("policy") && !ctx.IsSet("ilm-expiry-rule") && !ctx.IsSet("all")) || ctx.IsSet("all") {
+func srStatusOpts(_ context.Context, cmd *cli.Command) (opts madmin.SRStatusOptions) {
+	if (!cmd.IsSet("buckets") && !cmd.IsSet("users") && !cmd.IsSet("groups") && !cmd.IsSet("policies") && !cmd.IsSet("ilm-expiry-rules") && !cmd.IsSet("bucket") && !cmd.IsSet("user") && !cmd.IsSet("group") && !cmd.IsSet("policy") && !cmd.IsSet("ilm-expiry-rule") && !cmd.IsSet("all")) || cmd.IsSet("all") {
 		opts.Buckets = true
 		opts.Users = true
 		opts.Groups = true
@@ -823,36 +824,36 @@ func srStatusOpts(ctx *cli.Context) (opts madmin.SRStatusOptions) {
 		opts.ILMExpiryRules = true
 		return
 	}
-	opts.Buckets = ctx.Bool("buckets")
-	opts.Policies = ctx.Bool("policies")
-	opts.Users = ctx.Bool("users")
-	opts.Groups = ctx.Bool("groups")
-	opts.ILMExpiryRules = ctx.Bool("ilm-expiry-rules")
+	opts.Buckets = cmd.Bool("buckets")
+	opts.Policies = cmd.Bool("policies")
+	opts.Users = cmd.Bool("users")
+	opts.Groups = cmd.Bool("groups")
+	opts.ILMExpiryRules = cmd.Bool("ilm-expiry-rules")
 	for _, name := range []string{"bucket", "user", "group", "policy", "ilm-expiry-rule"} {
-		if ctx.IsSet(name) {
+		if cmd.IsSet(name) {
 			opts.Entity = madmin.GetSREntityType(name)
-			opts.EntityValue = ctx.String(name)
+			opts.EntityValue = cmd.String(name)
 			break
 		}
 	}
 	return
 }
 
-func mainAdminReplicationStatus(ctx *cli.Context) error {
+func mainAdminReplicationStatus(ctx context.Context, cmd *cli.Command) error {
 	{
 		// Check argument count
-		argsNr := ctx.Args().Len()
+		argsNr := cmd.Args().Len()
 		if argsNr != 1 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 				"Need exactly one alias argument.")
 		}
-		groupStatus := ctx.IsSet("buckets") || ctx.IsSet("groups") || ctx.IsSet("users") || ctx.IsSet("policies") || ctx.IsSet("ilm-expiry-rules")
-		indivStatus := ctx.IsSet("bucket") || ctx.IsSet("group") || ctx.IsSet("user") || ctx.IsSet("policy") || ctx.IsSet("ilm-expiry-rule")
+		groupStatus := cmd.IsSet("buckets") || cmd.IsSet("groups") || cmd.IsSet("users") || cmd.IsSet("policies") || cmd.IsSet("ilm-expiry-rules")
+		indivStatus := cmd.IsSet("bucket") || cmd.IsSet("group") || cmd.IsSet("user") || cmd.IsSet("policy") || cmd.IsSet("ilm-expiry-rule")
 		if groupStatus && indivStatus {
-			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 				"Cannot specify both (bucket|group|policy|user|ilm-expiry-rule) flag and one or more of buckets|groups|policies|users|ilm-expiry-rules) flag(s)")
 		}
-		setSlc := []bool{ctx.IsSet("bucket"), ctx.IsSet("user"), ctx.IsSet("group"), ctx.IsSet("policy"), ctx.IsSet("ilm-expiry-rule")}
+		setSlc := []bool{cmd.IsSet("bucket"), cmd.IsSet("user"), cmd.IsSet("group"), cmd.IsSet("policy"), cmd.IsSet("ilm-expiry-rule")}
 		count := 0
 		for _, s := range setSlc {
 			if s {
@@ -860,7 +861,7 @@ func mainAdminReplicationStatus(ctx *cli.Context) error {
 			}
 		}
 		if count > 1 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 				"Cannot specify more than one of --bucket, --policy, --user, --group, --ilm-expiry-rule  flags at the same time")
 		}
 	}
@@ -886,13 +887,13 @@ func mainAdminReplicationStatus(ctx *cli.Context) error {
 	console.SetColor("offline", color.New(color.FgRed, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
-	opts := srStatusOpts(ctx)
+	opts := srStatusOpts(ctx, cmd)
 	info, e := client.SRStatusInfo(globalContext, opts)
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get cluster replication status")
 

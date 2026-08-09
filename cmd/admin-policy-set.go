@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicySetCmd = &cli.Command{
@@ -33,7 +35,7 @@ var adminPolicySetCmd = &cli.Command{
 	CustomHelpTemplate: `Please use 'mc admin policy attach'`,
 }
 
-func mainAdminPolicySet(_ *cli.Context) error {
+func mainAdminPolicySet(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc admin policy attach")
 	return nil
 }

@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -33,7 +34,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctAddFlags = []cli.Flag{
@@ -106,9 +107,9 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctAddSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctAddSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctAddSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
@@ -270,25 +271,25 @@ func (u acctMessage) JSON() string {
 }
 
 // mainAdminUserSvcAcctAdd is the handle for "mc admin user svcacct add" command.
-func mainAdminUserSvcAcctAdd(ctx *cli.Context) error {
-	checkAdminUserSvcAcctAddSyntax(ctx)
+func mainAdminUserSvcAcctAdd(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSvcAcctAddSyntax(cmd)
 
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	user := args.Get(1)
 
-	accessKey := ctx.String("access-key")
-	secretKey := ctx.String("secret-key")
-	policyPath := ctx.String("policy")
-	name := ctx.String("name")
-	description := ctx.String("description")
+	accessKey := cmd.String("access-key")
+	secretKey := cmd.String("secret-key")
+	policyPath := cmd.String("policy")
+	name := cmd.String("name")
+	description := cmd.String("description")
 	if description == "" {
-		description = ctx.String("comment")
+		description = cmd.String("comment")
 	}
-	expiry := ctx.String("expiry")
+	expiry := cmd.String("expiry")
 
 	// generate access key and secret key
 	if len(accessKey) <= 0 || len(secretKey) <= 0 {

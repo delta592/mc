@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var replicateSubcommands = []*cli.Command{
 	replicateAddCmd,
@@ -38,12 +42,12 @@ var replicateCmd = &cli.Command{
 	Action:          mainReplicate,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     replicateSubcommands,
+	Commands:        replicateSubcommands,
 }
 
 // mainReplicate is the handle for "mc replicate" command.
-func mainReplicate(ctx *cli.Context) error {
-	commandNotFound(ctx, replicateSubcommands)
+func mainReplicate(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, replicateSubcommands)
 	return nil
 	// Sub-commands like "list", "clear", "add" have their own main.
 }

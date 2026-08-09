@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserListCmd = &cli.Command{
@@ -50,15 +51,15 @@ EXAMPLES:
 }
 
 // checkAdminUserListSyntax - validate all the passed arguments
-func checkAdminUserListSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminUserListSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminUserList is the handle for "mc admin user list" command.
-func mainAdminUserList(ctx *cli.Context) error {
-	checkAdminUserListSyntax(ctx)
+func mainAdminUserList(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserListSyntax(cmd)
 
 	// Additional command speific theme customization.
 	console.SetColor("UserMessage", color.New(color.FgGreen))
@@ -67,7 +68,7 @@ func mainAdminUserList(ctx *cli.Context) error {
 	console.SetColor("UserStatus", color.New(color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -92,7 +93,7 @@ func mainAdminUserList(ctx *cli.Context) error {
 			})
 		}
 		printMsg(userMessage{
-			op:         ctx.Command.Name,
+			op:         cmd.Name,
 			AccessKey:  k,
 			PolicyName: v.PolicyName,
 			MemberOf:   memberOf,

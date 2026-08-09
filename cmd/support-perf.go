@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"archive/zip"
+	"context"
 	gojson "encoding/json"
 	"fmt"
 	"os"
@@ -30,7 +31,7 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportPerfFlags = append([]cli.Flag{
@@ -271,8 +272,8 @@ func (p PerfTestOutput) JSON() string {
 
 var globalPerfTestVerbose bool
 
-func mainSupportPerf(ctx *cli.Context) error {
-	args := ctx.Args()
+func mainSupportPerf(ctx context.Context, cmd *cli.Command) error {
+	args := cmd.Args()
 
 	// the alias parameter from cli
 	aliasedURL := ""
@@ -281,7 +282,7 @@ func mainSupportPerf(ctx *cli.Context) error {
 	case 1:
 		// cannot use alias by the name 'drive' or 'net'
 		if args.Get(0) == "drive" || args.Get(0) == "net" || args.Get(0) == "object" || args.Get(0) == "site-replication" {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 		aliasedURL = args.Get(0)
 
@@ -289,11 +290,11 @@ func mainSupportPerf(ctx *cli.Context) error {
 		perfType = args.Get(0)
 		aliasedURL = args.Get(1)
 	default:
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	// Main execution
-	execSupportPerf(ctx, aliasedURL, perfType)
+	execSupportPerf(ctx, cmd, aliasedURL, perfType)
 
 	return nil
 }
@@ -461,14 +462,14 @@ func convertPerfResults(results []PerfTestResult) PerfTestOutput {
 	return out
 }
 
-func execSupportPerf(ctx *cli.Context, aliasedURL, perfType string) {
-	alias, apiKey := initSubnetConnectivity(ctx, aliasedURL, true)
+func execSupportPerf(ctx context.Context, cmd *cli.Command, aliasedURL, perfType string) {
+	alias, apiKey := initSubnetConnectivity(ctx, cmd, aliasedURL, true)
 	if len(apiKey) == 0 {
 		// api key not passed as flag. Check that the cluster is registered.
 		apiKey = validateClusterRegistered(alias, true)
 	}
 
-	results := runPerfTests(ctx, aliasedURL, perfType)
+	results := runPerfTests(ctx, cmd, aliasedURL, perfType)
 	if globalJSON {
 		// No file to be saved or uploaded to SUBNET in case of `--json`
 		return
@@ -518,7 +519,7 @@ func savePerfResultFile(tmpFileName, resultFileNamePfx string) {
 	console.Infof("MinIO performance report saved at %s, please upload to SUBNET portal manually\n", zipFileName)
 }
 
-func runPerfTests(ctx *cli.Context, aliasedURL, perfType string) []PerfTestResult {
+func runPerfTests(ctx context.Context, cmd *cli.Command, aliasedURL, perfType string) []PerfTestResult {
 	resultCh := make(chan PerfTestResult)
 	results := []PerfTestResult{}
 	defer close(resultCh)
@@ -532,17 +533,17 @@ func runPerfTests(ctx *cli.Context, aliasedURL, perfType string) []PerfTestResul
 	for _, t := range tests {
 		switch t {
 		case "drive":
-			mainAdminSpeedTestDrive(ctx, aliasedURL, resultCh)
+			mainAdminSpeedTestDrive(ctx, cmd, aliasedURL, resultCh)
 		case "object":
-			mainAdminSpeedTestObject(ctx, aliasedURL, resultCh)
+			mainAdminSpeedTestObject(ctx, cmd, aliasedURL, resultCh)
 		case "net":
-			mainAdminSpeedTestNetperf(ctx, aliasedURL, resultCh)
+			mainAdminSpeedTestNetperf(ctx, cmd, aliasedURL, resultCh)
 		case "site-replication":
-			mainAdminSpeedTestSiteReplication(ctx, aliasedURL, resultCh)
+			mainAdminSpeedTestSiteReplication(ctx, cmd, aliasedURL, resultCh)
 		case "client":
-			mainAdminSpeedTestClientPerf(ctx, aliasedURL, resultCh)
+			mainAdminSpeedTestClientPerf(ctx, cmd, aliasedURL, resultCh)
 		default:
-			showCommandHelpAndExit(ctx, 1) // last argument is exit code
+			showCommandHelpAndExit(cmd, 1) // last argument is exit code
 		}
 
 		if !globalJSON {

@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminConfigRestoreCmd = &cli.Command{
@@ -75,19 +76,19 @@ func (u configRestoreMessage) JSON() string {
 }
 
 // checkAdminConfigRestoreSyntax - validate all the passed arguments
-func checkAdminConfigRestoreSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminConfigRestoreSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminConfigRestore(ctx *cli.Context) error {
-	checkAdminConfigRestoreSyntax(ctx)
+func mainAdminConfigRestore(_ context.Context, cmd *cli.Command) error {
+	checkAdminConfigRestoreSyntax(cmd)
 
 	console.SetColor("ConfigRestoreMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

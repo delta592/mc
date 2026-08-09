@@ -18,11 +18,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var shareListFlags = []cli.Flag{}
@@ -56,10 +57,10 @@ EXAMPLES:
 }
 
 // validate command-line args.
-func checkShareListSyntax(ctx *cli.Context) {
-	args := ctx.Args()
+func checkShareListSyntax(cmd *cli.Command) {
+	args := cmd.Args()
 	if !args.Present() || (args.First() != "upload" && args.First() != "download") {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 }
 
@@ -103,9 +104,9 @@ func doShareList(cmd string) *probe.Error {
 }
 
 // main entry point for share list.
-func mainShareList(ctx *cli.Context) error {
+func mainShareList(_ context.Context, cmd *cli.Command) error {
 	// validate command-line args.
-	checkShareListSyntax(ctx)
+	checkShareListSyntax(cmd)
 
 	// Additional command speific theme customization.
 	shareSetColor()
@@ -114,6 +115,6 @@ func mainShareList(ctx *cli.Context) error {
 	initShareConfig()
 
 	// List shares.
-	fatalIf(doShareList(ctx.Args().First()).Trace(), "Unable to list previously shared URLs.")
+	fatalIf(doShareList(cmd.Args().First()).Trace(), "Unable to list previously shared URLs.")
 	return nil
 }

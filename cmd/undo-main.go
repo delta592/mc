@@ -28,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -119,25 +119,25 @@ func (c undoMessage) JSON() string {
 }
 
 // parseUndoSyntax performs command-line input validation for cat command.
-func parseUndoSyntax(ctx *cli.Context) (targetAliasedURL string, last int, recursive, dryRun bool, action string) {
-	targetAliasedURL = ctx.Args().Get(0)
+func parseUndoSyntax(_ context.Context, cmd *cli.Command) (targetAliasedURL string, last int, recursive, dryRun bool, action string) {
+	targetAliasedURL = cmd.Args().Get(0)
 	if targetAliasedURL == "" {
 		fatalIf(errInvalidArgument().Trace(), "The argument should not be empty")
 	}
 
-	last = ctx.Int("last")
+	last = cmd.Int("last")
 	if last < 1 {
 		fatalIf(errInvalidArgument().Trace(), "--last value should be a positive integer")
 	}
 
-	recursive = ctx.Bool("recursive")
-	force := ctx.Bool("force")
+	recursive = cmd.Bool("recursive")
+	force := cmd.Bool("force")
 	if recursive && !force {
 		fatalIf(errInvalidArgument().Trace(), "This is a dangerous operation, you need to provide --force flag as well")
 	}
 
-	dryRun = ctx.Bool("dry-run")
-	action = strings.ToUpper(ctx.String("action"))
+	dryRun = cmd.Bool("dry-run")
+	action = strings.ToUpper(cmd.String("action"))
 	if action != actionPut && action != actionDelete && action != "" {
 		fatalIf(errInvalidArgument().Trace(), "unsupported action specified, supported actions are PUT, DELETE or empty (default)")
 	}
@@ -283,15 +283,15 @@ func checkIfBucketIsVersioned(ctx context.Context, aliasedURL string) (versioned
 	return false
 }
 
-func checkUndoSyntax(cliCtx *cli.Context) {
-	if !cliCtx.Args().Present() {
-		showCommandHelpAndExit(cliCtx, 1)
+func checkUndoSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainUndo is the main entry point for undo command.
-func mainUndo(cliCtx *cli.Context) error {
-	checkUndoSyntax(cliCtx)
+func mainUndo(_ context.Context, cmd *cli.Command) error {
+	checkUndoSyntax(cmd)
 
 	ctx, cancelCat := context.WithCancel(globalContext)
 	defer cancelCat()
@@ -299,7 +299,7 @@ func mainUndo(cliCtx *cli.Context) error {
 	console.SetColor("Success", color.New(color.FgGreen, color.Bold))
 
 	// check 'undo' cli arguments.
-	targetAliasedURL, last, recursive, dryRun, action := parseUndoSyntax(cliCtx)
+	targetAliasedURL, last, recursive, dryRun, action := parseUndoSyntax(ctx, cmd)
 
 	if !checkIfBucketIsVersioned(ctx, targetAliasedURL) {
 		fatalIf(errDummy().Trace(), "Undo command works only with S3 versioned-enabled buckets.")

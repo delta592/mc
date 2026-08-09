@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ import (
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpOpenidAddCmd = &cli.Command{
@@ -64,16 +65,16 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDAdd(ctx *cli.Context) error {
-	return mainIDPOpenIDAddOrUpdate(ctx, false)
+func mainIDPOpenIDAdd(ctx context.Context, cmd *cli.Command) error {
+	return mainIDPOpenIDAddOrUpdate(ctx, cmd, false)
 }
 
-func mainIDPOpenIDAddOrUpdate(ctx *cli.Context, update bool) error {
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPOpenIDAddOrUpdate(_ context.Context, cmd *cli.Command, update bool) error {
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	aliasedURL := args.Get(0)
 
@@ -130,8 +131,8 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDUpdate(ctx *cli.Context) error {
-	return mainIDPOpenIDAddOrUpdate(ctx, true)
+func mainIDPOpenIDUpdate(ctx context.Context, cmd *cli.Command) error {
+	return mainIDPOpenIDAddOrUpdate(ctx, cmd, true)
 }
 
 var idpOpenidRemoveCmd = &cli.Command{
@@ -159,22 +160,22 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDRemove(ctx *cli.Context) error {
-	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPOpenIDRemove(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() < 1 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	var cfgName string
 	if args.Len() == 2 {
 		cfgName = args.Get(1)
 	}
-	return idpRemove(ctx, true, cfgName)
+	return idpRemove(ctx, cmd, true, cfgName)
 }
 
-func idpRemove(ctx *cli.Context, isOpenID bool, cfgName string) error {
-	args := ctx.Args()
+func idpRemove(_ context.Context, cmd *cli.Command, isOpenID bool, cfgName string) error {
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -220,16 +221,16 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDList(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPOpenIDList(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	return idpListCommon(ctx, true)
+	return idpListCommon(ctx, cmd, true)
 }
 
-func idpListCommon(ctx *cli.Context, isOpenID bool) error {
-	args := ctx.Args()
+func idpListCommon(_ context.Context, cmd *cli.Command, isOpenID bool) error {
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -366,22 +367,22 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDInfo(ctx *cli.Context) error {
-	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPOpenIDInfo(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() < 1 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	var cfgName string
 	if args.Len() == 2 {
 		cfgName = args.Get(1)
 	}
 
-	return idpInfo(ctx, true, cfgName)
+	return idpInfo(ctx, cmd, true, cfgName)
 }
 
-func idpInfo(ctx *cli.Context, isOpenID bool, cfgName string) error {
-	args := ctx.Args()
+func idpInfo(_ context.Context, cmd *cli.Command, isOpenID bool, cfgName string) error {
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -494,17 +495,17 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDEnable(ctx *cli.Context) error {
+func mainIDPOpenIDEnable(ctx context.Context, cmd *cli.Command) error {
 	isOpenID, enable := true, true
-	return idpEnableDisable(ctx, isOpenID, enable)
+	return idpEnableDisable(ctx, cmd, isOpenID, enable)
 }
 
-func idpEnableDisable(ctx *cli.Context, isOpenID, enable bool) error {
-	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1)
+func idpEnableDisable(_ context.Context, cmd *cli.Command, isOpenID, enable bool) error {
+	if cmd.Args().Len() < 1 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	cfgName := madmin.Default
 	if args.Len() == 2 {
 		cfgName = args.Get(1)
@@ -560,7 +561,7 @@ EXAMPLES:
 `,
 }
 
-func mainIDPOpenIDDisable(ctx *cli.Context) error {
+func mainIDPOpenIDDisable(ctx context.Context, cmd *cli.Command) error {
 	isOpenID, enable := true, false
-	return idpEnableDisable(ctx, isOpenID, enable)
+	return idpEnableDisable(ctx, cmd, isOpenID, enable)
 }

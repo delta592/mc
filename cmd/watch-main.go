@@ -29,7 +29,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/notification"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var watchFlags = []cli.Flag{
@@ -90,9 +90,9 @@ EXAMPLES:
 }
 
 // checkWatchSyntax - validate all the passed arguments
-func checkWatchSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkWatchSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -131,21 +131,21 @@ func (u watchMessage) String() string {
 	return msg
 }
 
-func mainWatch(cliCtx *cli.Context) error {
+func mainWatch(_ context.Context, cmd *cli.Command) error {
 	console.SetColor("Time", color.New(color.FgGreen))
 	console.SetColor("Size", color.New(color.FgYellow))
 	console.SetColor("EventType", color.New(color.FgCyan, color.Bold))
 	console.SetColor("ObjectName", color.New(color.Bold))
 
-	checkWatchSyntax(cliCtx)
+	checkWatchSyntax(cmd)
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	path := args.Get(0)
 
-	prefix := cliCtx.String("prefix")
-	suffix := cliCtx.String("suffix")
-	events := strings.Split(cliCtx.String("events"), ",")
-	recursive := cliCtx.Bool("recursive")
+	prefix := cmd.String("prefix")
+	suffix := cmd.String("suffix")
+	events := strings.Split(cmd.String("events"), ",")
+	recursive := cmd.Bool("recursive")
 
 	s3Client, pErr := newClient(path)
 	if pErr != nil {

@@ -28,7 +28,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/wildcard"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 //
@@ -37,20 +37,20 @@ import (
 //   mirror(d1..., d2) -> []mirror(d1/f, d2/d1/f)
 
 // checkMirrorSyntax(URLs []string)
-func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) (srcURL, tgtURL string) {
-	if cliCtx.Args().Len() != 2 {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
+func checkMirrorSyntax(ctx context.Context, cmd *cli.Command, encKeyDB map[string][]prefixSSEPair) (srcURL, tgtURL string) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
-	parseChecksum(cliCtx)
+	parseChecksum(ctx, cmd)
 
 	// extract URLs.
-	URLs := cliCtx.Args().Slice()
+	URLs := cmd.Args().Slice()
 	srcURL = URLs[0]
 	tgtURL = URLs[1]
 
-	if cliCtx.Bool("force") && cliCtx.Bool("remove") {
+	if cmd.Bool("force") && cmd.Bool("remove") {
 		errorIf(errInvalidArgument().Trace(URLs...), "`--force` is deprecated, please use `--overwrite` instead with `--remove` for the same functionality.")
-	} else if cliCtx.Bool("force") {
+	} else if cmd.Bool("force") {
 		errorIf(errInvalidArgument().Trace(URLs...), "`--force` is deprecated, please use `--overwrite` instead for the same functionality.")
 	}
 
@@ -61,14 +61,14 @@ func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[st
 
 	// Mirror with preserve option on windows
 	// only works for object storage to object storage
-	if runtime.GOOS == "windows" && cliCtx.Bool("a") {
+	if runtime.GOOS == "windows" && cmd.Bool("a") {
 		if srcClient.Type == fileSystem || destClient.Type == fileSystem {
 			errorIf(errInvalidArgument(), "Preserve functionality on windows support object storage to object storage transfer only.")
 		}
 	}
 
 	/****** Generic rules *******/
-	if !cliCtx.Bool("watch") && !cliCtx.Bool("active-active") && !cliCtx.Bool("multi-master") {
+	if !cmd.Bool("watch") && !cmd.Bool("active-active") && !cmd.Bool("multi-master") {
 		_, srcContent, err := url2Stat(ctx, url2StatOptions{urlStr: srcURL, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false})
 		if err != nil {
 			fatalIf(err.Trace(srcURL), "Unable to stat source `"+srcURL+"`.")

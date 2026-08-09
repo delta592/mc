@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminBucketRemoteEditCmd = &cli.Command{
@@ -32,7 +34,7 @@ var adminBucketRemoteEditCmd = &cli.Command{
 }
 
 // mainAdminBucketRemoteEdit is the handle for "mc admin bucket remote edit" command.
-func mainAdminBucketRemoteEdit(_ *cli.Context) error {
+func mainAdminBucketRemoteEdit(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc replicate update")
 	return nil
 }

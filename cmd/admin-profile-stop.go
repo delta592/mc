@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminProfileStopCmd = &cli.Command{
@@ -34,7 +36,7 @@ var adminProfileStopCmd = &cli.Command{
 }
 
 // mainAdminProfileStop - the entry function of profile stop command
-func mainAdminProfileStop(_ *cli.Context) error {
+func mainAdminProfileStop(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support profile stop")
 	return nil
 }

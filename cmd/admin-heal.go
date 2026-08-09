@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"math"
 	"net/url"
@@ -34,7 +35,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -137,16 +138,16 @@ EXAMPLES:
 `,
 }
 
-func checkAdminHealSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminHealSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	// Check for scan argument
-	scanArg := ctx.String("scan")
+	scanArg := cmd.String("scan")
 	scanArg = strings.ToLower(scanArg)
 	if scanArg != scanNormalMode && scanArg != scanDeepMode {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -654,12 +655,12 @@ func transformScanArg(scanArg string) madmin.HealScanMode {
 }
 
 // mainAdminHeal - the entry function of heal command
-func mainAdminHeal(ctx *cli.Context) error {
+func mainAdminHeal(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkAdminHealSyntax(ctx)
+	checkAdminHealSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	console.SetColor("Heal", color.New(color.FgGreen, color.Bold))
@@ -694,15 +695,15 @@ func mainAdminHeal(ctx *cli.Context) error {
 
 	// Return the background heal status when the user
 	// doesn't pass a bucket or --recursive flag.
-	if bucket == "" && !ctx.Bool("recursive") {
+	if bucket == "" && !cmd.Bool("recursive") {
 		bgHealStatus, e := adminClnt.BackgroundHealStatus(globalContext)
 		fatalIf(probe.NewError(e), "Unable to get background heal status.")
-		if ctx.Bool("verbose") {
+		if cmd.Bool("verbose") {
 			printMsg(verboseBackgroundHealStatusMessage{
 				Status:         "success",
 				HealInfo:       bgHealStatus,
-				allDrives:      ctx.Bool("all-drives"),
-				ToleranceForSC: strings.ToUpper(ctx.String("storage-class")),
+				allDrives:      cmd.Bool("all-drives"),
+				ToleranceForSC: strings.ToUpper(cmd.String("storage-class")),
 			})
 		} else {
 			printMsg(shortBackgroundHealStatusMessage{
@@ -714,15 +715,15 @@ func mainAdminHeal(ctx *cli.Context) error {
 	}
 
 	opts := madmin.HealOpts{
-		ScanMode:  transformScanArg(ctx.String("scan")),
-		Remove:    ctx.Bool("remove"),
-		Recursive: ctx.Bool("recursive"),
-		DryRun:    ctx.Bool("dry-run"),
-		Recreate:  ctx.Bool("rewrite"),
+		ScanMode:  transformScanArg(cmd.String("scan")),
+		Remove:    cmd.Bool("remove"),
+		Recursive: cmd.Bool("recursive"),
+		DryRun:    cmd.Bool("dry-run"),
+		Recreate:  cmd.Bool("rewrite"),
 	}
 
-	if ctx.IsSet("pool") {
-		p := ctx.Int("pool")
+	if cmd.IsSet("pool") {
+		p := cmd.Int("pool")
 		if p < 1 {
 			fatalIf(errInvalidArgument(), "--pool takes a non zero positive number.")
 		}
@@ -730,8 +731,8 @@ func mainAdminHeal(ctx *cli.Context) error {
 		opts.Pool = &p
 	}
 
-	if ctx.IsSet("set") {
-		s := ctx.Int("set")
+	if cmd.IsSet("set") {
+		s := cmd.Int("set")
 		if s < 1 {
 			fatalIf(errInvalidArgument(), "--set takes a non zero positive number.")
 		}
@@ -739,8 +740,8 @@ func mainAdminHeal(ctx *cli.Context) error {
 		opts.Set = &s
 	}
 
-	forceStart := ctx.Bool("force-start")
-	forceStop := ctx.Bool("force-stop")
+	forceStart := cmd.Bool("force-start")
+	forceStop := cmd.Bool("force-stop")
 	if forceStop {
 		_, _, e := adminClnt.Heal(globalContext, bucket, prefix, opts, "", forceStart, forceStop)
 		fatalIf(probe.NewError(e), "Unable to stop healing.")
@@ -748,7 +749,7 @@ func mainAdminHeal(ctx *cli.Context) error {
 		return nil
 	}
 
-	if opts.Recursive && opts.Pool == nil && opts.Set == nil && isTerminal() && !ctx.Bool("force") {
+	if opts.Recursive && opts.Pool == nil && opts.Set == nil && isTerminal() && !cmd.Bool("force") {
 		fmt.Printf("You are about to scan and heal the whole namespace in all pools and sets, please confirm [y/N]: ")
 		answer, e := bufio.NewReader(os.Stdin).ReadString('\n')
 		fatalIf(probe.NewError(e), "Unable to parse user input.")

@@ -28,7 +28,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var retentionInfoFlags = []cli.Flag{
@@ -91,11 +91,11 @@ EXAMPLES:
 `,
 }
 
-func parseInfoRetentionArgs(cliCtx *cli.Context) (target, versionID string, recursive bool, timeRef time.Time, withVersions, defaultMode bool) {
-	args := cliCtx.Args()
+func parseInfoRetentionArgs(_ context.Context, cmd *cli.Command) (target, versionID string, recursive bool, timeRef time.Time, withVersions, defaultMode bool) {
+	args := cmd.Args()
 
 	if args.Len() != 1 {
-		showCommandHelpAndExit(cliCtx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	target = args.Get(0)
@@ -103,11 +103,11 @@ func parseInfoRetentionArgs(cliCtx *cli.Context) (target, versionID string, recu
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}
 
-	versionID = cliCtx.String("version-id")
-	timeRef = parseRewindFlag(cliCtx.String("rewind"))
-	withVersions = cliCtx.Bool("versions")
-	recursive = cliCtx.Bool("recursive")
-	defaultMode = cliCtx.Bool("default")
+	versionID = cmd.String("version-id")
+	timeRef = parseRewindFlag(cmd.String("rewind"))
+	withVersions = cmd.Bool("versions")
+	recursive = cmd.Bool("recursive")
+	defaultMode = cmd.Bool("default")
 
 	if defaultMode && (versionID != "" || !timeRef.IsZero() || withVersions || recursive) {
 		fatalIf(errDummy(), "--default flag cannot be specified with any of --version-id, --rewind, --versions, --recursive.")
@@ -371,7 +371,7 @@ func getRetention(ctx context.Context, target, versionID string, timeRef time.Ti
 }
 
 // main for retention info command.
-func mainRetentionInfo(cliCtx *cli.Context) error {
+func mainRetentionInfo(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelSetRetention := context.WithCancel(globalContext)
 	defer cancelSetRetention()
 
@@ -381,7 +381,7 @@ func mainRetentionInfo(cliCtx *cli.Context) error {
 	console.SetColor("RetentionExpired", color.New(color.FgRed, color.Bold))
 	console.SetColor("RetentionFailure", color.New(color.FgYellow))
 
-	target, versionID, recursive, rewind, withVersions, bucketMode := parseInfoRetentionArgs(cliCtx)
+	target, versionID, recursive, rewind, withVersions, bucketMode := parseInfoRetentionArgs(ctx, cmd)
 
 	fatalIfBucketLockNotSupported(ctx, target)
 

@@ -17,7 +17,9 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/urfave/cli/v3"
+)
 
 var ilmTierUpdateCmd = &cli.Command{
 	Name:         "update",

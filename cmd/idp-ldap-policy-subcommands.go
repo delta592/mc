@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -28,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapPolicyAttachFlags = []cli.Flag{
@@ -81,15 +82,15 @@ EXAMPLES:
 // plus (+), equal (=), comma (,), period (.), at (@), underscore (_), and
 // hyphen (-).
 
-func mainIDPLdapPolicyAttach(ctx *cli.Context) error {
+func mainIDPLdapPolicyAttach(_ context.Context, cmd *cli.Command) error {
 	// We need exactly one alias, and at least one policy.
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1)
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
-	user := ctx.String("user")
-	group := ctx.String("group")
+	user := cmd.String("user")
+	group := cmd.String("group")
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	policies := args.Tail()
@@ -209,21 +210,21 @@ EXAMPLES:
 // plus (+), equal (=), comma (,), period (.), at (@), underscore (_), and
 // hyphen (-).
 
-func mainIDPLdapPolicyDetach(ctx *cli.Context) error {
+func mainIDPLdapPolicyDetach(_ context.Context, cmd *cli.Command) error {
 	// We need exactly one alias, and at least one policy.
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1)
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	user := ctx.String("user")
-	group := ctx.String("group")
+	user := cmd.String("user")
+	group := cmd.String("group")
 
 	if user == "" && group == "" {
 		e := errors.New("at least one of --user or --group is required.")
 		fatalIf(probe.NewError(e), "Missing flag in command")
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	policies := args.Tail()
@@ -306,16 +307,16 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapPolicyEntities(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLdapPolicyEntities(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	usersToQuery := ctx.StringSlice("user")
-	groupsToQuery := ctx.StringSlice("group")
-	policiesToQuery := ctx.StringSlice("policy")
+	usersToQuery := cmd.StringSlice("user")
+	groupsToQuery := cmd.StringSlice("group")
+	policiesToQuery := cmd.StringSlice("policy")
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	aliasedURL := args.Get(0)
 

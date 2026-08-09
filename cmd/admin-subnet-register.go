@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminSubnetRegisterCmd = &cli.Command{
@@ -31,7 +33,7 @@ var adminSubnetRegisterCmd = &cli.Command{
 	CustomHelpTemplate: "Please use 'mc support register'",
 }
 
-func mainAdminRegister(_ *cli.Context) error {
+func mainAdminRegister(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support register")
 	return nil
 }

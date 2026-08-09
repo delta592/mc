@@ -29,7 +29,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var lhInfoFlags = []cli.Flag{
@@ -222,7 +222,7 @@ func showLegalHoldInfo(ctx context.Context, urlStr, versionID string, timeRef ti
 }
 
 // main for legalhold info command.
-func mainLegalHoldInfo(cliCtx *cli.Context) error {
+func mainLegalHoldInfo(ctx context.Context, cmd *cli.Command) error {
 	console.SetColor("LegalHoldSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("LegalHoldNotSet", color.New(color.FgYellow))
 	console.SetColor("LegalHoldOn", color.New(color.FgGreen, color.Bold))
@@ -231,7 +231,7 @@ func mainLegalHoldInfo(cliCtx *cli.Context) error {
 	console.SetColor("LegalHoldPartialFailure", color.New(color.FgRed, color.Bold))
 	console.SetColor("LegalHoldMessageFailure", color.New(color.FgYellow))
 
-	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(cliCtx)
+	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}

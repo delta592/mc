@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 
 	"charm.land/lipgloss/v2"
@@ -25,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminAccesskeyListFlags = []cli.Flag{
@@ -137,8 +138,8 @@ func (m userAccesskeyList) JSON() string {
 	return string(jsonMessageBytes)
 }
 
-func mainAdminAccesskeyList(ctx *cli.Context) error {
-	aliasedURL, tentativeAll, users, opts := commonAccesskeyList(ctx)
+func mainAdminAccesskeyList(ctx context.Context, cmd *cli.Command) error {
+	aliasedURL, tentativeAll, users, opts := commonAccesskeyList(ctx, cmd)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)

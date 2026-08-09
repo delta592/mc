@@ -39,7 +39,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/madmin-go/v4/estream"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -116,24 +116,24 @@ func (t inspectMessage) JSON() string {
 	return string(jsonMessageBytes)
 }
 
-func checkSupportInspectSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportInspectSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainSupportInspect - the entry function of inspect command
-func mainSupportInspect(ctx *cli.Context) error {
+func mainSupportInspect(ctx context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkSupportInspectSyntax(ctx)
+	checkSupportInspectSyntax(cmd)
 
 	setSuccessMessageColor()
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
-	alias, apiKey := initSubnetConnectivity(ctx, aliasedURL, true)
+	alias, apiKey := initSubnetConnectivity(ctx, cmd, aliasedURL, true)
 	if len(apiKey) == 0 {
 		// api key not passed as flag. Check that the cluster is registered.
 		apiKey = validateClusterRegistered(alias, true)
@@ -160,7 +160,7 @@ func mainSupportInspect(ctx *cli.Context) error {
 	}
 
 	var publicKey []byte
-	if !ctx.Bool("legacy") {
+	if !cmd.Bool("legacy") {
 		var e error
 		publicKey, e = os.ReadFile(filepath.Join(mustGetMcConfigDir(), "support_public.pem"))
 		if e != nil && !os.IsNotExist(e) {

@@ -24,7 +24,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var lhClearFlags = []cli.Flag{
@@ -81,12 +81,12 @@ EXAMPLES:
 }
 
 // main for legalhold clear command.
-func mainLegalHoldClear(cliCtx *cli.Context) error {
+func mainLegalHoldClear(ctx context.Context, cmd *cli.Command) error {
 	console.SetColor("LegalHoldSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("LegalHoldPartialFailure", color.New(color.FgRed, color.Bold))
 	console.SetColor("LegalHoldMessageFailure", color.New(color.FgYellow))
 
-	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(cliCtx)
+	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}

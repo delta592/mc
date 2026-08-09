@@ -32,7 +32,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/minio-go/v7/pkg/s3utils"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateUpdateFlags = []cli.Flag{
@@ -142,15 +142,15 @@ EXAMPLES:
 }
 
 // checkReplicateUpdateSyntax - validate all the passed arguments
-func checkReplicateUpdateSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateUpdateSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // modifyRemoteTarget - modifies the dest credentials or updates sync , disable-proxy settings
-func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr string) (*madmin.BucketTarget, []madmin.TargetUpdateType) {
-	args := cli.Args()
+func modifyRemoteTarget(_ context.Context, cmd *cli.Command, targets []madmin.BucketTarget, arnStr string) (*madmin.BucketTarget, []madmin.TargetUpdateType) {
+	args := cmd.Args()
 	foundIdx := -1
 	for i, t := range targets {
 		if t.Arn == arnStr {
@@ -159,7 +159,7 @@ func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr 
 				fatalIf(errInvalidArgument().Trace(args.Slice()...), "Malformed ARN `"+arnStr+"` in replication config")
 			}
 			if arn.Bucket != t.TargetBucket {
-				fatalIf(errInvalidArgument().Trace(args.Slice()...), "Expected remote bucket %s, got %s for rule id %s", t.TargetBucket, arn.Bucket, cli.String("id"))
+				fatalIf(errInvalidArgument().Trace(args.Slice()...), "Expected remote bucket %s, got %s for rule id %s", t.TargetBucket, arn.Bucket, cmd.String("id"))
 			}
 			foundIdx = i
 			break
@@ -170,8 +170,8 @@ func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr 
 	}
 	var ops []madmin.TargetUpdateType
 	bktTarget := targets[foundIdx].Clone()
-	if cli.IsSet("sync") {
-		syncState := strings.ToLower(cli.String("sync"))
+	if cmd.IsSet("sync") {
+		syncState := strings.ToLower(cmd.String("sync"))
 		switch syncState {
 		case "enable", "disable":
 			bktTarget.ReplicationSync = syncState == "enable"
@@ -180,8 +180,8 @@ func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr 
 			fatalIf(errInvalidArgument().Trace(args.Slice()...), "--sync can be either [enable|disable]")
 		}
 	}
-	if cli.IsSet("proxy") {
-		proxyState := strings.ToLower(cli.String("proxy"))
+	if cmd.IsSet("proxy") {
+		proxyState := strings.ToLower(cmd.String("proxy"))
 		switch proxyState {
 		case "enable", "disable":
 			bktTarget.DisableProxy = proxyState == "disable"
@@ -195,7 +195,7 @@ func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr 
 	if args.Len() == 1 {
 		_, sourceBucket := url2Alias(args.Get(0))
 
-		tgtURL := cli.String("remote-bucket")
+		tgtURL := cmd.String("remote-bucket")
 		accessKey, secretKey, u := extractCredentialURL(tgtURL)
 		var tgtBucket string
 		if u.Path != "" {
@@ -226,20 +226,20 @@ func modifyRemoteTarget(cli *cli.Context, targets []madmin.BucketTarget, arnStr 
 		bktTarget.Endpoint = host
 		ops = append(ops, madmin.CredentialsUpdateType)
 	}
-	if cli.IsSet("bandwidth") {
-		bandwidthStr := cli.String("bandwidth")
+	if cmd.IsSet("bandwidth") {
+		bandwidthStr := cmd.String("bandwidth")
 		bandwidth, e := getBandwidthInBytes(bandwidthStr)
 		fatalIf(probe.NewError(e).Trace(bandwidthStr), "invalid bandwidth value")
 
 		bktTarget.BandwidthLimit = int64(bandwidth)
 		ops = append(ops, madmin.BandwidthLimitUpdateType)
 	}
-	if cli.IsSet("healthcheck-seconds") {
-		bktTarget.HealthCheckDuration = time.Duration(cli.Uint("healthcheck-seconds")) * time.Second
+	if cmd.IsSet("healthcheck-seconds") {
+		bktTarget.HealthCheckDuration = time.Duration(cmd.Uint("healthcheck-seconds")) * time.Second
 		ops = append(ops, madmin.HealthCheckDurationUpdateType)
 	}
-	if cli.IsSet("path") {
-		bktTarget.Path = cli.String("path")
+	if cmd.IsSet("path") {
+		bktTarget.Path = cmd.String("path")
 		ops = append(ops, madmin.PathUpdateType)
 	}
 	return &bktTarget, ops
@@ -266,16 +266,16 @@ func (l replicateUpdateMessage) String() string {
 	return console.Colorize("replicateUpdateMessage", "Replication configuration rule applied to "+l.URL+" successfully.")
 }
 
-func mainReplicateUpdate(cliCtx *cli.Context) error {
+func mainReplicateUpdate(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelReplicateUpdate := context.WithCancel(globalContext)
 	defer cancelReplicateUpdate()
 
 	console.SetColor("replicateUpdateMessage", color.New(color.FgGreen))
 
-	checkReplicateUpdateSyntax(cliCtx)
+	checkReplicateUpdateSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
@@ -283,12 +283,12 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 	rcfg, err := client.GetReplication(ctx)
 	fatalIf(err.Trace(args.Slice()...), "unable to get replication configuration")
 
-	if !cliCtx.IsSet("id") {
+	if !cmd.IsSet("id") {
 		fatalIf(errInvalidArgument(), "--id is a required flag")
 	}
 	var state string
-	if cliCtx.IsSet("state") {
-		state = strings.ToLower(cliCtx.String("state"))
+	if cmd.IsSet("state") {
+		state = strings.ToLower(cmd.String("state"))
 		if state != "enable" && state != "disable" {
 			fatalIf(err.Trace(args.Slice()...), "--state can be either `enable` or `disable`")
 		}
@@ -309,7 +309,7 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 
 	var arn string
 	for _, rule := range rcfg.Rules {
-		if rule.ID == cliCtx.String("id") {
+		if rule.ID == cmd.String("id") {
 			arn = rule.Destination.Bucket
 			if rcfg.Role != "" {
 				arn = rcfg.Role
@@ -317,21 +317,21 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 			break
 		}
 	}
-	if cliCtx.IsSet("remote-bucket") {
-		bktTarget, ops := modifyRemoteTarget(cliCtx, targets, arn)
+	if cmd.IsSet("remote-bucket") {
+		bktTarget, ops := modifyRemoteTarget(ctx, cmd, targets, arn)
 		_, e = admClient.UpdateRemoteTarget(globalContext, bktTarget, ops...)
 		if e != nil {
 			fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to update remote target `"+bktTarget.Endpoint+"` from `"+bktTarget.SourceBucket+"` -> `"+bktTarget.TargetBucket+"`")
 		}
 	} else {
-		if cliCtx.IsSet("sync") || cliCtx.IsSet("bandwidth") || cliCtx.IsSet("proxy") || cliCtx.IsSet("healthcheck-seconds") || cliCtx.IsSet("path") {
+		if cmd.IsSet("sync") || cmd.IsSet("bandwidth") || cmd.IsSet("proxy") || cmd.IsSet("healthcheck-seconds") || cmd.IsSet("path") {
 			fatalIf(errInvalidArgument().Trace(args.Slice()...), "--remote-bucket is a required flag`")
 		}
 	}
 
 	var vDeleteReplicate, dmReplicate, replicasync, existingReplState string
-	if cliCtx.IsSet("replicate") {
-		replSlice := strings.Split(cliCtx.String("replicate"), ",")
+	if cmd.IsSet("replicate") {
+		replSlice := strings.Split(cmd.String("replicate"), ",")
 		vDeleteReplicate = disableStatus
 		dmReplicate = disableStatus
 		replicasync = disableStatus
@@ -349,7 +349,7 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 				existingReplState = enableStatus
 			default:
 				if opt != "" {
-					fatalIf(probe.NewError(fmt.Errorf("invalid value for --replicate flag %s", cliCtx.String("replicate"))),
+					fatalIf(probe.NewError(fmt.Errorf("invalid value for --replicate flag %s", cmd.String("replicate"))),
 						`--replicate flag takes one or more comma separated string with values "delete", "delete-marker", "metadata-sync", "existing-objects" or "" to disable these settings`)
 				}
 			}
@@ -357,21 +357,21 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 	}
 
 	opts := replication.Options{
-		TagString:    cliCtx.String("tags"),
-		RoleArn:      cliCtx.String("arn"),
-		StorageClass: cliCtx.String("storage-class"),
+		TagString:    cmd.String("tags"),
+		RoleArn:      cmd.String("arn"),
+		StorageClass: cmd.String("storage-class"),
 		RuleStatus:   state,
-		ID:           cliCtx.String("id"),
+		ID:           cmd.String("id"),
 		Op:           replication.SetOption,
 		DestBucket:   arn,
-		IsSCSet:      cliCtx.IsSet("storage-class"),
-		IsTagSet:     cliCtx.IsSet("tags"),
+		IsSCSet:      cmd.IsSet("storage-class"),
+		IsTagSet:     cmd.IsSet("tags"),
 	}
 
-	if cliCtx.IsSet("priority") {
-		opts.Priority = strconv.Itoa(cliCtx.Int("priority"))
+	if cmd.IsSet("priority") {
+		opts.Priority = strconv.Itoa(cmd.Int("priority"))
 	}
-	if cliCtx.IsSet("replicate") {
+	if cmd.IsSet("replicate") {
 		opts.ReplicateDeletes = vDeleteReplicate
 		opts.ReplicateDeleteMarkers = dmReplicate
 		opts.ReplicaSync = replicasync
@@ -380,7 +380,7 @@ func mainReplicateUpdate(cliCtx *cli.Context) error {
 
 	fatalIf(client.SetReplication(ctx, &rcfg, opts), "unable to modify replication rule")
 	printMsg(replicateUpdateMessage{
-		Op:  cliCtx.Command.Name,
+		Op:  cmd.Name,
 		URL: aliasedURL,
 		ID:  opts.ID,
 	})

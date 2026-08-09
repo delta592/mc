@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 //   Configure an alias in MinIO Client
@@ -52,12 +54,12 @@ var aliasCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	HideHelpCommand: true,
 	Flags:           append(aliasFlags, globalFlags...),
-	Subcommands:     aliasSubcommands,
+	Commands:        aliasSubcommands,
 }
 
 // mainAlias is the handle for "mc alias" command. provides sub-commands which write configuration data in json format to config file.
-func mainAlias(ctx *cli.Context) error {
-	commandNotFound(ctx, aliasSubcommands)
+func mainAlias(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, aliasSubcommands)
 	return nil
 	// Sub-commands like add, list and remove have their own main.
 }

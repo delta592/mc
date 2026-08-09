@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicyListCmd = &cli.Command{
@@ -48,20 +50,20 @@ EXAMPLES:
 }
 
 // checkAdminPolicyListSyntax - validate all the passed arguments
-func checkAdminPolicyListSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminPolicyListSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminPolicyList is the handle for "mc admin policy add" command.
-func mainAdminPolicyList(ctx *cli.Context) error {
-	checkAdminPolicyListSyntax(ctx)
+func mainAdminPolicyList(_ context.Context, cmd *cli.Command) error {
+	checkAdminPolicyListSyntax(cmd)
 
 	console.SetColor("PolicyName", color.New(color.FgBlue))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -73,7 +75,7 @@ func mainAdminPolicyList(ctx *cli.Context) error {
 
 	for k := range policies {
 		printMsg(userPolicyMessage{
-			op:     ctx.Command.Name,
+			op:     cmd.Name,
 			Policy: k,
 		})
 	}

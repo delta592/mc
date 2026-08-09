@@ -36,7 +36,7 @@ import (
 	"github.com/klauspost/compress/zstd"
 	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportTopRPCFlags = []cli.Flag{
@@ -84,24 +84,24 @@ EXAMPLES:
 }
 
 // checkSupportTopNetSyntax - validate all the passed arguments
-func checkSupportTopRPCSyntax(ctx *cli.Context) {
-	if ctx.String("in") != "" {
+func checkSupportTopRPCSyntax(cmd *cli.Command) {
+	if cmd.String("in") != "" {
 		return
 	}
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainSupportTopRPC(ctx *cli.Context) error {
-	checkSupportTopRPCSyntax(ctx)
+func mainSupportTopRPC(_ context.Context, cmd *cli.Command) error {
+	checkSupportTopRPCSyntax(cmd)
 
 	ui := tea.NewProgram(initTopRPCUI())
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
 	// Replay from file.
-	if inFile := ctx.String("in"); inFile != "" {
+	if inFile := cmd.String("in"); inFile != "" {
 		go func() {
 			defer cancel()
 			if _, e := ui.Run(); e != nil {
@@ -143,7 +143,7 @@ func mainSupportTopRPC(ctx *cli.Context) error {
 		os.Exit(0)
 	}
 
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	alias, _ := url2Alias(aliasedURL)
 	validateClusterRegistered(alias, false)
 
@@ -157,9 +157,9 @@ func mainSupportTopRPC(ctx *cli.Context) error {
 	// MetricsOptions are options provided to Metrics call.
 	opts := madmin.MetricsOptions{
 		Type:     madmin.MetricsRPC,
-		Interval: time.Duration(ctx.Int("interval")) * time.Second,
-		N:        ctx.Int("n"),
-		Hosts:    strings.Split(ctx.String("nodes"), ","),
+		Interval: time.Duration(cmd.Int("interval")) * time.Second,
+		N:        cmd.Int("n"),
+		Hosts:    strings.Split(cmd.String("nodes"), ","),
 		ByHost:   true,
 	}
 	if globalJSON {

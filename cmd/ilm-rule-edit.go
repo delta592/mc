@@ -26,7 +26,7 @@ import (
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmEditCmd = &cli.Command{
@@ -98,24 +98,24 @@ func (i ilmEditMessage) JSON() string {
 }
 
 // Validate user given arguments
-func checkILMEditSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMEditSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
-	id := ctx.String("id")
+	id := cmd.String("id")
 	if id == "" {
-		fatalIf(errInvalidArgument(), "ID for lifecycle rule cannot be empty, please refer mc "+ctx.Command.FullName()+" --help for more details")
+		fatalIf(errInvalidArgument(), "ID for lifecycle rule cannot be empty, please refer mc "+cmd.FullName()+" --help for more details")
 	}
 }
 
 // Calls SetBucketLifecycle with the XML representation of lifecycleConfiguration type.
-func mainILMEdit(cliCtx *cli.Context) error {
+func mainILMEdit(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelILMEdit := context.WithCancel(globalContext)
 	defer cancelILMEdit()
 
-	checkILMEditSyntax(cliCtx)
+	checkILMEditSyntax(cmd)
 	setILMDisplayColorScheme()
-	args := cliCtx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)
@@ -133,7 +133,7 @@ func mainILMEdit(cliCtx *cli.Context) error {
 
 	// Configuration that needs to be set is returned by ilm.GetILMConfigToSet.
 	// A new rule is added or the rule (if existing) is replaced
-	opts, err := ilm.GetLifecycleOptions(cliCtx)
+	opts, err := ilm.GetLifecycleOptions(ctx, cmd)
 	fatalIf(err.Trace(args.Slice()...), "Unable to generate new lifecycle rules for the input")
 
 	var rule *lifecycle.Rule

@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var batchSubcommands = []*cli.Command{
 	batchGenerateCmd,
@@ -35,13 +39,13 @@ var batchCmd = &cli.Command{
 	Action:          mainBatch,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     batchSubcommands,
+	Commands:        batchSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainBatch is the handle for "mc batch" command.
-func mainBatch(ctx *cli.Context) error {
-	commandNotFound(ctx, batchSubcommands)
+func mainBatch(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, batchSubcommands)
 	return nil
 	// Sub-commands like "generate", "list", "info" have their own main.
 }

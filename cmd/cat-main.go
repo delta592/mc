@@ -31,7 +31,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var catFlags = []cli.Flag{
@@ -106,9 +106,9 @@ EXAMPLES:
 }
 
 // checkCatSyntax - validate all the passed arguments
-func checkCatSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkCatSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -173,15 +173,15 @@ type catOpts struct {
 }
 
 // parseCatSyntax performs command-line input validation for cat command.
-func parseCatSyntax(ctx *cli.Context) catOpts {
+func parseCatSyntax(_ context.Context, cmd *cli.Command) catOpts {
 	// Validate command-line arguments.
-	checkCatSyntax(ctx)
+	checkCatSyntax(cmd)
 
 	var o catOpts
-	o.args = ctx.Args().Slice()
+	o.args = cmd.Args().Slice()
 
-	o.versionID = ctx.String("version-id")
-	rewind := ctx.String("rewind")
+	o.versionID = cmd.String("version-id")
+	rewind := cmd.String("rewind")
 
 	if o.versionID != "" && rewind != "" {
 		fatalIf(errInvalidArgument().Trace(), "You cannot specify --version-id and --rewind at the same time")
@@ -200,10 +200,10 @@ func parseCatSyntax(ctx *cli.Context) catOpts {
 	o.stdinMode = len(o.args) == 0
 
 	o.timeRef = parseRewindFlag(rewind)
-	o.isZip = ctx.Bool("zip")
-	o.startO = ctx.Int64("offset")
-	o.tailO = ctx.Int64("tail")
-	o.partN = ctx.Int("part-number")
+	o.isZip = cmd.Bool("zip")
+	o.startO = cmd.Int64("offset")
+	o.tailO = cmd.Int64("tail")
+	o.partN = cmd.Int("part-number")
 	if o.tailO != 0 && o.startO != 0 {
 		fatalIf(errInvalidArgument().Trace(), "You cannot specify both --tail and --offset")
 	}
@@ -327,15 +327,15 @@ func catOut(r io.Reader, size int64) *probe.Error {
 }
 
 // mainCat is the main entry point for cat command.
-func mainCat(cliCtx *cli.Context) error {
+func mainCat(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelCat := context.WithCancel(globalContext)
 	defer cancelCat()
 
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'cat' cli arguments.
-	o := parseCatSyntax(cliCtx)
+	o := parseCatSyntax(ctx, cmd)
 
 	// handle std input data.
 	if o.stdinMode {
@@ -347,7 +347,7 @@ func mainCat(cliCtx *cli.Context) error {
 	if len(o.args) > 0 && o.args[0] == "-" {
 		for i, arg := range os.Args {
 			if arg == "cat" {
-				// Overwrite cliCtx.Args with os.Args.
+				// Overwrite cmd.Args with os.Args.
 				o.args = os.Args[i+1:]
 				break
 			}

@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
 
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/env"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/fatih/color"
 )
@@ -33,8 +34,8 @@ var aliasListCmd = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"ls"},
 	Usage:   "list aliases in configuration file",
-	Action: func(ctx *cli.Context) error {
-		return mainAliasList(ctx, false)
+	Action: func(_ context.Context, cmd *cli.Command) error {
+		return mainAliasList(globalContext, cmd, false)
 	},
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
@@ -59,17 +60,17 @@ EXAMPLES:
 }
 
 // Input argument validator..
-func checkAliasListSyntax(ctx *cli.Context) {
-	args := ctx.Args()
+func checkAliasListSyntax(cmd *cli.Command) {
+	args := cmd.Args()
 
-	if ctx.Args().Len() > 1 {
+	if cmd.Args().Len() > 1 {
 		fatalIf(errInvalidArgument().Trace(args.Slice()...),
 			"Incorrect number of arguments to alias list command.")
 	}
 }
 
-func mainAliasList(ctx *cli.Context, deprecated bool) error {
-	checkAliasListSyntax(ctx)
+func mainAliasList(_ context.Context, cmd *cli.Command, deprecated bool) error {
+	checkAliasListSyntax(cmd)
 
 	// Additional command specific theme customization.
 	console.SetColor("Alias", color.New(color.FgCyan, color.Bold))
@@ -80,7 +81,7 @@ func mainAliasList(ctx *cli.Context, deprecated bool) error {
 	console.SetColor("Path", color.New(color.FgCyan))
 	console.SetColor("Src", color.New(color.FgCyan))
 
-	alias := cleanAlias(ctx.Args().Get(0))
+	alias := cleanAlias(cmd.Args().Get(0))
 
 	aliasesMsgs := listAliases(alias, deprecated) // List all configured hosts.
 	for i := range aliasesMsgs {

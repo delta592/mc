@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminPrometheusSubcommands = []*cli.Command{
 	adminPrometheusGenerateCmd,
@@ -31,7 +35,7 @@ var adminPrometheusCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
 	HideHelpCommand: true,
-	Subcommands:     adminPrometheusSubcommands,
+	Commands:        adminPrometheusSubcommands,
 	CustomHelpTemplate: `NAME:
   {{.HelpName}} - {{.Usage}}
 
@@ -45,7 +49,7 @@ FLAGS:
 }
 
 // mainAdminPrometheus is the handle for "mc admin prometheus" command.
-func mainAdminPrometheus(ctx *cli.Context) error {
-	commandNotFound(ctx, adminPrometheusSubcommands)
+func mainAdminPrometheus(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminPrometheusSubcommands)
 	return nil
 }

@@ -24,7 +24,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportTopDriveFlags = []cli.Flag{
@@ -61,16 +61,16 @@ EXAMPLES:
 }
 
 // checkSupportTopDriveSyntax - validate all the passed arguments
-func checkSupportTopDriveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportTopDriveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainSupportTopDrive(ctx *cli.Context) error {
-	checkSupportTopDriveSyntax(ctx)
+func mainSupportTopDrive(_ context.Context, cmd *cli.Command) error {
+	checkSupportTopDriveSyntax(cmd)
 
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	alias, _ := url2Alias(aliasedURL)
 	validateClusterRegistered(alias, false)
 
@@ -97,10 +97,10 @@ func mainSupportTopDrive(ctx *cli.Context) error {
 		Type:     madmin.MetricsDisk,
 		Interval: time.Second,
 		ByDisk:   true,
-		N:        ctx.Int("count"),
+		N:        cmd.Int("count"),
 	}
 
-	p := tea.NewProgram(initTopDriveUI(disks, ctx.Int("count")))
+	p := tea.NewProgram(initTopDriveUI(disks, cmd.Int("count")))
 	go func() {
 		out := func(m madmin.RealtimeMetrics) {
 			for name, metric := range m.ByDisk {

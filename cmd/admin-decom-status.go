@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -27,7 +28,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminDecommissionStatusCmd = &cli.Command{
@@ -55,18 +56,18 @@ EXAMPLES:
 }
 
 // checkAdminDecommissionStatusSyntax - validate all the passed arguments
-func checkAdminDecommissionStatusSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminDecommissionStatusSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() > 2 || cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminDecommissionStatus is the handle for "mc admin decomission status" command.
-func mainAdminDecommissionStatus(ctx *cli.Context) error {
-	checkAdminDecommissionStatusSyntax(ctx)
+func mainAdminDecommissionStatus(_ context.Context, cmd *cli.Command) error {
+	checkAdminDecommissionStatusSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	aliasedURL = filepath.Clean(aliasedURL)
 

@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserInfoCmd = &cli.Command{
@@ -51,20 +52,20 @@ EXAMPLES:
 }
 
 // checkAdminUserAddSyntax - validate all the passed arguments
-func checkAdminUserInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminUserInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminUserInfo is the handler for "mc admin user info" command.
-func mainAdminUserInfo(ctx *cli.Context) error {
-	checkAdminUserInfoSyntax(ctx)
+func mainAdminUserInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserInfoSyntax(cmd)
 
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -89,7 +90,7 @@ func mainAdminUserInfo(ctx *cli.Context) error {
 	}
 
 	printMsg(userMessage{
-		op:             ctx.Command.Name,
+		op:             cmd.Name,
 		AccessKey:      args.Get(1),
 		PolicyName:     user.PolicyName,
 		UserStatus:     string(user.Status),

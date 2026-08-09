@@ -18,8 +18,10 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierVerifyCmd = &cli.Command{
@@ -48,11 +50,11 @@ EXAMPLES:
 `,
 }
 
-func mainAdminTierVerify(ctx *cli.Context) error {
-	args := ctx.Args()
+func mainAdminTierVerify(_ context.Context, cmd *cli.Command) error {
+	args := cmd.Args()
 	nArgs := args.Len()
 	if nArgs < 2 {
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 	if nArgs != 2 {
 		fatalIf(errInvalidArgument().Trace(args.Tail()...),
@@ -73,7 +75,7 @@ func mainAdminTierVerify(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to verify remote tier target")
 
 	printMsg(&tierMessage{
-		op:       ctx.Command.Name,
+		op:       cmd.Name,
 		Status:   "success",
 		TierName: tierName,
 	})

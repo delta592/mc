@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicyRemoveCmd = &cli.Command{
@@ -51,20 +53,20 @@ EXAMPLES:
 }
 
 // checkAdminPolicyRemoveSyntax - validate all the passed arguments
-func checkAdminPolicyRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminPolicyRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminPolicyRemove is the handle for "mc admin policy remove" command.
-func mainAdminPolicyRemove(ctx *cli.Context) error {
-	checkAdminPolicyRemoveSyntax(ctx)
+func mainAdminPolicyRemove(_ context.Context, cmd *cli.Command) error {
+	checkAdminPolicyRemoveSyntax(cmd)
 
 	console.SetColor("PolicyMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -74,7 +76,7 @@ func mainAdminPolicyRemove(ctx *cli.Context) error {
 	fatalIf(probe.NewError(client.RemoveCannedPolicy(globalContext, args.Get(1))).Trace(args.Slice()...), "Unable to remove policy")
 
 	printMsg(userPolicyMessage{
-		op:     ctx.Command.Name,
+		op:     cmd.Name,
 		Policy: args.Get(1),
 	})
 

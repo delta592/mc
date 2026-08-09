@@ -30,7 +30,7 @@ import (
 	"github.com/klauspost/compress/zip"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminClusterIAMImportCmd = &cli.Command{
@@ -174,19 +174,19 @@ func processErrIAMEntities(entities madmin.IAMErrEntities) []string {
 	return messages
 }
 
-func checkIAMImportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkIAMImportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainClusterIAMImport - iam info import command
-func mainClusterIAMImport(ctx *cli.Context) error {
+func mainClusterIAMImport(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkIAMImportSyntax(ctx)
+	checkIAMImportSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := filepath.ToSlash(args.Get(0))
 	aliasedURL = filepath.Clean(aliasedURL)
 

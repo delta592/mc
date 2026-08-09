@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminKMSKeySubcommands = []*cli.Command{
 	adminKMSCreateKeyCmd,
@@ -31,12 +35,12 @@ var adminKMSKeyCmd = &cli.Command{
 	Action:          mainAdminKMSKey,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminKMSKeySubcommands,
+	Commands:        adminKMSKeySubcommands,
 	HideHelpCommand: true,
 }
 
 // mainAdminKMSKey is the handle for the "mc admin kms key" command.
-func mainAdminKMSKey(ctx *cli.Context) error {
-	commandNotFound(ctx, adminKMSKeySubcommands)
+func mainAdminKMSKey(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminKMSKeySubcommands)
 	return nil
 }

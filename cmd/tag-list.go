@@ -30,7 +30,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var tagListFlags = []cli.Flag{
@@ -149,16 +149,16 @@ func (t tagListMessage) String() string {
 }
 
 // parseTagListSyntax performs command-line input validation for tag list command.
-func parseTagListSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func parseTagListSyntax(_ context.Context, cmd *cli.Command) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 
-	targetURL = ctx.Args().Get(0)
-	versionID = ctx.String("version-id")
-	withVersions = ctx.Bool("versions")
-	rewind := ctx.String("rewind")
-	recursive = ctx.Bool("recursive")
+	targetURL = cmd.Args().Get(0)
+	versionID = cmd.String("version-id")
+	withVersions = cmd.Bool("versions")
+	rewind := cmd.String("rewind")
+	recursive = cmd.Bool("recursive")
 
 	if versionID != "" && rewind != "" {
 		fatalIf(errDummy().Trace(), "You cannot specify both --version-id and --rewind flags at the same time")
@@ -202,7 +202,7 @@ func showTagsSingle(ctx context.Context, alias, url, versionID string) *probe.Er
 	return nil
 }
 
-func mainListTag(cliCtx *cli.Context) error {
+func mainListTag(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelListTag := context.WithCancel(globalContext)
 	defer cancelListTag()
 
@@ -211,7 +211,7 @@ func mainListTag(cliCtx *cli.Context) error {
 	console.SetColor("Value", color.New(color.FgYellow))
 	console.SetColor("NoTags", color.New(color.FgRed))
 
-	targetURL, versionID, timeRef, withVersions, recursive := parseTagListSyntax(cliCtx)
+	targetURL, versionID, timeRef, withVersions, recursive := parseTagListSyntax(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}

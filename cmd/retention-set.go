@@ -26,7 +26,7 @@ import (
 	"github.com/fatih/color"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var retentionSetFlags = []cli.Flag{
@@ -95,10 +95,10 @@ EXAMPLES:
 `,
 }
 
-func parseSetRetentionArgs(cliCtx *cli.Context) (target, versionID string, recursive bool, timeRef time.Time, withVersions bool, mode minio.RetentionMode, validity uint64, unit minio.ValidityUnit, bypass, bucketMode bool) {
-	args := cliCtx.Args()
+func parseSetRetentionArgs(_ context.Context, cmd *cli.Command) (target, versionID string, recursive bool, timeRef time.Time, withVersions bool, mode minio.RetentionMode, validity uint64, unit minio.ValidityUnit, bypass, bucketMode bool) {
+	args := cmd.Args()
 	if args.Len() != 3 {
-		showCommandHelpAndExit(cliCtx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	mode = minio.RetentionMode(strings.ToUpper(args.Get(0)))
@@ -115,12 +115,12 @@ func parseSetRetentionArgs(cliCtx *cli.Context) (target, versionID string, recur
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}
 
-	versionID = cliCtx.String("version-id")
-	timeRef = parseRewindFlag(cliCtx.String("rewind"))
-	withVersions = cliCtx.Bool("versions")
-	recursive = cliCtx.Bool("recursive")
-	bypass = cliCtx.Bool("bypass")
-	bucketMode = cliCtx.Bool("default")
+	versionID = cmd.String("version-id")
+	timeRef = parseRewindFlag(cmd.String("rewind"))
+	withVersions = cmd.Bool("versions")
+	recursive = cmd.Bool("recursive")
+	bypass = cmd.Bool("bypass")
+	bucketMode = cmd.Bool("default")
 
 	if bucketMode && (versionID != "" || !timeRef.IsZero() || withVersions || recursive || bypass) {
 		fatalIf(errDummy(), "--default cannot be specified with any of --version-id, --rewind, --versions, --recursive, --bypass.")
@@ -141,14 +141,14 @@ func setBucketLock(urlStr string, mode minio.RetentionMode, validity uint64, uni
 }
 
 // main for retention set command.
-func mainRetentionSet(cliCtx *cli.Context) error {
+func mainRetentionSet(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelSetRetention := context.WithCancel(globalContext)
 	defer cancelSetRetention()
 
 	console.SetColor("RetentionSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("RetentionFailure", color.New(color.FgYellow))
 
-	target, versionID, recursive, rewind, withVersions, mode, validity, unit, bypass, bucketMode := parseSetRetentionArgs(cliCtx)
+	target, versionID, recursive, rewind, withVersions, mode, validity, unit, bypass, bucketMode := parseSetRetentionArgs(ctx, cmd)
 
 	if bucketMode {
 		return setBucketLock(target, mode, validity, unit)

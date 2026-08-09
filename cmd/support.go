@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -26,7 +27,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -64,7 +65,7 @@ var supportCmd = &cli.Command{
 	Action:          mainSupport,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     supportSubcommands,
+	Commands:        supportSubcommands,
 	HideHelpCommand: true,
 }
 
@@ -80,13 +81,13 @@ func validateToggleCmdArg(arg string) error {
 	return nil
 }
 
-func checkToggleCmdSyntax(ctx *cli.Context) (string, string) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkToggleCmdSyntax(cmd *cli.Command) (string, string) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	arg := ctx.Args().Get(0)
-	aliasedURL := ctx.Args().Get(1)
+	arg := cmd.Args().Get(0)
+	aliasedURL := cmd.Args().Get(1)
 	fatalIf(probe.NewError(validateToggleCmdArg(arg)), "Invalid arguments.")
 
 	alias, _ := url2Alias(aliasedURL)
@@ -181,8 +182,8 @@ func toJSON(obj any) string {
 }
 
 // mainSupport is the handle for "mc support" command.
-func mainSupport(ctx *cli.Context) error {
-	commandNotFound(ctx, supportSubcommands)
+func mainSupport(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, supportSubcommands)
 	return nil
 	// Sub-commands like "register", "callhome", "diagnostics" have their own main.
 }

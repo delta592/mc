@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var quotaSetFlags = []cli.Flag{
@@ -101,21 +102,21 @@ func (q quotaMessage) JSON() string {
 }
 
 // checkQuotaSetSyntax - validate all the passed arguments
-func checkQuotaSetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkQuotaSetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainQuotaSet is the handler for "mc quota set" command.
-func mainQuotaSet(ctx *cli.Context) error {
-	checkQuotaSetSyntax(ctx)
+func mainQuotaSet(_ context.Context, cmd *cli.Command) error {
+	checkQuotaSetSyntax(cmd)
 
 	console.SetColor("QuotaMessage", color.New(color.FgGreen))
 	console.SetColor("QuotaInfo", color.New(color.FgBlue))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -123,12 +124,12 @@ func mainQuotaSet(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	_, targetURL := url2Alias(args.Get(0))
-	if !ctx.IsSet("size") {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+	if !cmd.IsSet("size") {
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"--size flag needs to be set.")
 	}
 	qType := madmin.HardQuota
-	quotaStr := ctx.String("size")
+	quotaStr := cmd.String("size")
 	quota, e := humanize.ParseBytes(quotaStr)
 	fatalIf(probe.NewError(e).Trace(quotaStr), "Unable to parse quota")
 
@@ -138,7 +139,7 @@ func mainQuotaSet(ctx *cli.Context) error {
 	})).Trace(args.Slice()...), "Unable to set bucket quota")
 
 	printMsg(quotaMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		Bucket:    targetURL,
 		Quota:     quota,
 		QuotaType: string(qType),

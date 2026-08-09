@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -103,19 +103,19 @@ func (r readyMessage) JSON() string {
 }
 
 // mainReady - main handler for mc ready command.
-func mainReady(cliCtx *cli.Context) error {
-	if !cliCtx.Args().Present() {
+func mainReady(_ context.Context, cmd *cli.Command) error {
+	if !cmd.Args().Present() {
 		exitCode := 1
-		showCommandHelpAndExit(cliCtx, exitCode)
+		showCommandHelpAndExit(cmd, exitCode)
 	}
 
 	// Set command flags from context.
-	clusterRead := cliCtx.Bool("cluster-read")
-	maintenance := cliCtx.Bool("maintenance")
+	clusterRead := cmd.Bool("cluster-read")
+	maintenance := cmd.Bool("maintenance")
 
 	ctx, cancelClusterReady := context.WithCancel(globalContext)
 	defer cancelClusterReady()
-	aliasedURL := cliCtx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 
 	anonClient, err := newAnonymousClient(aliasedURL)
 	fatalIf(err.Trace(aliasedURL), "Couldn't construct anonymous client for `"+aliasedURL+"`.")

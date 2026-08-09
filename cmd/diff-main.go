@@ -27,7 +27,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // diff specific flags.
@@ -114,16 +114,16 @@ func (d diffMessage) JSON() string {
 	return string(diffJSONBytes)
 }
 
-func checkDiffSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
-	if cliCtx.Args().Len() != 2 {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code
+func checkDiffSyntax(ctx context.Context, cmd *cli.Command, encKeyDB map[string][]prefixSSEPair) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
-	for _, arg := range cliCtx.Args().Slice() {
+	for _, arg := range cmd.Args().Slice() {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(cliCtx.Args().Slice()...), "Unable to validate empty argument.")
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Slice()...), "Unable to validate empty argument.")
 		}
 	}
-	URLs := cliCtx.Args().Slice()
+	URLs := cmd.Args().Slice()
 	firstURL := URLs[0]
 	secondURL := URLs[1]
 
@@ -197,16 +197,16 @@ func doDiffMain(ctx context.Context, firstURL, secondURL string) error {
 }
 
 // mainDiff main for 'diff'.
-func mainDiff(cliCtx *cli.Context) error {
+func mainDiff(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelDiff := context.WithCancel(globalContext)
 	defer cancelDiff()
 
 	// Parse encryption keys per command.
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'diff' cli arguments.
-	checkDiffSyntax(ctx, cliCtx, encKeyDB)
+	checkDiffSyntax(ctx, cmd, encKeyDB)
 
 	// Additional command specific theme customization.
 	console.SetColor("DiffMessage", color.New(color.FgGreen, color.Bold))
@@ -217,7 +217,7 @@ func mainDiff(cliCtx *cli.Context) error {
 	console.SetColor("DiffMetadata", color.New(color.FgYellow, color.Bold))
 	console.SetColor("DiffMMSourceMTime", color.New(color.FgYellow, color.Bold))
 
-	URLs := cliCtx.Args()
+	URLs := cmd.Args()
 	firstURL := URLs.Get(0)
 	secondURL := URLs.Get(1)
 

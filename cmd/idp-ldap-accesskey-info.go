@@ -18,10 +18,11 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyInfoCmd = &cli.Command{
@@ -60,6 +61,6 @@ func (l ldapAccessKeyInfo) String() string {
 	return o.String()
 }
 
-func mainIDPLdapAccesskeyInfo(ctx *cli.Context) error {
-	return commonAccesskeyInfo(ctx)
+func mainIDPLdapAccesskeyInfo(ctx context.Context, cmd *cli.Command) error {
+	return commonAccesskeyInfo(ctx, cmd)
 }

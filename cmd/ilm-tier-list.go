@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"slices"
 
@@ -28,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	madmin "github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierListCmd = &cli.Command{
@@ -56,13 +57,13 @@ EXAMPLES:
 }
 
 // checkAdminTierListSyntax - validate all the passed arguments
-func checkAdminTierListSyntax(ctx *cli.Context) {
-	argsNr := ctx.Args().Len()
+func checkAdminTierListSyntax(cmd *cli.Command) {
+	argsNr := cmd.Args().Len()
 	if argsNr < 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 	if argsNr > 1 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for tier-ls subcommand.")
 	}
 }
@@ -82,7 +83,7 @@ func storageClass(t *madmin.TierConfig) string {
 
 type tierListMessage struct {
 	Status  string               `json:"status"`
-	Context *cli.Context         `json:"-"`
+	Context *cli.Command         `json:"-"`
 	Tiers   []*madmin.TierConfig `json:"tiers"`
 }
 
@@ -97,10 +98,10 @@ func (msg *tierListMessage) JSON() string {
 	return string(b)
 }
 
-func mainAdminTierList(ctx *cli.Context) error {
-	checkAdminTierListSyntax(ctx)
+func mainAdminTierList(_ context.Context, cmd *cli.Command) error {
+	checkAdminTierListSyntax(cmd)
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -118,7 +119,7 @@ func mainAdminTierList(ctx *cli.Context) error {
 	if globalJSON {
 		printMsg(&tierListMessage{
 			Status:  "success",
-			Context: ctx,
+			Context: cmd,
 			Tiers:   tiers,
 		})
 		return nil

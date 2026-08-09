@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminQuotaFlags = []cli.Flag{
@@ -43,7 +45,7 @@ var adminBucketQuotaCmd = &cli.Command{
 }
 
 // mainAdminBucketQuota is the handler for "mc admin bucket quota" command.
-func mainAdminBucketQuota(_ *cli.Context) error {
+func mainAdminBucketQuota(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc quota")
 	return nil
 }

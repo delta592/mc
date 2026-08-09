@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmSubcommands = []*cli.Command{
@@ -36,7 +38,7 @@ var ilmCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
 	HideHelpCommand: true,
-	Subcommands:     append(ilmSubcommands, ilmDepCmds...),
+	Commands:        append(ilmSubcommands, ilmDepCmds...),
 }
 
 const (
@@ -49,8 +51,8 @@ const (
 	ilmThemeResultFailure string = "FailureOp"
 )
 
-func mainILM(ctx *cli.Context) error {
-	commandNotFound(ctx, ilmSubcommands)
+func mainILM(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, ilmSubcommands)
 	return nil
 }
 

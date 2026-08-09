@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminInspectCmd = &cli.Command{
@@ -33,7 +35,7 @@ var adminInspectCmd = &cli.Command{
 }
 
 // mainAdminHeal - the entry function of heal command
-func mainAdminInspect(_ *cli.Context) error {
+func mainAdminInspect(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support inspect")
 	return nil
 }

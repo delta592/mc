@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var batchGenerateCmd = &cli.Command{
@@ -57,18 +58,18 @@ EXAMPLES:
 }
 
 // checkBatchGenerateSyntax - validate all the passed arguments
-func checkBatchGenerateSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBatchGenerateSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainBatchGenerate is the handle for "mc batch generate" command.
-func mainBatchGenerate(ctx *cli.Context) error {
-	checkBatchGenerateSyntax(ctx)
+func mainBatchGenerate(_ context.Context, cmd *cli.Command) error {
+	checkBatchGenerateSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	jobType := args.Get(1)
 

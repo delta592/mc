@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var versionSubcommands = []*cli.Command{
 	versionEnableCmd,
@@ -32,12 +36,12 @@ var versionCmd = &cli.Command{
 	Action:          mainVersion,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     versionSubcommands,
+	Commands:        versionSubcommands,
 }
 
 // mainVersion is the handle for "mc version" command.
-func mainVersion(ctx *cli.Context) error {
-	commandNotFound(ctx, versionSubcommands)
+func mainVersion(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, versionSubcommands)
 	return nil
 	// Sub-commands like "info", "enable", "suspend" have their own main.
 }

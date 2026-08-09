@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var topLocksFlag = []cli.Flag{
@@ -45,7 +47,7 @@ var adminTopLocksCmd = &cli.Command{
 `,
 }
 
-func mainAdminTopLocks(_ *cli.Context) error {
+func mainAdminTopLocks(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support top locks")
 	return nil
 }

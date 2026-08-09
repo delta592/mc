@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -28,7 +29,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierInfoCmd = &cli.Command{
@@ -58,17 +59,17 @@ EXAMPLES:
 }
 
 // checkAdminTierInfoSyntax - validate all the passed arguments
-func checkAdminTierInfoSyntax(ctx *cli.Context) {
-	argsNr := ctx.Args().Len()
+func checkAdminTierInfoSyntax(cmd *cli.Command) {
+	argsNr := cmd.Args().Len()
 	if argsNr < 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 	if argsNr == 2 && globalJSON {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for tier-info subcommand with json output.")
 	}
 	if argsNr > 2 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for tier-info subcommand.")
 	}
 }
@@ -143,9 +144,9 @@ func tierInfoType(tierType string) string {
 	return "warm"
 }
 
-func mainAdminTierInfo(ctx *cli.Context) error {
-	checkAdminTierInfoSyntax(ctx)
-	args := ctx.Args()
+func mainAdminTierInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminTierInfoSyntax(cmd)
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	tier := args.Get(1)
 
@@ -158,13 +159,13 @@ func mainAdminTierInfo(ctx *cli.Context) error {
 	if e != nil {
 		msg = tierInfoMessage{
 			Status:  "error",
-			Context: ctx,
+			Context: cmd,
 			Error:   e.Error(),
 		}
 	} else {
 		msg = tierInfoMessage{
 			Status:    "success",
-			Context:   ctx,
+			Context:   cmd,
 			TierInfos: tierInfos(tInfos),
 		}
 	}
@@ -244,7 +245,7 @@ func mainAdminTierInfo(ctx *cli.Context) error {
 
 type tierInfoMessage struct {
 	Status    string       `json:"status"`
-	Context   *cli.Context `json:"-"`
+	Context   *cli.Command `json:"-"`
 	TierInfos tierInfos    `json:"tiers,omitempty"`
 	Error     string       `json:"error,omitempty"`
 }

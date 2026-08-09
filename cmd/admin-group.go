@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminGroupSubcommands = []*cli.Command{
 	adminGroupAddCmd,
@@ -34,13 +38,13 @@ var adminGroupCmd = &cli.Command{
 	Action:          mainAdminGroup,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminGroupSubcommands,
+	Commands:        adminGroupSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainAdminGroup is the handle for "mc admin config" command.
-func mainAdminGroup(ctx *cli.Context) error {
-	commandNotFound(ctx, adminGroupSubcommands)
+func mainAdminGroup(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminGroupSubcommands)
 	return nil
 	// Sub-commands like "get", "set" have their own main.
 }

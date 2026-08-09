@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminAccesskeyDisableCmd = &cli.Command{
@@ -43,6 +45,6 @@ EXAMPLES:
 `,
 }
 
-func mainAdminAccesskeyDisable(ctx *cli.Context) error {
-	return enableDisableAccesskey(ctx, false)
+func mainAdminAccesskeyDisable(ctx context.Context, cmd *cli.Command) error {
+	return enableDisableAccesskey(ctx, cmd, false)
 }

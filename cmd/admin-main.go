@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminFlags = []cli.Flag{}
 
@@ -63,7 +67,7 @@ var adminCmd = &cli.Command{
 	Name:            "admin",
 	Usage:           "manage MinIO servers",
 	Action:          mainAdmin,
-	Subcommands:     adminCmdSubcommands,
+	Commands:        adminCmdSubcommands,
 	HideHelpCommand: true,
 	Before:          setGlobalsFromContext,
 	Flags:           append(adminFlags, globalFlags...),
@@ -72,8 +76,8 @@ var adminCmd = &cli.Command{
 const dateTimeFormatFilename = "2006-01-02T15-04-05.999999-07-00"
 
 // mainAdmin is the handle for "mc admin" command.
-func mainAdmin(ctx *cli.Context) error {
-	commandNotFound(ctx, adminCmdSubcommands)
+func mainAdmin(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminCmdSubcommands)
 	return nil
 	// Sub-commands like "service", "heal", "top" have their own main.
 }

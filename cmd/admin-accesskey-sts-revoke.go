@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminAccesskeySTSRevokeFlags = []cli.Flag{
@@ -100,34 +102,34 @@ func (m stsRevokeMessage) JSON() string {
 }
 
 // checkSTSRevokeSyntax - validate all the passed arguments
-func checkSTSRevokeSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1)
+func checkSTSRevokeSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() > 2 || cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	if !ctx.Bool("self") && ctx.Args().Get(1) == "" {
+	if !cmd.Bool("self") && cmd.Args().Get(1) == "" {
 		fatalIf(errInvalidArgument().Trace(), "Must specify user or use --self flag.")
 	}
 
-	if ctx.Bool("self") && ctx.Args().Get(1) != "" {
+	if cmd.Bool("self") && cmd.Args().Get(1) != "" {
 		fatalIf(errInvalidArgument().Trace(), "Cannot specify user with --self flag.")
 	}
 
-	if (!ctx.Bool("all") && ctx.String("token-type") == "") || (ctx.Bool("all") && ctx.String("token-type") != "") {
+	if (!cmd.Bool("all") && cmd.String("token-type") == "") || (cmd.Bool("all") && cmd.String("token-type") != "") {
 		fatalIf(errDummy().Trace(), "Exactly one of --all or --token-type must be specified.")
 	}
 }
 
 // mainAdminAccesskeySTSRevoke is the handle for "mc admin accesskey sts-revoke" command.
-func mainAdminAccesskeySTSRevoke(ctx *cli.Context) error {
-	checkSTSRevokeSyntax(ctx)
+func mainAdminAccesskeySTSRevoke(_ context.Context, cmd *cli.Command) error {
+	checkSTSRevokeSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	user := args.Get(1) // will be empty if --self flag is set
-	tokenRevokeType := ctx.String("token-type")
-	fullRevoke := ctx.Bool("all")
+	tokenRevokeType := cmd.String("token-type")
+	fullRevoke := cmd.Bool("all")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)

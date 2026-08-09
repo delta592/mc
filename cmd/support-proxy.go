@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var supportProxySubcommands = []*cli.Command{
@@ -34,13 +36,13 @@ var supportProxyCmd = &cli.Command{
 	OnUsageError:    onUsageError,
 	Before:          setGlobalsFromContext,
 	Flags:           supportGlobalFlags,
-	Subcommands:     supportProxySubcommands,
+	Commands:        supportProxySubcommands,
 	HideHelpCommand: true,
 }
 
 // mainSupportProxy is the handler for "mc support proxy" command.
-func mainSupportProxy(ctx *cli.Context) error {
-	commandNotFound(ctx, supportProxySubcommands)
+func mainSupportProxy(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, supportProxySubcommands)
 	return nil
 	// Sub-commands like "set", "remove", "show" have their own main.
 	// Check for command syntax

@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"path/filepath"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminDecommissionStartCmd = &cli.Command{
@@ -50,9 +51,9 @@ EXAMPLES:
 }
 
 // checkAdminDecommissionStartSyntax - validate all the passed arguments
-func checkAdminDecommissionStartSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminDecommissionStartSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -76,14 +77,14 @@ func (s startDecomMessage) JSON() string {
 }
 
 // mainAdminDecommissionStart is the handle for "mc admin decommission start" command.
-func mainAdminDecommissionStart(ctx *cli.Context) error {
-	checkAdminDecommissionStartSyntax(ctx)
+func mainAdminDecommissionStart(_ context.Context, cmd *cli.Command) error {
+	checkAdminDecommissionStartSyntax(cmd)
 
 	// Additional command speific theme customization.
 	console.SetColor("DecomPool", color.New(color.FgGreen, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	aliasedURL = filepath.Clean(aliasedURL)
 

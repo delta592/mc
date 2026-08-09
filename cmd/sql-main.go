@@ -34,7 +34,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/mimedb"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var sqlFlags = []cli.Flag{
@@ -241,13 +241,13 @@ func parseSerializationOpts(inp string, validKeys []string, validAbbrKeys map[st
 }
 
 // gets the input serialization opts from cli context and constructs a map of csv, json or parquet options
-func getInputSerializationOpts(ctx *cli.Context) map[string]map[string]string {
-	icsv := ctx.String("csv-input")
-	ijson := ctx.String("json-input")
+func getInputSerializationOpts(_ context.Context, cmd *cli.Command) map[string]map[string]string {
+	icsv := cmd.String("csv-input")
+	ijson := cmd.String("json-input")
 	m := make(map[string]map[string]string)
 
-	csvType := ctx.IsSet("csv-input")
-	jsonType := ctx.IsSet("json-input")
+	csvType := cmd.IsSet("csv-input")
+	jsonType := cmd.IsSet("json-input")
 	if csvType && jsonType {
 		fatalIf(errInvalidArgument(), "Only one of --csv-input or --json-input can be specified as input serialization option")
 	}
@@ -269,13 +269,13 @@ func getInputSerializationOpts(ctx *cli.Context) map[string]map[string]string {
 }
 
 // gets the output serialization opts from cli context and constructs a map of csv or json options
-func getOutputSerializationOpts(ctx *cli.Context, csvHdrs []string) (opts map[string]map[string]string) {
+func getOutputSerializationOpts(_ context.Context, cmd *cli.Command, csvHdrs []string) (opts map[string]map[string]string) {
 	m := make(map[string]map[string]string)
 
-	ocsv := ctx.String("csv-output")
-	ojson := ctx.String("json-output")
-	csvType := ctx.IsSet("csv-output")
-	jsonType := ctx.IsSet("json-output")
+	ocsv := cmd.String("csv-output")
+	ojson := cmd.String("json-output")
+	csvType := cmd.IsSet("csv-output")
+	jsonType := cmd.IsSet("json-output")
 
 	if csvType && jsonType {
 		fatalIf(errInvalidArgument(), "Only one of --csv-output, or --json-output can be specified as output serialization option")
@@ -344,12 +344,12 @@ func isSelectAll(query string) bool {
 
 // if csv-output-header is set to a comma delimited string use it, othjerwise attempt to get the header from
 // query object
-func getCSVOutputHeaders(ctx *cli.Context, url string, encKeyDB map[string][]prefixSSEPair, query string) (hdrs []string) {
-	if !ctx.IsSet("csv-output-header") {
+func getCSVOutputHeaders(_ context.Context, cmd *cli.Command, url string, encKeyDB map[string][]prefixSSEPair, query string) (hdrs []string) {
+	if !cmd.IsSet("csv-output-header") {
 		return
 	}
 
-	hdrStr := ctx.String("csv-output-header")
+	hdrStr := cmd.String("csv-output-header")
 	if hdrStr == "" && isSelectAll(query) {
 		// attempt to get the first line of csv as header
 		if hdrs, err := getCSVHeader(url, encKeyDB); err == nil {
@@ -361,14 +361,14 @@ func getCSVOutputHeaders(ctx *cli.Context, url string, encKeyDB map[string][]pre
 }
 
 // get the Select options for sql select API
-func getSQLOpts(ctx *cli.Context, csvHdrs []string) (s SelectObjectOpts) {
-	is := getInputSerializationOpts(ctx)
-	os := getOutputSerializationOpts(ctx, csvHdrs)
+func getSQLOpts(ctx context.Context, cmd *cli.Command, csvHdrs []string) (s SelectObjectOpts) {
+	is := getInputSerializationOpts(ctx, cmd)
+	os := getOutputSerializationOpts(ctx, cmd, csvHdrs)
 
 	return SelectObjectOpts{
 		InputSerOpts:    is,
 		OutputSerOpts:   os,
-		CompressionType: minio.SelectCompressionType(ctx.String("compression")),
+		CompressionType: minio.SelectCompressionType(cmd.String("compression")),
 	}
 }
 
@@ -419,23 +419,23 @@ func validateOpts(selOpts SelectObjectOpts, url string) {
 }
 
 // validate args and optionally fetch the csv header of query object
-func getAndValidateArgs(ctx *cli.Context, encKeyDB map[string][]prefixSSEPair, url string) (query string, csvHdrs []string, selOpts SelectObjectOpts) {
-	query = ctx.String("query")
-	csvHdrs = getCSVOutputHeaders(ctx, url, encKeyDB, query)
-	selOpts = getSQLOpts(ctx, csvHdrs)
+func getAndValidateArgs(ctx context.Context, cmd *cli.Command, encKeyDB map[string][]prefixSSEPair, url string) (query string, csvHdrs []string, selOpts SelectObjectOpts) {
+	query = cmd.String("query")
+	csvHdrs = getCSVOutputHeaders(ctx, cmd, url, encKeyDB, query)
+	selOpts = getSQLOpts(ctx, cmd, csvHdrs)
 	validateOpts(selOpts, url)
 	return
 }
 
 // check sql input arguments.
-func checkSQLSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
+func checkSQLSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 }
 
 // mainSQL is the main entry point for sql command.
-func mainSQL(cliCtx *cli.Context) error {
+func mainSQL(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelSQL := context.WithCancel(globalContext)
 	defer cancelSQL()
 
@@ -445,13 +445,13 @@ func mainSQL(cliCtx *cli.Context) error {
 		query   string
 	)
 	// Parse encryption keys per command.
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// validate sql input arguments.
-	checkSQLSyntax(cliCtx)
+	checkSQLSyntax(cmd)
 	// extract URLs.
-	URLs := cliCtx.Args().Slice()
+	URLs := cmd.Args().Slice()
 	writeHdr := true
 	for _, url := range URLs {
 		if _, targetContent, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false}); err != nil {
@@ -459,7 +459,7 @@ func mainSQL(cliCtx *cli.Context) error {
 			continue
 		} else if !targetContent.Type.IsDir() {
 			if writeHdr {
-				query, csvHdrs, selOpts = getAndValidateArgs(cliCtx, encKeyDB, url)
+				query, csvHdrs, selOpts = getAndValidateArgs(ctx, cmd, encKeyDB, url)
 			}
 			errorIf(sqlSelect(url, query, encKeyDB, selOpts, csvHdrs, writeHdr).Trace(url), "Unable to run sql")
 			writeHdr = false
@@ -472,13 +472,13 @@ func mainSQL(cliCtx *cli.Context) error {
 			continue
 		}
 
-		for content := range clnt.List(ctx, ListOptions{Recursive: cliCtx.Bool("recursive"), WithMetadata: true, ShowDir: DirNone}) {
+		for content := range clnt.List(ctx, ListOptions{Recursive: cmd.Bool("recursive"), WithMetadata: true, ShowDir: DirNone}) {
 			if content.Err != nil {
 				errorIf(content.Err.Trace(url), "Unable to list on target `%s`.", url)
 				continue
 			}
 			if writeHdr {
-				query, csvHdrs, selOpts = getAndValidateArgs(cliCtx, encKeyDB, targetAlias+content.URL.Path)
+				query, csvHdrs, selOpts = getAndValidateArgs(ctx, cmd, encKeyDB, targetAlias+content.URL.Path)
 			}
 			contentType := mimedb.TypeByExtension(filepath.Ext(content.URL.Path))
 			if len(content.UserMetadata) != 0 && content.UserMetadata["content-type"] != "" {

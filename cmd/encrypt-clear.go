@@ -25,7 +25,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var encryptClearCmd = &cli.Command{
@@ -51,9 +51,9 @@ EXAMPLES:
 }
 
 // checkEncryptClearSyntax - validate all the passed arguments
-func checkEncryptClearSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkEncryptClearSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -74,23 +74,23 @@ func (v encryptClearMessage) String() string {
 	return console.Colorize("encryptClearMessage", fmt.Sprintf("Auto encryption configuration has been cleared successfully for %s", v.URL))
 }
 
-func mainEncryptClear(cliCtx *cli.Context) error {
+func mainEncryptClear(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelencryptClear := context.WithCancel(globalContext)
 	defer cancelencryptClear()
 
 	console.SetColor("encryptClearMessage", color.New(color.FgGreen))
 
-	checkEncryptClearSyntax(cliCtx)
+	checkEncryptClearSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	fatalIf(client.DeleteEncryption(ctx), "Unable to clear auto encryption configuration")
 	printMsg(encryptClearMessage{
-		Op:     cliCtx.Command.Name,
+		Op:     cmd.Name,
 		Status: "success",
 		URL:    aliasedURL,
 	})

@@ -26,7 +26,7 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var batchListFlags = []cli.Flag{
@@ -167,18 +167,18 @@ func (c batchListMessage) JSON() string {
 }
 
 // checkBatchListSyntax - validate all the passed arguments
-func checkBatchListSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBatchListSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainBatchList is the handle for "mc batch create" command.
-func mainBatchList(ctx *cli.Context) error {
-	checkBatchListSyntax(ctx)
+func mainBatchList(_ context.Context, cmd *cli.Command) error {
+	checkBatchListSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Start a new MinIO Admin Client
@@ -189,7 +189,7 @@ func mainBatchList(ctx *cli.Context) error {
 	defer cancel()
 
 	res, e := adminClient.ListBatchJobs(ctxt, &madmin.ListBatchJobsFilter{
-		ByJobType: ctx.String("type"),
+		ByJobType: cmd.String("type"),
 	})
 	fatalIf(probe.NewError(e), "Unable to list jobs")
 

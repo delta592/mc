@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var tagSetFlags = []cli.Flag{
@@ -121,18 +121,18 @@ func (t tagSetMessage) JSON() string {
 	return string(msgBytes)
 }
 
-func parseSetTagSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions bool, tags string, recursive bool, excludeFolders bool) {
-	if ctx.Args().Len() != 2 || ctx.Args().Get(1) == "" {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func parseSetTagSyntax(_ context.Context, cmd *cli.Command) (targetURL, versionID string, timeRef time.Time, withVersions bool, tags string, recursive bool, excludeFolders bool) {
+	if cmd.Args().Len() != 2 || cmd.Args().Get(1) == "" {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 
-	targetURL = ctx.Args().Get(0)
-	tags = ctx.Args().Get(1)
-	versionID = ctx.String("version-id")
-	withVersions = ctx.Bool("versions")
-	rewind := ctx.String("rewind")
-	recursive = ctx.Bool("recursive")
-	excludeFolders = ctx.Bool("exclude-folders")
+	targetURL = cmd.Args().Get(0)
+	tags = cmd.Args().Get(1)
+	versionID = cmd.String("version-id")
+	withVersions = cmd.Bool("versions")
+	rewind := cmd.String("rewind")
+	recursive = cmd.Bool("recursive")
+	excludeFolders = cmd.Bool("exclude-folders")
 
 	if versionID != "" && (rewind != "" || withVersions) {
 		fatalIf(errDummy().Trace(), "You cannot specify both --version-id and --rewind or --versions flags at the same time")
@@ -175,19 +175,19 @@ func setTagsSingle(ctx context.Context, alias, url, versionID, tags string) *pro
 	return nil
 }
 
-func mainSetTag(cliCtx *cli.Context) error {
+func mainSetTag(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelSetTag := context.WithCancel(globalContext)
 	defer cancelSetTag()
 
 	console.SetColor("List", color.New(color.FgGreen))
 
-	targetURL, versionID, timeRef, withVersions, tags, recursive, excludeFolders := parseSetTagSyntax(cliCtx)
+	targetURL, versionID, timeRef, withVersions, tags, recursive, excludeFolders := parseSetTagSyntax(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}
 
 	clnt, err := newClient(targetURL)
-	fatalIf(err.Trace(cliCtx.Args().Slice()...), "Unable to initialize target "+targetURL)
+	fatalIf(err.Trace(cmd.Args().Slice()...), "Unable to initialize target "+targetURL)
 
 	alias, urlStr, _ := mustExpandAlias(targetURL)
 	if timeRef.IsZero() && !withVersions && !recursive && !excludeFolders {

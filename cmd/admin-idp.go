@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminIDPCmd = &cli.Command{
 	Name:            "idp",
@@ -33,7 +37,7 @@ Please use commands under 'mc idp ldap|openid' instead.
 `,
 }
 
-func mainAdminIDP(_ *cli.Context) error {
+func mainAdminIDP(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc idp ldap|openid")
 	return nil
 }

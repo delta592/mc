@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctListCmd = &cli.Command{
@@ -51,15 +53,15 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctListSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctListSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctListSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSvcAcctList is the handle for "mc admin user svcacct ls" command.
-func mainAdminUserSvcAcctList(ctx *cli.Context) error {
-	checkAdminUserSvcAcctListSyntax(ctx)
+func mainAdminUserSvcAcctList(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSvcAcctListSyntax(cmd)
 
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 	console.SetColor("AccessKeyHeader", color.New(color.Bold, color.FgBlue))
@@ -68,7 +70,7 @@ func mainAdminUserSvcAcctList(ctx *cli.Context) error {
 	console.SetColor("Expiration", color.New(color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	user := args.Get(1)
 

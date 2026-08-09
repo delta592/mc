@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminKMSKeyListCmd = &cli.Command{
@@ -53,15 +54,15 @@ EXAMPLES:
 }
 
 // adminKMSKeyCmd is the handle for the "mc admin kms key" command.
-func mainAdminKMSKeyList(ctx *cli.Context) error {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func mainAdminKMSKeyList(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	console.SetColor("KeyName", color.New(color.FgBlue))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

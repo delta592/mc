@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminProfileSubcommands = []*cli.Command{
@@ -33,13 +35,13 @@ var adminProfileCmd = &cli.Command{
 	OnUsageError:    onUsageError,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminProfileSubcommands,
+	Commands:        adminProfileSubcommands,
 	HideHelpCommand: true,
 	Hidden:          true,
 }
 
 // mainAdminProfile is the handle for "mc admin profile" command.
-func mainAdminProfile(_ *cli.Context) error {
+func mainAdminProfile(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support profile")
 	return nil
 }

@@ -25,7 +25,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateExportCmd = &cli.Command{
@@ -54,9 +54,9 @@ EXAMPLES:
 }
 
 // checkReplicateExportSyntax - validate all the passed arguments
-func checkReplicateExportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateExportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -83,17 +83,17 @@ func (r replicateExportMessage) String() string {
 	return string(msgBytes)
 }
 
-func mainReplicateExport(cliCtx *cli.Context) error {
+func mainReplicateExport(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelReplicateExport := context.WithCancel(globalContext)
 	defer cancelReplicateExport()
 
 	console.SetColor("replicateExportMessage", color.New(color.FgGreen))
 	console.SetColor("replicateExportFailure", color.New(color.FgRed))
 
-	checkReplicateExportSyntax(cliCtx)
+	checkReplicateExportSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
@@ -101,7 +101,7 @@ func mainReplicateExport(cliCtx *cli.Context) error {
 	rCfg, err := client.GetReplication(ctx)
 	fatalIf(err.Trace(args.Slice()...), "Unable to get replication configuration")
 	printMsg(replicateExportMessage{
-		Op:                cliCtx.Command.Name,
+		Op:                cmd.Name,
 		Status:            "success",
 		URL:               aliasedURL,
 		ReplicationConfig: rCfg,

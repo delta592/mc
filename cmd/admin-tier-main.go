@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierCmd = &cli.Command{
@@ -29,11 +31,11 @@ var adminTierCmd = &cli.Command{
 	Flags:           globalFlags,
 	Hidden:          true,
 	HideHelpCommand: true,
-	Subcommands:     adminTierDepCmds,
+	Commands:        adminTierDepCmds,
 }
 
 // mainAdminTier is the handle for "mc admin tier" command.
-func mainAdminTier(_ *cli.Context) error {
+func mainAdminTier(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc ilm tier")
 	return nil
 }

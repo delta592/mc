@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctInfoFlags = []cli.Flag{
@@ -59,20 +60,20 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctInfoSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSvcAcctInfo is the handle for "mc admin user svcacct info" command.
-func mainAdminUserSvcAcctInfo(ctx *cli.Context) error {
-	checkAdminUserSvcAcctInfoSyntax(ctx)
+func mainAdminUserSvcAcctInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSvcAcctInfoSyntax(cmd)
 
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	svcAccount := args.Get(1)
 
@@ -83,7 +84,7 @@ func mainAdminUserSvcAcctInfo(ctx *cli.Context) error {
 	svcInfo, e := client.InfoServiceAccount(globalContext, svcAccount)
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get information of the specified service account")
 
-	if ctx.Bool("policy") {
+	if cmd.Bool("policy") {
 		if svcInfo.Policy == "" {
 			fatalIf(errDummy().Trace(args.Slice()...), "No policy found associated to the specified service account. Check the policy of its parent user.")
 		}

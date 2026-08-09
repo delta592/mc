@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicyEntitiesFlags = []cli.Flag{
@@ -73,16 +75,16 @@ EXAMPLES:
 }
 
 // mainAdminPolicyEntities is the handler for "mc admin policy entities" command.
-func mainAdminPolicyEntities(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainAdminPolicyEntities(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	usersToQuery := ctx.StringSlice("user")
-	groupsToQuery := ctx.StringSlice("group")
-	policiesToQuery := ctx.StringSlice("policy")
+	usersToQuery := cmd.StringSlice("user")
+	groupsToQuery := cmd.StringSlice("group")
+	policiesToQuery := cmd.StringSlice("policy")
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	aliasedURL := args.Get(0)
 

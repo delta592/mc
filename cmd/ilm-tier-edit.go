@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierEditFlags = []cli.Flag{
@@ -102,23 +103,23 @@ EXAMPLES:
 }
 
 // checkAdminTierEditSyntax - validate all the postitional arguments
-func checkAdminTierEditSyntax(ctx *cli.Context) {
-	argsNr := ctx.Args().Len()
+func checkAdminTierEditSyntax(cmd *cli.Command) {
+	argsNr := cmd.Args().Len()
 	if argsNr < 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 	if argsNr > 2 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for tier-edit subcommand.")
 	}
 }
 
-func mainAdminTierEdit(ctx *cli.Context) error {
-	checkAdminTierEditSyntax(ctx)
+func mainAdminTierEdit(_ context.Context, cmd *cli.Command) error {
+	checkAdminTierEditSyntax(cmd)
 
 	console.SetColor("TierMessage", color.New(color.FgGreen))
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	tierName := args.Get(1)
 
@@ -127,16 +128,16 @@ func mainAdminTierEdit(ctx *cli.Context) error {
 	fatalIf(cerr, "Unable to initialize admin connection.")
 
 	var creds madmin.TierCreds
-	accessKey := ctx.String("access-key")
-	secretKey := ctx.String("secret-key")
-	credsPath := ctx.String("credentials-file")
-	useAwsRole := ctx.IsSet("use-aws-role")
+	accessKey := cmd.String("access-key")
+	secretKey := cmd.String("secret-key")
+	credsPath := cmd.String("credentials-file")
+	useAwsRole := cmd.IsSet("use-aws-role")
 
 	// Azure, either account-key or one of the 3 service principal flags are required
-	accountKey := ctx.String("account-key")
-	azSPTenantID := ctx.String("az-sp-tenant-id")
-	azSPClientID := ctx.String("az-sp-client-id")
-	azSPClientSecret := ctx.String("az-sp-client-secret")
+	accountKey := cmd.String("account-key")
+	azSPTenantID := cmd.String("az-sp-tenant-id")
+	azSPClientID := cmd.String("az-sp-client-id")
+	azSPClientSecret := cmd.String("az-sp-client-secret")
 
 	switch {
 	case accessKey != "" && secretKey != "" && !useAwsRole: // S3 tier
@@ -165,7 +166,7 @@ func mainAdminTierEdit(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to edit remote tier")
 
 	printMsg(&tierMessage{
-		op:       ctx.Command.Name,
+		op:       cmd.Name,
 		Status:   "success",
 		TierName: tierName,
 	})

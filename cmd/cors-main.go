@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var corsSubcommands = []*cli.Command{
 	corsSetCmd,
@@ -26,15 +30,15 @@ var corsSubcommands = []*cli.Command{
 }
 
 var corsCmd = &cli.Command{
-	Name:        "cors",
-	Usage:       "manage bucket CORS configuration",
-	Action:      mainCors,
-	Before:      setGlobalsFromContext,
-	Flags:       globalFlags,
-	Subcommands: corsSubcommands,
+	Name:     "cors",
+	Usage:    "manage bucket CORS configuration",
+	Action:   mainCors,
+	Before:   setGlobalsFromContext,
+	Flags:    globalFlags,
+	Commands: corsSubcommands,
 }
 
-func mainCors(ctx *cli.Context) error {
-	commandNotFound(ctx, corsSubcommands)
+func mainCors(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, corsSubcommands)
 	return nil
 }

@@ -23,7 +23,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportTopAPIFlags = []cli.Flag{
@@ -73,16 +73,16 @@ EXAMPLES:
 }
 
 // checkSupportTopAPISyntax - validate all the passed arguments
-func checkSupportTopAPISyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportTopAPISyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainSupportTopAPI(ctx *cli.Context) error {
-	checkSupportTopAPISyntax(ctx)
+func mainSupportTopAPI(ctx context.Context, cmd *cli.Command) error {
+	checkSupportTopAPISyntax(cmd)
 
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	alias, _ := url2Alias(aliasedURL)
 	validateClusterRegistered(alias, false)
 
@@ -96,10 +96,10 @@ func mainSupportTopAPI(ctx *cli.Context) error {
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
-	opts, e := tracingOpts(ctx, ctx.StringSlice("call"))
+	opts, e := tracingOpts(ctx, cmd, cmd.StringSlice("call"))
 	fatalIf(probe.NewError(e), "Unable to start tracing")
 
-	mopts := matchingOpts(ctx)
+	mopts := matchingOpts(ctx, cmd)
 
 	// Start listening on all trace activity.
 	traceCh := client.ServiceTrace(ctxt, opts)

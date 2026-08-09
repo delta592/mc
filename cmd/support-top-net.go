@@ -25,7 +25,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportTopNetFlags = []cli.Flag{
@@ -66,16 +66,16 @@ EXAMPLES:
 }
 
 // checkSupportTopNetSyntax - validate all the passed arguments
-func checkSupportTopNetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportTopNetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainSupportTopNet(ctx *cli.Context) error {
-	checkSupportTopNetSyntax(ctx)
+func mainSupportTopNet(_ context.Context, cmd *cli.Command) error {
+	checkSupportTopNetSyntax(cmd)
 
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	alias, _ := url2Alias(aliasedURL)
 	validateClusterRegistered(alias, false)
 
@@ -92,8 +92,8 @@ func mainSupportTopNet(ctx *cli.Context) error {
 	// MetricsOptions are options provided to Metrics call.
 	opts := madmin.MetricsOptions{
 		Type:     madmin.MetricNet,
-		Interval: time.Duration(ctx.Int("interval")) * time.Second,
-		N:        ctx.Int("n"),
+		Interval: time.Duration(cmd.Int("interval")) * time.Second,
+		N:        cmd.Int("n"),
 		ByHost:   true,
 	}
 	if globalJSON {

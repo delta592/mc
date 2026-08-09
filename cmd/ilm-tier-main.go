@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var ilmTierSubcommands = []*cli.Command{
 	adminTierInfoCmd,
@@ -36,11 +40,11 @@ var ilmTierCmd = &cli.Command{
 	Action:          mainILMTier,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     ilmTierSubcommands,
+	Commands:        ilmTierSubcommands,
 	HideHelpCommand: true,
 }
 
-func mainILMTier(ctx *cli.Context) error {
-	commandNotFound(ctx, ilmTierSubcommands)
+func mainILMTier(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, ilmTierSubcommands)
 	return nil
 }

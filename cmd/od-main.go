@@ -27,7 +27,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // make a bucket.
@@ -139,16 +139,16 @@ func odCheckType(ctx context.Context, odURLs URLs, args argKVS) (message, error)
 }
 
 // mainOd is the entry point for the od command.
-func mainOD(cliCtx *cli.Context) error {
+func mainOD(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelCopy := context.WithCancel(globalContext)
 	defer cancelCopy()
 
-	if !cliCtx.Args().Present() {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	var kvsArgs argKVS
-	for _, arg := range cliCtx.Args().Slice() {
+	for _, arg := range cmd.Args().Slice() {
 		kv := strings.SplitN(arg, "=", 2)
 		kvsArgs.Set(kv[0], kv[1])
 	}

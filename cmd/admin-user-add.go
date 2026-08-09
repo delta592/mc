@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -27,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -76,10 +77,10 @@ EXAMPLES:
 }
 
 // checkAdminUserAddSyntax - validate all the passed arguments
-func checkAdminUserAddSyntax(ctx *cli.Context) {
-	argsNr := ctx.Args().Len()
+func checkAdminUserAddSyntax(cmd *cli.Command) {
+	argsNr := cmd.Args().Len()
 	if argsNr > 3 || argsNr < 1 {
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
@@ -187,13 +188,13 @@ func fetchUserKeys(args cli.Args) (string, string) {
 }
 
 // mainAdminUserAdd is the handle for "mc admin user add" command.
-func mainAdminUserAdd(ctx *cli.Context) error {
-	checkAdminUserAddSyntax(ctx)
+func mainAdminUserAdd(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserAddSyntax(cmd)
 
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	accessKey, secretKey := fetchUserKeys(args)
 
@@ -204,7 +205,7 @@ func mainAdminUserAdd(ctx *cli.Context) error {
 	fatalIf(probe.NewError(client.AddUser(globalContext, accessKey, secretKey)).Trace(args.Slice()...), "Unable to add new user")
 
 	printMsg(userMessage{
-		op:         ctx.Command.Name,
+		op:         cmd.Name,
 		AccessKey:  accessKey,
 		SecretKey:  secretKey,
 		UserStatus: "enabled",

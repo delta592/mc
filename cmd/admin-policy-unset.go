@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicyUnsetCmd = &cli.Command{
@@ -33,7 +35,7 @@ var adminPolicyUnsetCmd = &cli.Command{
 	CustomHelpTemplate: `Please use 'mc admin policy detach'`,
 }
 
-func mainAdminPolicyUnsetErr(_ *cli.Context) error {
+func mainAdminPolicyUnsetErr(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc admin policy detach")
 	return nil
 }

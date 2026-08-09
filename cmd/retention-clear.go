@@ -24,7 +24,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var retentionClearFlags = []cli.Flag{
@@ -90,11 +90,11 @@ EXAMPLES:
 `,
 }
 
-func parseClearRetentionArgs(cliCtx *cli.Context) (target, versionID string, timeRef time.Time, withVersions, recursive, bucketMode bool) {
-	args := cliCtx.Args()
+func parseClearRetentionArgs(_ context.Context, cmd *cli.Command) (target, versionID string, timeRef time.Time, withVersions, recursive, bucketMode bool) {
+	args := cmd.Args()
 
 	if args.Len() != 1 {
-		showCommandHelpAndExit(cliCtx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	target = args.Get(0)
@@ -102,11 +102,11 @@ func parseClearRetentionArgs(cliCtx *cli.Context) (target, versionID string, tim
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}
 
-	versionID = cliCtx.String("version-id")
-	timeRef = parseRewindFlag(cliCtx.String("rewind"))
-	withVersions = cliCtx.Bool("versions")
-	recursive = cliCtx.Bool("recursive")
-	bucketMode = cliCtx.Bool("default")
+	versionID = cmd.String("version-id")
+	timeRef = parseRewindFlag(cmd.String("rewind"))
+	withVersions = cmd.Bool("versions")
+	recursive = cmd.Bool("recursive")
+	bucketMode = cmd.Bool("default")
 
 	if bucketMode && (versionID != "" || !timeRef.IsZero() || withVersions || recursive) {
 		fatalIf(errDummy(), "--default cannot be specified with any of --version-id, --rewind, --versions or --recursive.")
@@ -125,14 +125,14 @@ func clearBucketLock(urlStr string) error {
 }
 
 // main for retention clear command.
-func mainRetentionClear(cliCtx *cli.Context) error {
+func mainRetentionClear(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelSetRetention := context.WithCancel(globalContext)
 	defer cancelSetRetention()
 
 	console.SetColor("RetentionSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("RetentionFailure", color.New(color.FgYellow))
 
-	target, versionID, rewind, withVersions, recursive, bucketMode := parseClearRetentionArgs(cliCtx)
+	target, versionID, rewind, withVersions, recursive, bucketMode := parseClearRetentionArgs(ctx, cmd)
 
 	fatalIfBucketLockNotSupported(ctx, target)
 

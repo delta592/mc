@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminRebalanceSubcommands = []*cli.Command{
 	adminRebalanceStartCmd,
@@ -31,11 +35,11 @@ var adminRebalanceCmd = &cli.Command{
 	Action:          mainAdminRebalance,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminRebalanceSubcommands,
+	Commands:        adminRebalanceSubcommands,
 	HideHelpCommand: true,
 }
 
-func mainAdminRebalance(ctx *cli.Context) error {
-	commandNotFound(ctx, adminRebalanceSubcommands)
+func mainAdminRebalance(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminRebalanceSubcommands)
 	return nil
 }

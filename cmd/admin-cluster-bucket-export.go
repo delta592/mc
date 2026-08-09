@@ -30,7 +30,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminClusterBucketExportCmd = &cli.Command{
@@ -56,19 +56,19 @@ EXAMPLES:
 `,
 }
 
-func checkBucketExportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBucketExportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainClusterBucketExport -  metadata export command
-func mainClusterBucketExport(ctx *cli.Context) error {
+func mainClusterBucketExport(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkBucketExportSyntax(ctx)
+	checkBucketExportSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	console.SetColor("File", color.New(color.FgWhite, color.Bold))
 

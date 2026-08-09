@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminBucketInfoFlags = []cli.Flag{}
@@ -34,7 +36,7 @@ var adminBucketInfoCmd = &cli.Command{
 }
 
 // mainAdminBucketInfo is the handler for "mc admin bucket info" command.
-func mainAdminBucketInfo(_ *cli.Context) error {
+func mainAdminBucketInfo(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc stat")
 	return nil
 }

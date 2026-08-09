@@ -25,7 +25,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var eventAddFlags = []cli.Flag{
@@ -81,9 +81,9 @@ EXAMPLES:
 }
 
 // checkEventAddSyntax - validate all the passed arguments
-func checkEventAddSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkEventAddSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -109,22 +109,22 @@ func (u eventAddMessage) String() string {
 	return msg
 }
 
-func mainEventAdd(cliCtx *cli.Context) error {
+func mainEventAdd(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelEventAdd := context.WithCancel(globalContext)
 	defer cancelEventAdd()
 
 	console.SetColor("Event", color.New(color.FgGreen, color.Bold))
 
-	checkEventAddSyntax(cliCtx)
+	checkEventAddSyntax(cmd)
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	path := args.Get(0)
 	arn := args.Get(1)
-	ignoreExisting := cliCtx.Bool("p")
+	ignoreExisting := cmd.Bool("p")
 
-	event := strings.Split(cliCtx.String("event"), ",")
-	prefix := cliCtx.String("prefix")
-	suffix := cliCtx.String("suffix")
+	event := strings.Split(cmd.String("event"), ",")
+	prefix := cmd.String("prefix")
+	suffix := cmd.String("suffix")
 
 	client, err := newClient(path)
 	if err != nil {

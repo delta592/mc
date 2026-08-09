@@ -29,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // iam export specific flags.
@@ -69,19 +69,19 @@ EXAMPLES:
 `,
 }
 
-func checkIAMExportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkIAMExportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainClusterIAMExport -  metadata export command
-func mainClusterIAMExport(ctx *cli.Context) error {
+func mainClusterIAMExport(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkIAMExportSyntax(ctx)
+	checkIAMExportSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := filepath.ToSlash(args.Get(0))
 	aliasedURL = filepath.Clean(aliasedURL)
 
@@ -111,8 +111,8 @@ func mainClusterIAMExport(ctx *cli.Context) error {
 	tmpFile.Close()
 
 	downloadPath := fmt.Sprintf("%s-iam-info.%s", aliasedURL, ext)
-	if ctx.String("output") != "" {
-		downloadPath = ctx.String("output")
+	if cmd.String("output") != "" {
+		downloadPath = cmd.String("output")
 	}
 	fi, e := os.Stat(downloadPath)
 	if e == nil && !fi.IsDir() {

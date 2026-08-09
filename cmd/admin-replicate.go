@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminReplicateSubcommands = []*cli.Command{
 	adminReplicateAddCmd,
@@ -34,11 +38,11 @@ var adminReplicateCmd = &cli.Command{
 	Action:          mainAdminReplicate,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminReplicateSubcommands,
+	Commands:        adminReplicateSubcommands,
 	HideHelpCommand: true,
 }
 
-func mainAdminReplicate(ctx *cli.Context) error {
-	commandNotFound(ctx, adminReplicateSubcommands)
+func mainAdminReplicate(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminReplicateSubcommands)
 	return nil
 }

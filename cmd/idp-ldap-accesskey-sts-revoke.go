@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeySTSRevokeCmd = &cli.Command{
@@ -60,15 +62,15 @@ EXAMPLES:
 }
 
 // mainIdpLdapAccesskeySTSRevoke is the handle for "mc idp ldap accesskey sts-revoke" command.
-func mainIdpLdapAccesskeySTSRevoke(ctx *cli.Context) error {
-	checkSTSRevokeSyntax(ctx)
+func mainIdpLdapAccesskeySTSRevoke(_ context.Context, cmd *cli.Command) error {
+	checkSTSRevokeSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	user := args.Get(1) // will be empty if --self flag is set
-	tokenRevokeType := ctx.String("token-type")
-	fullRevoke := ctx.Bool("all")
+	tokenRevokeType := cmd.String("token-type")
+	fullRevoke := cmd.Bool("all")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)

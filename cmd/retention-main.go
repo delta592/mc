@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var retentionSubcommands = []*cli.Command{
@@ -28,16 +30,16 @@ var retentionSubcommands = []*cli.Command{
 }
 
 var retentionCmd = &cli.Command{
-	Name:        "retention",
-	Usage:       "set retention for object(s)",
-	Action:      mainRetention,
-	Before:      setGlobalsFromContext,
-	Flags:       globalFlags,
-	Subcommands: retentionSubcommands,
+	Name:     "retention",
+	Usage:    "set retention for object(s)",
+	Action:   mainRetention,
+	Before:   setGlobalsFromContext,
+	Flags:    globalFlags,
+	Commands: retentionSubcommands,
 }
 
 // main for retention command.
-func mainRetention(ctx *cli.Context) error {
-	commandNotFound(ctx, retentionSubcommands)
+func mainRetention(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, retentionSubcommands)
 	return nil
 }

@@ -38,7 +38,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateBacklogFlags = []cli.Flag{
@@ -92,9 +92,9 @@ EXAMPLES:
 }
 
 // checkReplicateBacklogSyntax - validate all the passed arguments
-func checkReplicateBacklogSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateBacklogSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -504,11 +504,11 @@ func (m *replicateBacklogUI) View() tea.View {
 	return tea.NewView(sb.String())
 }
 
-func mainReplicateBacklog(cliCtx *cli.Context) error {
-	checkReplicateBacklogSyntax(cliCtx)
+func mainReplicateBacklog(_ context.Context, cmd *cli.Command) error {
+	checkReplicateBacklogSyntax(cmd)
 	console.SetColor("diff-msg", color.New(color.FgHiCyan, color.Bold))
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	aliasedURL = filepath.ToSlash(aliasedURL)
 	splits := splitStr(aliasedURL, "/", 3)
@@ -522,8 +522,8 @@ func mainReplicateBacklog(cliCtx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	client, cerr := newAdminClient(aliasedURL)
 	fatalIf(cerr, "Unable to initialize admin connection.")
-	if !cliCtx.Bool("full") {
-		mrfCh := client.BucketReplicationMRF(ctx, bucket, cliCtx.String("nodes"))
+	if !cmd.Bool("full") {
+		mrfCh := client.BucketReplicationMRF(ctx, bucket, cmd.String("nodes"))
 		if globalJSON {
 			for mrf := range mrfCh {
 				if mrf.Err != "" {
@@ -545,8 +545,8 @@ func mainReplicateBacklog(cliCtx *cli.Context) error {
 		return nil
 	}
 
-	verbose := cliCtx.Bool("verbose")
-	arn := cliCtx.String("arn")
+	verbose := cmd.Bool("verbose")
+	arn := cmd.String("arn")
 	diffCh := client.BucketReplicationDiff(ctx, bucket, madmin.ReplDiffOpts{
 		Verbose: verbose,
 		ARN:     arn,

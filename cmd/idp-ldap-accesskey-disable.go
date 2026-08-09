@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyDisableCmd = &cli.Command{
@@ -43,6 +45,6 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapAccesskeyDisable(ctx *cli.Context) error {
-	return enableDisableAccesskey(ctx, false)
+func mainIDPLdapAccesskeyDisable(ctx context.Context, cmd *cli.Command) error {
+	return enableDisableAccesskey(ctx, cmd, false)
 }

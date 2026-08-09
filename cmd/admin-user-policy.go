@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -27,7 +28,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserPolicyCmd = &cli.Command{
@@ -51,20 +52,20 @@ EXAMPLES:
 }
 
 // checkAdminUserPolicySyntax - validate all the passed arguments
-func checkAdminUserPolicySyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminUserPolicySyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminUserPolicy is the handler for "mc admin user policy" command.
-func mainAdminUserPolicy(ctx *cli.Context) error {
-	checkAdminUserPolicySyntax(ctx)
+func mainAdminUserPolicy(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserPolicySyntax(cmd)
 
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

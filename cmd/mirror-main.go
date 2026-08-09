@@ -42,7 +42,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // mirror specific flags.
@@ -980,7 +980,7 @@ func getEventPathURLWin(srcURL, eventPath string) string {
 }
 
 // runMirror - mirrors all buckets to another S3 server
-func runMirror(ctx context.Context, srcURL, dstURL string, cli *cli.Context, encKeyDB map[string][]prefixSSEPair) bool {
+func runMirror(ctx context.Context, srcURL, dstURL string, cli *cli.Command, encKeyDB map[string][]prefixSSEPair) bool {
 	// Parse metadata.
 	userMetadata := make(map[string]string)
 	if cli.String("attr") != "" {
@@ -1004,7 +1004,7 @@ func runMirror(ctx context.Context, srcURL, dstURL string, cli *cli.Context, enc
 	isWatch := cli.Bool("watch") || cli.Bool("multi-master")
 	isActiveActive := cli.Bool("active-active")
 	isRemove := cli.Bool("remove")
-	md5, checksum := parseChecksum(cli)
+	md5, checksum := parseChecksum(ctx, cli)
 
 	// preserve is also expected to be overwritten if necessary
 	isMetadata := cli.Bool("a") || isWatch || len(userMetadata) > 0
@@ -1158,20 +1158,20 @@ func runMirror(ctx context.Context, srcURL, dstURL string, cli *cli.Context, enc
 }
 
 // Main entry point for mirror command.
-func mainMirror(cliCtx *cli.Context) error {
+func mainMirror(_ context.Context, cmd *cli.Command) error {
 	// Additional command specific theme customization.
 	console.SetColor("Mirror", color.New(color.FgGreen, color.Bold))
 
 	ctx, cancelMirror := context.WithCancel(globalContext)
 	defer cancelMirror()
 
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'mirror' cli arguments.
-	srcURL, tgtURL := checkMirrorSyntax(ctx, cliCtx, encKeyDB)
+	srcURL, tgtURL := checkMirrorSyntax(ctx, cmd, encKeyDB)
 
-	if prometheusAddress := cliCtx.String("monitoring-address"); prometheusAddress != "" {
+	if prometheusAddress := cmd.String("monitoring-address"); prometheusAddress != "" {
 		http.Handle("/metrics", promhttp.Handler())
 		go func() {
 			if e := http.ListenAndServe(prometheusAddress, nil); e != nil {
@@ -1186,8 +1186,8 @@ func mainMirror(cliCtx *cli.Context) error {
 		case <-ctx.Done():
 			return exitStatus(globalErrorExitStatus)
 		default:
-			errorDetected := runMirror(ctx, srcURL, tgtURL, cliCtx, encKeyDB)
-			if cliCtx.Bool("watch") || cliCtx.Bool("multi-master") || cliCtx.Bool("active-active") {
+			errorDetected := runMirror(ctx, srcURL, tgtURL, cmd, encKeyDB)
+			if cmd.Bool("watch") || cmd.Bool("multi-master") || cmd.Bool("active-active") {
 				mirrorRestarts.Inc()
 				time.Sleep(time.Duration(r.Float64() * float64(2*time.Second)))
 				continue

@@ -24,7 +24,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminScannerTraceFlags = []cli.Flag{
@@ -112,24 +112,24 @@ EXAMPLES:
 `,
 }
 
-func checkAdminScannerTraceSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminScannerTraceSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
-	filterFlag := ctx.Bool("filter-request") || ctx.Bool("filter-response")
-	if filterFlag && ctx.String("filter-size") == "" {
+	filterFlag := cmd.Bool("filter-request") || cmd.Bool("filter-response")
+	if filterFlag && cmd.String("filter-size") == "" {
 		// filter must use with filter-size flags
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminScannerTrace - the entry function of trace command
-func mainAdminScannerTrace(ctx *cli.Context) error {
+func mainAdminScannerTrace(ctx context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkAdminScannerTraceSyntax(ctx)
+	checkAdminScannerTraceSyntax(cmd)
 
-	verbose := ctx.Bool("verbose")
-	aliasedURL := ctx.Args().Get(0)
+	verbose := cmd.Bool("verbose")
+	aliasedURL := cmd.Args().Get(0)
 
 	console.SetColor("Stat", color.New(color.FgYellow))
 
@@ -159,10 +159,10 @@ func mainAdminScannerTrace(ctx *cli.Context) error {
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
-	opts, e := tracingOpts(ctx, []string{"scanner"})
+	opts, e := tracingOpts(ctx, cmd, []string{"scanner"})
 	fatalIf(probe.NewError(e), "Unable to start tracing")
 
-	mopts := matchingOpts(ctx)
+	mopts := matchingOpts(ctx, cmd)
 
 	// Start listening on all trace activity.
 	traceCh := client.ServiceTrace(ctxt, opts)

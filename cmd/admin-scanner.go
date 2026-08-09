@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminScannerSubcommands = []*cli.Command{
 	adminScannerInfo,
@@ -30,12 +34,12 @@ var adminScannerCmd = &cli.Command{
 	Action:          mainAdminScanner,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminScannerSubcommands,
+	Commands:        adminScannerSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainAdminScanner is the handle for "mc admin scanner" command.
-func mainAdminScanner(ctx *cli.Context) error {
-	commandNotFound(ctx, adminScannerSubcommands)
+func mainAdminScanner(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminScannerSubcommands)
 	return nil
 }

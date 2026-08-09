@@ -34,7 +34,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateStatusFlags = []cli.Flag{
@@ -77,9 +77,9 @@ EXAMPLES:
 }
 
 // checkReplicateStatusSyntax - validate all the passed arguments
-func checkReplicateStatusSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkReplicateStatusSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -267,7 +267,7 @@ func (s replicateStatusMessage) String() string {
 	return sb.String()
 }
 
-func mainReplicateStatus(cliCtx *cli.Context) error {
+func mainReplicateStatus(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelReplicateStatus := context.WithCancel(globalContext)
 	defer cancelReplicateStatus()
 
@@ -295,10 +295,10 @@ func mainReplicateStatus(cliCtx *cli.Context) error {
 	for _, c := range colors {
 		console.SetColor(fmt.Sprintf("Node%d", c), color.New(color.Bold, c))
 	}
-	checkReplicateStatusSyntax(cliCtx)
+	checkReplicateStatusSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
@@ -315,9 +315,9 @@ func mainReplicateStatus(cliCtx *cli.Context) error {
 	cfg, err := client.GetReplication(ctx)
 	fatalIf(err.Trace(args.Slice()...), "Unable to fetch replication configuration.")
 
-	if cliCtx.IsSet("nodes") {
+	if cmd.IsSet("nodes") {
 		printMsg(replicateXferMessage{
-			Op:             cliCtx.Command.Name,
+			Op:             cmd.Name,
 			Status:         "success",
 			ReplQueueStats: replicateStatus.QueueStats,
 		})
@@ -325,7 +325,7 @@ func mainReplicateStatus(cliCtx *cli.Context) error {
 	}
 
 	printMsg(replicateStatusMessage{
-		Op:      cliCtx.Command.Name,
+		Op:      cmd.Name,
 		URL:     aliasedURL,
 		Metrics: replicateStatus,
 		Targets: targets,

@@ -25,7 +25,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmImportCmd = &cli.Command{
@@ -83,20 +83,20 @@ func readILMConfig() (*lifecycle.Configuration, *probe.Error) {
 }
 
 // checkILMImportSyntax - validate arguments passed by user
-func checkILMImportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMImportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 }
 
-func mainILMImport(cliCtx *cli.Context) error {
+func mainILMImport(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelILMImport := context.WithCancel(globalContext)
 	defer cancelILMImport()
 
-	checkILMImportSyntax(cliCtx)
+	checkILMImportSyntax(cmd)
 	setILMDisplayColorScheme()
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)

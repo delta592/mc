@@ -20,6 +20,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -28,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminConfigExportCmd = &cli.Command{
@@ -95,17 +96,17 @@ func (u configExportMessage) JSON() string {
 }
 
 // checkAdminConfigExportSyntax - validate all the passed arguments
-func checkAdminConfigExportSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminConfigExportSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminConfigExport(ctx *cli.Context) error {
-	checkAdminConfigExportSyntax(ctx)
+func mainAdminConfigExport(_ context.Context, cmd *cli.Command) error {
+	checkAdminConfigExportSyntax(cmd)
 
 	// Export the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

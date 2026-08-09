@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var eventFlags = []cli.Flag{}
 
@@ -34,12 +38,12 @@ var eventCmd = &cli.Command{
 	Action:          mainEvent,
 	Before:          setGlobalsFromContext,
 	Flags:           append(eventFlags, globalFlags...),
-	Subcommands:     eventSubcommands,
+	Commands:        eventSubcommands,
 }
 
 // mainEvent is the handle for "mc event" command.
-func mainEvent(ctx *cli.Context) error {
-	commandNotFound(ctx, eventSubcommands)
+func mainEvent(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, eventSubcommands)
 	return nil
 	// Sub-commands like "add", "remove", "list" have their own main.
 }

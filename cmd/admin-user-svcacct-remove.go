@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctRemoveCmd = &cli.Command{
@@ -48,20 +50,20 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctRemoveSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSvcAcctRemove is the handle for "mc admin user svcacct rm" command.
-func mainAdminUserSvcAcctRemove(ctx *cli.Context) error {
+func mainAdminUserSvcAcctRemove(_ context.Context, cmd *cli.Command) error {
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 
-	checkAdminUserSvcAcctRemoveSyntax(ctx)
+	checkAdminUserSvcAcctRemoveSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	svcAccount := args.Get(1)
 

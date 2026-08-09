@@ -22,7 +22,7 @@ import (
 	"fmt"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var batchDescribeCmd = &cli.Command{
@@ -48,18 +48,18 @@ EXAMPLES:
 }
 
 // checkBatchDescribeSyntax - validate all the passed arguments
-func checkBatchDescribeSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBatchDescribeSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainBatchDescribe is the handle for "mc batch create" command.
-func mainBatchDescribe(ctx *cli.Context) error {
-	checkBatchDescribeSyntax(ctx)
+func mainBatchDescribe(_ context.Context, cmd *cli.Command) error {
+	checkBatchDescribeSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	jobID := args.Get(1)
 

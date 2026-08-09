@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminPolicyCreateCmd = &cli.Command{
@@ -58,9 +59,9 @@ EXAMPLES:
 }
 
 // checkAdminPolicyCreateSyntax - validate all the passed arguments
-func checkAdminPolicyCreateSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 3 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminPolicyCreateSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 3 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -117,13 +118,13 @@ func (u userPolicyMessage) JSON() string {
 }
 
 // mainAdminPolicyCreate is the handle for "mc admin policy create" command.
-func mainAdminPolicyCreate(ctx *cli.Context) error {
-	checkAdminPolicyCreateSyntax(ctx)
+func mainAdminPolicyCreate(_ context.Context, cmd *cli.Command) error {
+	checkAdminPolicyCreateSyntax(cmd)
 
 	console.SetColor("PolicyMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	policy, e := os.ReadFile(args.Get(2))
@@ -136,7 +137,7 @@ func mainAdminPolicyCreate(ctx *cli.Context) error {
 	fatalIf(probe.NewError(client.AddCannedPolicy(globalContext, args.Get(1), policy)).Trace(args.Slice()...), "Unable to create new policy")
 
 	printMsg(userPolicyMessage{
-		op:     ctx.Command.Name,
+		op:     cmd.Name,
 		Policy: args.Get(1),
 	})
 

@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var eventListFlags = []cli.Flag{}
@@ -58,9 +58,9 @@ EXAMPLES:
 }
 
 // checkEventListSyntax - validate all the passed arguments
-func checkEventListSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 && ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkEventListSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 && cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -100,7 +100,7 @@ func (u eventListMessage) String() string {
 	return msg.String()
 }
 
-func mainEventList(cliCtx *cli.Context) error {
+func mainEventList(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelEventList := context.WithCancel(globalContext)
 	defer cancelEventList()
 
@@ -108,9 +108,9 @@ func mainEventList(cliCtx *cli.Context) error {
 	console.SetColor("Event", color.New(color.FgCyan, color.Bold))
 	console.SetColor("Filter", color.New(color.Bold))
 
-	checkEventListSyntax(cliCtx)
+	checkEventListSyntax(cmd)
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	path := args.Get(0)
 	arn := ""
 	if args.Len() > 1 {

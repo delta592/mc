@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var versionEnableFlags = []cli.Flag{
@@ -70,9 +70,9 @@ EXAMPLES:
 }
 
 // checkVersionEnableSyntax - validate all the passed arguments
-func checkVersionEnableSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkVersionEnableSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -99,31 +99,31 @@ func (v versionEnableMessage) String() string {
 	return console.Colorize("versionEnableMessage", fmt.Sprintf("%s versioning is enabled", v.URL))
 }
 
-func mainVersionEnable(cliCtx *cli.Context) error {
+func mainVersionEnable(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelVersionEnable := context.WithCancel(globalContext)
 	defer cancelVersionEnable()
 
 	console.SetColor("versionEnableMessage", color.New(color.FgGreen))
 
-	checkVersionEnableSyntax(cliCtx)
+	checkVersionEnableSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	var excludedPrefixes []string
-	prefixesStr := cliCtx.String("excluded-prefixes")
+	prefixesStr := cmd.String("excluded-prefixes")
 	if prefixesStr != "" {
 		excludedPrefixes = strings.Split(prefixesStr, ",")
 	}
-	excludeFolders := cliCtx.Bool("exclude-folders")
+	excludeFolders := cmd.Bool("exclude-folders")
 
 	// Create a new Client
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	fatalIf(client.SetVersion(ctx, "enable", excludedPrefixes, excludeFolders), "Unable to enable versioning")
 	printMsg(versionEnableMessage{
-		Op:     cliCtx.Command.Name,
+		Op:     cmd.Name,
 		Status: "success",
 		URL:    aliasedURL,
 	})

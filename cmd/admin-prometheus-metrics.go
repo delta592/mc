@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -29,7 +30,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var metricsFlags = append(metricsV3Flags,
@@ -122,9 +123,9 @@ type prometheusMetricsReq struct {
 }
 
 // checkSupportMetricsSyntax - validate arguments passed by a user
-func checkSupportMetricsSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportMetricsSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -141,10 +142,10 @@ func fetchMetrics(metricsURL string, token string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func validateV2Args(ctx *cli.Context, subsys string) {
+func validateV2Args(_ context.Context, cmd *cli.Command, subsys string) {
 	for _, flag := range metricsV3Flags {
 		flagName := flag.Names()[0]
-		if ctx.IsSet(flagName) {
+		if cmd.IsSet(flagName) {
 			fatalIf(errInvalidArgument().Trace(), "Flag `"+flagName+"` is not supported with v2 metrics")
 		}
 	}
@@ -156,12 +157,12 @@ func validateV2Args(ctx *cli.Context, subsys string) {
 	}
 }
 
-func printPrometheusMetricsV2(ctx *cli.Context, req prometheusMetricsReq) error {
+func printPrometheusMetricsV2(ctx context.Context, cmd *cli.Command, req prometheusMetricsReq) error {
 	subsys := req.subsystem
 	if subsys == "" {
 		subsys = "cluster"
 	}
-	validateV2Args(ctx, subsys)
+	validateV2Args(ctx, cmd, subsys)
 
 	resp, e := fetchMetrics(req.aliasURL+metricsEndPointRoot+subsys, req.token)
 	if e != nil {
@@ -202,11 +203,11 @@ type prometheusMetricsReader struct {
 	Reader io.Reader
 }
 
-func mainSupportMetrics(ctx *cli.Context) error {
-	checkSupportMetricsSyntax(ctx)
+func mainSupportMetrics(ctx context.Context, cmd *cli.Command) error {
+	checkSupportMetricsSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	alias := cleanAlias(args.Get(0))
 
 	if !isValidAlias(alias) {
@@ -225,7 +226,7 @@ func mainSupportMetrics(ctx *cli.Context) error {
 	}
 
 	metricsSubSystem := args.Get(1)
-	apiVer := ctx.String("api-version")
+	apiVer := cmd.String("api-version")
 
 	metricsReq := prometheusMetricsReq{
 		aliasURL:  hostConfig.URL,
@@ -235,10 +236,10 @@ func mainSupportMetrics(ctx *cli.Context) error {
 
 	switch apiVer {
 	case "v2":
-		err := printPrometheusMetricsV2(ctx, metricsReq)
+		err := printPrometheusMetricsV2(ctx, cmd, metricsReq)
 		fatalIf(probe.NewError(err), "Unable to list prometheus metrics with api-version v2.")
 	case "v3":
-		err := printPrometheusMetricsV3(ctx, metricsReq)
+		err := printPrometheusMetricsV3(ctx, cmd, metricsReq)
 		fatalIf(probe.NewError(err), "Unable to list prometheus metrics with api-version v3.")
 	default:
 		fatalIf(errInvalidArgument().Trace(), "Invalid api version `"+apiVer+"`")

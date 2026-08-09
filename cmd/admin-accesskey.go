@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminAccesskeySubcommands = []*cli.Command{
 	adminAccesskeyListCmd,
@@ -36,11 +40,11 @@ var adminAccesskeyCmd = &cli.Command{
 	Action:          mainAdminAccesskey,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminAccesskeySubcommands,
+	Commands:        adminAccesskeySubcommands,
 	HideHelpCommand: true,
 }
 
-func mainAdminAccesskey(ctx *cli.Context) error {
-	commandNotFound(ctx, adminAccesskeySubcommands)
+func mainAdminAccesskey(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminAccesskeySubcommands)
 	return nil
 }

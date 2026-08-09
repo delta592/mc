@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -51,15 +52,15 @@ EXAMPLES:
 }
 
 // adminKMSCreateKeyCmd is the handler for the "mc admin kms key create" command.
-func mainAdminKMSCreateKey(ctx *cli.Context) error {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func mainAdminKMSCreateKey(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	client, err := newAdminClient(ctx.Args().Get(0))
+	client, err := newAdminClient(cmd.Args().Get(0))
 	fatalIf(err, "Cannot get a configured admin connection.")
 
-	keyID := ctx.Args().Get(1)
+	keyID := cmd.Args().Get(1)
 	e := client.CreateKey(globalContext, keyID)
 	fatalIf(probe.NewError(e), "Failed to create master key")
 

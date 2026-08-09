@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminProfileStartCmd = &cli.Command{
@@ -33,7 +35,7 @@ var adminProfileStartCmd = &cli.Command{
 }
 
 // mainAdminProfileStart - the entry function of profile command
-func mainAdminProfileStart(_ *cli.Context) error {
+func mainAdminProfileStart(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support profile start")
 	return nil
 }

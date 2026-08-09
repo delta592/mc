@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminServiceSubcommands = []*cli.Command{
 	adminServiceRestartCmd,
@@ -33,12 +37,12 @@ var adminServiceCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
 	HideHelpCommand: true,
-	Subcommands:     adminServiceSubcommands,
+	Commands:        adminServiceSubcommands,
 }
 
 // mainAdmin is the handle for "mc admin service" command.
-func mainAdminService(ctx *cli.Context) error {
-	commandNotFound(ctx, adminServiceSubcommands)
+func mainAdminService(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminServiceSubcommands)
 	return nil
 	// Sub-commands like "status", "restart" have their own main.
 }

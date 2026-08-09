@@ -25,7 +25,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // mv command flags.
@@ -211,15 +211,15 @@ var rmManager = &removeManager{
 }
 
 // mainMove is the entry point for mv command.
-func mainMove(cliCtx *cli.Context) error {
+func mainMove(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelMove := context.WithCancel(globalContext)
 	defer cancelMove()
 
-	checkCopySyntax(cliCtx)
+	checkCopySyntax(cmd)
 	console.SetColor("Copy", color.New(color.FgGreen, color.Bold))
 
-	if cliCtx.NArg() == 2 {
-		args := cliCtx.Args()
+	if cmd.NArg() == 2 {
+		args := cmd.Args()
 		srcURL := args.Get(0)
 		dstURL := args.Get(1)
 		if isURLPrefix(srcURL, dstURL) {
@@ -230,10 +230,10 @@ func mainMove(cliCtx *cli.Context) error {
 
 	var err *probe.Error
 
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
-	e := doCopySession(ctx, cancelMove, cliCtx, encKeyDB, true)
+	e := doCopySession(ctx, cancelMove, cmd, encKeyDB, true)
 
 	console.Colorize("Copy", "Waiting for move operations to complete")
 	rmManager.close()
