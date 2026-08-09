@@ -7,7 +7,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
@@ -19,24 +19,41 @@
 package limiter
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
 
-	"github.com/juju/ratelimit"
+	"golang.org/x/time/rate"
 )
 
 type limiter struct {
-	upload    *ratelimit.Bucket
-	download  *ratelimit.Bucket
+	upload    *rate.Limiter
+	download  *rate.Limiter
 	transport http.RoundTripper // HTTP transport that needs to be intercepted
 }
 
-func (l limiter) limitReader(r io.Reader, b *ratelimit.Bucket) io.Reader {
-	if b == nil {
+type rateReader struct {
+	r   io.Reader
+	lim *rate.Limiter
+}
+
+func (r rateReader) Read(p []byte) (int, error) {
+	n, err := r.r.Read(p)
+	if n <= 0 {
+		return n, err
+	}
+	if waitErr := r.lim.WaitN(context.Background(), n); waitErr != nil {
+		return n, waitErr
+	}
+	return n, err
+}
+
+func (l limiter) limitReader(r io.Reader, lim *rate.Limiter) io.Reader {
+	if lim == nil {
 		return r
 	}
-	return ratelimit.Reader(r, b)
+	return rateReader{r: r, lim: lim}
 }
 
 // RoundTrip executes user provided request and response hooks for each HTTP call.
@@ -75,21 +92,21 @@ func New(uploadLimit, downloadLimit int64, transport http.RoundTripper) http.Rou
 	}
 
 	var (
-		uploadBucket   *ratelimit.Bucket
-		downloadBucket *ratelimit.Bucket
+		uploadLimiter   *rate.Limiter
+		downloadLimiter *rate.Limiter
 	)
 
 	if uploadLimit > 0 {
-		uploadBucket = ratelimit.NewBucketWithRate(float64(uploadLimit), uploadLimit)
+		uploadLimiter = rate.NewLimiter(rate.Limit(uploadLimit), int(uploadLimit))
 	}
 
 	if downloadLimit > 0 {
-		downloadBucket = ratelimit.NewBucketWithRate(float64(downloadLimit), downloadLimit)
+		downloadLimiter = rate.NewLimiter(rate.Limit(downloadLimit), int(downloadLimit))
 	}
 
 	return &limiter{
-		upload:    uploadBucket,
-		download:  downloadBucket,
+		upload:    uploadLimiter,
+		download:  downloadLimiter,
 		transport: transport,
 	}
 }
