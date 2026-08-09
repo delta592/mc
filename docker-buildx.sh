@@ -42,22 +42,6 @@ build_binary() {
 		export GOOS=linux GOARCH=amd64
 		unset GOARM GOAMD64
 		;;
-	linux/arm64)
-		export GOOS=linux GOARCH=arm64
-		unset GOARM GOAMD64
-		;;
-	linux/arm/v7)
-		export GOOS=linux GOARCH=arm GOARM=7
-		unset GOAMD64
-		;;
-	linux/ppc64le)
-		export GOOS=linux GOARCH=ppc64le
-		unset GOARM GOAMD64
-		;;
-	linux/s390x)
-		export GOOS=linux GOARCH=s390x
-		unset GOARM GOAMD64
-		;;
 	*)
 		echo "unsupported platform: ${platform}"
 		exit 1
@@ -76,14 +60,6 @@ build_binary_v1() {
 	linux/amd64)
 		export GOOS=linux GOARCH=amd64 GOAMD64=v1
 		unset GOARM
-		;;
-	linux/arm64)
-		export GOOS=linux GOARCH=arm64
-		unset GOARM GOAMD64
-		;;
-	linux/ppc64le)
-		export GOOS=linux GOARCH=ppc64le
-		unset GOARM GOAMD64
 		;;
 	*)
 		echo "unsupported cpuv1 platform: ${platform}"
@@ -111,14 +87,14 @@ stage_release_context() {
 sudo sysctl net.ipv6.conf.all.disable_ipv6=1
 
 stage_release_context "${root}/Dockerfile.release" \
-	linux/amd64 linux/arm64 linux/arm/v7 linux/ppc64le linux/s390x
+	linux/amd64
 
 docker buildx build --push --no-cache \
 	-t "delta592/mc:latest" \
 	-t "delta592/mc:${release}" \
 	-t "quay.io/delta592/mc:${release}" \
 	-t "quay.io/delta592/mc:latest" \
-	--platform=linux/amd64,linux/arm64,linux/arm/v7,linux/ppc64le,linux/s390x \
+	--platform=linux/amd64 \
 	"${context}"
 
 docker buildx prune -f
@@ -131,14 +107,12 @@ trap 'rm -rf "$context"' EXIT
 cp "${root}/Dockerfile.release.old_cpu" "${context}/Dockerfile"
 cp LICENSE CREDITS "${context}/"
 
-for platform in linux/amd64 linux/arm64 linux/ppc64le; do
-	build_binary_v1 "${platform}" "${context}/${platform}/mc"
-done
+build_binary_v1 linux/amd64 "${context}/linux/amd64/mc"
 
 docker buildx build --push --no-cache \
 	-t "delta592/mc:${release}-cpuv1" \
 	-t "quay.io/delta592/mc:${release}-cpuv1" \
-	--platform=linux/amd64,linux/arm64,linux/ppc64le \
+	--platform=linux/amd64 \
 	"${context}"
 
 docker buildx prune -f
