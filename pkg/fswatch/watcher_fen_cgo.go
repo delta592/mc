@@ -91,9 +91,11 @@ func (c *cfen) portDissociate(port int, fo FileObj) (err error) {
 	return
 }
 
-const srcAlert = C.PORT_SOURCE_ALERT
-const srcFile = C.PORT_SOURCE_FILE
-const alertSet = C.PORT_ALERT_SET
+const (
+	srcAlert = C.PORT_SOURCE_ALERT
+	srcFile  = C.PORT_SOURCE_FILE
+	alertSet = C.PORT_ALERT_SET
+)
 
 func cfo2fo(cfo *C.struct_file_obj) *FileObj {
 	// Currently remaining attributes are not used.

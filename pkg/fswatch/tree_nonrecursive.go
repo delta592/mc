@@ -95,7 +95,7 @@ func (t *nonrecursiveTree) internal(rec <-chan EventInfo) {
 			continue
 		}
 		var nd node
-		var eset = internal
+		eset := internal
 		t.root.WalkPath(ei.Path(), func(it node, _ bool) error {
 			if e := it.Watch[t.rec]; e != 0 && e > eset {
 				eset = e

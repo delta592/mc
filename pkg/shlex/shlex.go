@@ -156,7 +156,8 @@ func NewTokenizer(r io.Reader) *Tokenizer {
 	classifier := newDefaultClassifier()
 	return &Tokenizer{
 		input:      *input,
-		classifier: classifier}
+		classifier: classifier,
+	}
 }
 
 // scanStream scans the stream for the next token using the internal state machine.
@@ -226,14 +227,16 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 					{
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				case spaceRuneClass:
 					{
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				case escapingQuoteRuneClass:
@@ -262,7 +265,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 						err = fmt.Errorf("EOF found after escape character")
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				default:
@@ -280,7 +284,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 						err = fmt.Errorf("EOF found after escape character")
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				default:
@@ -298,7 +303,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 						err = fmt.Errorf("EOF found when expecting closing quote")
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				case escapingQuoteRuneClass:
@@ -323,7 +329,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 						err = fmt.Errorf("EOF found when expecting closing quote")
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				case nonEscapingQuoteRuneClass:
@@ -343,7 +350,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 					{
 						token := &Token{
 							tokenType: tokenType,
-							value:     string(value)}
+							value:     string(value),
+						}
 						return token, err
 					}
 				case spaceRuneClass:
@@ -352,7 +360,8 @@ func (t *Tokenizer) scanStream() (*Token, error) {
 							state = startState
 							token := &Token{
 								tokenType: tokenType,
-								value:     string(value)}
+								value:     string(value),
+							}
 							return token, err
 						} else {
 							value = append(value, nextRune)

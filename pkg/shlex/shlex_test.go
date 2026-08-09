@@ -29,7 +29,8 @@ func TestClassifier(t *testing.T) {
 		' ':  spaceRuneClass,
 		'"':  escapingQuoteRuneClass,
 		'\'': nonEscapingQuoteRuneClass,
-		'#':  commentRuneClass}
+		'#':  commentRuneClass,
+	}
 	for runeChar, want := range tests {
 		got := classifier.ClassifyRune(runeChar)
 		if got != want {
@@ -66,7 +67,8 @@ func TestTokenizer(t *testing.T) {
 		{WordToken, "eleven"},
 		{WordToken, "twelve\\"},
 		{WordToken, "thirteen=13"},
-		{WordToken, "fourteen/14"}}
+		{WordToken, "fourteen/14"},
+	}
 
 	tokenizer := NewTokenizer(testInput)
 	for i, want := range expectedTokens {
