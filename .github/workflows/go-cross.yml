@@ -15,7 +15,7 @@ permissions:
 jobs:
   crosscompile:
     name: Cross-compile
-    if: ${{ false }}
+    if: ${{ vars.WORKFLOWS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 0
