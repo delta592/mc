@@ -42,7 +42,7 @@ import (
 	"github.com/minio/cli"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/env"
-	"github.com/minio/selfupdate"
+	"github.com/delta592/mc/pkg/selfupdate"
 )
 
 // Check for new software updates.
