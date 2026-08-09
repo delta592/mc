@@ -1,26 +1,120 @@
-// Copyright (c) 2015-2021 MinIO, Inc.
-//
-// This file is part of MinIO Object Storage stack
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 package httptracer
 
 import (
+	"errors"
+	"io"
+	"net/http"
+	"strings"
 	"testing"
 )
 
-func TestHTTPTracer(t *testing.T) {
-	t.Helper()
+type mockTransport struct {
+	called bool
+}
+
+func (m *mockTransport) RoundTrip(_ *http.Request) (*http.Response, error) {
+	m.called = true
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader("ok")),
+	}, nil
+}
+
+type mockTracer struct {
+	reqErr error
+	resErr error
+	reqHit bool
+	resHit bool
+}
+
+func (m *mockTracer) Request(_ *http.Request) error {
+	m.reqHit = true
+	return m.reqErr
+}
+
+func (m *mockTracer) Response(_ *http.Response) error {
+	m.resHit = true
+	return m.resErr
+}
+
+func TestGetNewTraceTransport(t *testing.T) {
+	tr := &mockTransport{}
+	trace := &mockTracer{}
+	got := GetNewTraceTransport(trace, tr)
+	if got.Trace != trace || got.Transport != tr {
+		t.Fatal("GetNewTraceTransport() did not set fields")
+	}
+}
+
+func TestRoundTripNilTransport(t *testing.T) {
+	rt := RoundTripTrace{Trace: &mockTracer{}}
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if _, err := rt.RoundTrip(req); err == nil {
+		t.Fatal("expected error for nil transport")
+	}
+}
+
+func TestRoundTripSuccess(t *testing.T) {
+	tr := &mockTransport{}
+	trace := &mockTracer{}
+	rt := GetNewTraceTransport(trace, tr)
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+
+	res, err := rt.RoundTrip(req)
+	if err != nil {
+		t.Fatalf("RoundTrip() error = %v", err)
+	}
+	defer res.Body.Close()
+
+	if !tr.called || !trace.reqHit || !trace.resHit {
+		t.Fatal("expected transport and tracer hooks to be called")
+	}
+}
+
+func TestRoundTripTransportError(t *testing.T) {
+	rt := RoundTripTrace{
+		Transport: roundTripperFunc(func(*http.Request) (*http.Response, error) {
+			return nil, errors.New("transport failed")
+		}),
+		Trace: &mockTracer{},
+	}
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if _, err := rt.RoundTrip(req); err == nil {
+		t.Fatal("expected transport error")
+	}
+}
+
+func TestRoundTripRequestHookError(t *testing.T) {
+	tr := &mockTransport{}
+	trace := &mockTracer{reqErr: errors.New("request hook failed")}
+	rt := GetNewTraceTransport(trace, tr)
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if _, err := rt.RoundTrip(req); err == nil {
+		t.Fatal("expected request hook error")
+	}
+}
+
+func TestRoundTripResponseHookError(t *testing.T) {
+	tr := &mockTransport{}
+	trace := &mockTracer{resErr: errors.New("response hook failed")}
+	rt := GetNewTraceTransport(trace, tr)
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if _, err := rt.RoundTrip(req); err == nil {
+		t.Fatal("expected response hook error")
+	}
+}
+
+func TestRoundTripNilTrace(t *testing.T) {
+	tr := &mockTransport{}
+	rt := RoundTripTrace{Transport: tr}
+	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	if _, err := rt.RoundTrip(req); err != nil {
+		t.Fatalf("RoundTrip() with nil trace error = %v", err)
+	}
+}
+
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }
