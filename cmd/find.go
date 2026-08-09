@@ -32,8 +32,8 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/shlex"
 	"github.com/dustin/go-humanize"
-	"github.com/google/shlex"
 	"github.com/minio/cli"
 	"github.com/minio/pkg/v3/console"
 	"golang.org/x/text/unicode/norm"
