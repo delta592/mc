@@ -85,7 +85,7 @@ func (w *wordWrap) writeString(s string) {
 	}
 
 	if !w.keepNewlines {
-		s = strings.Replace(strings.TrimSpace(s), "\n", " ", -1)
+		s = strings.ReplaceAll(strings.TrimSpace(s), "\n", " ")
 	}
 
 	for _, c := range s {
