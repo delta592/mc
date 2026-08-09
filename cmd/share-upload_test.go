@@ -20,6 +20,8 @@ package cmd
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMakeCurlCmdEscapesSpecialChars(t *testing.T) {
@@ -55,4 +57,10 @@ func TestMakeCurlCmdEscapesSpecialChars(t *testing.T) {
 			t.Errorf("Did not find key=%s in command %s", testCase.expectedKey, cmd)
 		}
 	}
+}
+
+func TestShellQuote(t *testing.T) {
+	require.Equal(t, "hello\\ world", shellQuote("hello world"))
+	require.Equal(t, "a\\;b", shellQuote("a;b"))
+	require.Equal(t, "file\\'name", shellQuote("file'name"))
 }

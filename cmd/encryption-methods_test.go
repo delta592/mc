@@ -20,6 +20,8 @@ package cmd
 import (
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseEncryptionKeys(t *testing.T) {
@@ -178,4 +180,43 @@ func TestParseEncryptionKeys(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestSplitKey(t *testing.T) {
+	alias, prefix := splitKey("myalias/prefix/path")
+	require.Equal(t, "myalias", alias)
+	require.Equal(t, "prefix/path", prefix)
+
+	alias, prefix = splitKey("myalias")
+	require.Equal(t, "myalias", alias)
+	require.Equal(t, "", prefix)
+
+	alias, prefix = splitKey("")
+	require.Equal(t, "", alias)
+	require.Equal(t, "", prefix)
+}
+
+func TestValidKMSKeyName(t *testing.T) {
+	require.True(t, validKMSKeyName("my-default-key"))
+	require.True(t, validKMSKeyName("key_with_underscore"))
+	require.True(t, validKMSKeyName("a-b"))
+	require.False(t, validKMSKeyName(""))
+	require.False(t, validKMSKeyName("_"))
+	require.False(t, validKMSKeyName("my@key"))
+	require.False(t, validKMSKeyName("-leading"))
+	require.False(t, validKMSKeyName("trailing-"))
+}
+
+func TestValidateOverLappingSSEKeys(t *testing.T) {
+	nonOverlapping := []prefixSSEPair{
+		{Prefix: "a/"},
+		{Prefix: "b/"},
+	}
+	require.Nil(t, validateOverLappingSSEKeys(nonOverlapping))
+
+	overlapping := []prefixSSEPair{
+		{Prefix: "a/"},
+		{Prefix: "a/b/"},
+	}
+	require.NotNil(t, validateOverLappingSSEKeys(overlapping))
 }
