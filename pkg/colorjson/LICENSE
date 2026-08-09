@@ -1,0 +1,6 @@
+Vendored from github.com/minio/colorjson v1.0.8.
+
+The original encoding/json portions are Copyright The Go Authors and use a
+BSD-style license. The colorjson fork additions are Copyright MinIO, Inc.
+
+See upstream: https://github.com/minio/colorjson

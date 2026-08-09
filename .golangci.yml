@@ -43,6 +43,7 @@ linters:
       - pkg/selfupdate/
       - pkg/shlex/
       - pkg/xattr/
+      - pkg/colorjson/
 formatters:
   enable:
     - gofmt

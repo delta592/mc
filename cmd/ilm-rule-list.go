@@ -24,10 +24,10 @@ import (
 	"time"
 
 	"github.com/delta592/mc/cmd/ilm"
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/urfave/cli/v2"
 )

@@ -25,9 +25,9 @@ import (
 	"strings"
 	"time"
 
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
