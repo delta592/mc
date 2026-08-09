@@ -37,12 +37,12 @@ import (
 	_ "crypto/sha256" // needed for selfupdate hashers
 
 	"github.com/delta592/mc/pkg/probe"
+	"github.com/delta592/mc/pkg/selfupdate"
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/env"
-	"github.com/delta592/mc/pkg/selfupdate"
+	"github.com/urfave/cli/v2"
 )
 
 // Check for new software updates.
@@ -516,8 +516,8 @@ func mainUpdate(ctx *cli.Context) error {
 		showCommandHelpAndExit(ctx, -1)
 	}
 
-	globalQuiet = ctx.Bool("quiet") || ctx.Bool("quiet")
-	globalJSON = ctx.Bool("json") || ctx.Bool("json")
+	globalQuiet = ctx.Bool("quiet")
+	globalJSON = ctx.Bool("json")
 
 	customReleaseURL := ctx.Args().Get(0)
 
