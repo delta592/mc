@@ -35,8 +35,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/pkg/xattr"
-	"github.com/rjeczalik/notify"
+	"github.com/delta592/mc/pkg/xattr"
+	"github.com/delta592/mc/pkg/fswatch"
 
 	"github.com/delta592/mc/pkg/disk"
 	"github.com/delta592/mc/pkg/hookreader"
@@ -154,7 +154,7 @@ func (f *fsClient) Watch(_ context.Context, options WatchOptions) (*WatchObject,
 	// an event if the receiver is not able to keep up the sending pace.
 	in, out := PipeChan(1000)
 
-	var fsEvents []notify.Event
+	var fsEvents []fswatch.Event
 	for _, event := range options.Events {
 		switch event {
 		case "put":
@@ -175,7 +175,7 @@ func (f *fsClient) Watch(_ context.Context, options WatchOptions) (*WatchObject,
 	if options.Recursive {
 		recursivePath = f.PathURL.Path + "..."
 	}
-	if e := notify.Watch(recursivePath, in, fsEvents...); e != nil {
+	if e := fswatch.Watch(recursivePath, in, fsEvents...); e != nil {
 		return nil, probe.NewError(e)
 	}
 
@@ -185,7 +185,7 @@ func (f *fsClient) Watch(_ context.Context, options WatchOptions) (*WatchObject,
 
 		close(eventChan)
 		close(errorChan)
-		notify.Stop(in)
+		fswatch.Stop(in)
 		// At this point, notify is guaranteed to not write
 		// in 'in' channel so we can close it.
 		close(in)

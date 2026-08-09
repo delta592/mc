@@ -19,25 +19,25 @@
 
 package cmd
 
-import "github.com/rjeczalik/notify"
+import "github.com/delta592/mc/pkg/fswatch"
 
 var (
 	// EventTypePut contains the notify events that will cause a put (writer)
-	EventTypePut = []notify.Event{notify.Create, notify.Write, notify.Rename, notify.FileNotifyChangeFileName, notify.FileNotifyChangeDirName}
+	EventTypePut = []fswatch.Event{fswatch.Create, fswatch.Write, fswatch.Rename, fswatch.FileNotifyChangeFileName, fswatch.FileNotifyChangeDirName}
 	// EventTypeDelete contains the notify events that will cause a delete (remove)
-	EventTypeDelete = []notify.Event{notify.Remove}
+	EventTypeDelete = []fswatch.Event{fswatch.Remove}
 	// EventTypeGet contains the notify events that will cause a get (read)
-	EventTypeGet = []notify.Event{notify.FileNotifyChangeLastAccess}
+	EventTypeGet = []fswatch.Event{fswatch.FileNotifyChangeLastAccess}
 )
 
 // IsGetEvent checks if the event return is a get event.
-func IsGetEvent(event notify.Event) bool {
-	return event&notify.FileNotifyChangeLastAccess != 0
+func IsGetEvent(event fswatch.Event) bool {
+	return event&fswatch.FileNotifyChangeLastAccess != 0
 }
 
 // IsPutEvent checks if the event returned is a put event
-func IsPutEvent(event notify.Event) bool {
-	if event&notify.FileActionRenamedOldName != 0 {
+func IsPutEvent(event fswatch.Event) bool {
+	if event&fswatch.FileActionRenamedOldName != 0 {
 		return false
 	}
 	for _, ev := range EventTypePut {
@@ -49,8 +49,8 @@ func IsPutEvent(event notify.Event) bool {
 }
 
 // IsDeleteEvent checks if the event returned is a delete event
-func IsDeleteEvent(event notify.Event) bool {
-	return event&notify.Remove != 0 || event&notify.FileActionRenamedOldName != 0
+func IsDeleteEvent(event fswatch.Event) bool {
+	return event&fswatch.Remove != 0 || event&fswatch.FileActionRenamedOldName != 0
 }
 
 // getAllXattrs returns the extended attributes for a file if supported

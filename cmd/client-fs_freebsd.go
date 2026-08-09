@@ -18,26 +18,26 @@
 package cmd
 
 import (
-	"github.com/pkg/xattr"
-	"github.com/rjeczalik/notify"
+	"github.com/delta592/mc/pkg/xattr"
+	"github.com/delta592/mc/pkg/fswatch"
 )
 
 var (
 	// EventTypePut contains the notify events that will cause a put (writer)
-	EventTypePut = []notify.Event{notify.Create, notify.Write, notify.Rename}
+	EventTypePut = []fswatch.Event{fswatch.Create, fswatch.Write, fswatch.Rename}
 	// EventTypeDelete contains the notify events that will cause a delete (remove)
-	EventTypeDelete = []notify.Event{notify.Remove}
+	EventTypeDelete = []fswatch.Event{fswatch.Remove}
 	// EventTypeGet contains the notify events that will cause a get (read)
-	EventTypeGet = []notify.Event{} // On macOS, FreeBSD, Solaris this is not available.
+	EventTypeGet = []fswatch.Event{} // On macOS, FreeBSD, Solaris this is not available.
 )
 
 // IsGetEvent checks if the event return is a get event.
-func IsGetEvent(event notify.Event) bool {
+func IsGetEvent(event fswatch.Event) bool {
 	return false
 }
 
 // IsPutEvent checks if the event returned is a put event
-func IsPutEvent(event notify.Event) bool {
+func IsPutEvent(event fswatch.Event) bool {
 	for _, ev := range EventTypePut {
 		if event&ev != 0 {
 			return true
@@ -47,8 +47,8 @@ func IsPutEvent(event notify.Event) bool {
 }
 
 // IsDeleteEvent checks if the event returned is a delete event
-func IsDeleteEvent(event notify.Event) bool {
-	return event&notify.Remove != 0
+func IsDeleteEvent(event fswatch.Event) bool {
+	return event&fswatch.Remove != 0
 }
 
 // getXAttr fetches the extended attribute for a particular key on

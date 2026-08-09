@@ -24,21 +24,21 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/pkg/xattr"
-	"github.com/rjeczalik/notify"
+	"github.com/delta592/mc/pkg/xattr"
+	"github.com/delta592/mc/pkg/fswatch"
 )
 
 var (
 	// EventTypePut contains the notify events that will cause a put (write)
-	EventTypePut = []notify.Event{notify.InCloseWrite | notify.InMovedTo}
+	EventTypePut = []fswatch.Event{fswatch.InCloseWrite | fswatch.InMovedTo}
 	// EventTypeDelete contains the notify events that will cause a delete (remove)
-	EventTypeDelete = []notify.Event{notify.InDelete | notify.InDeleteSelf | notify.InMovedFrom}
+	EventTypeDelete = []fswatch.Event{fswatch.InDelete | fswatch.InDeleteSelf | fswatch.InMovedFrom}
 	// EventTypeGet contains the notify events that will cause a get (read)
-	EventTypeGet = []notify.Event{notify.InAccess | notify.InOpen}
+	EventTypeGet = []fswatch.Event{fswatch.InAccess | fswatch.InOpen}
 )
 
 // IsGetEvent checks if the event return is a get event.
-func IsGetEvent(event notify.Event) bool {
+func IsGetEvent(event fswatch.Event) bool {
 	for _, ev := range EventTypeGet {
 		if event&ev != 0 {
 			return true
@@ -48,7 +48,7 @@ func IsGetEvent(event notify.Event) bool {
 }
 
 // IsPutEvent checks if the event returned is a put event
-func IsPutEvent(event notify.Event) bool {
+func IsPutEvent(event fswatch.Event) bool {
 	for _, ev := range EventTypePut {
 		if event&ev != 0 {
 			return true
@@ -58,7 +58,7 @@ func IsPutEvent(event notify.Event) bool {
 }
 
 // IsDeleteEvent checks if the event returned is a delete event
-func IsDeleteEvent(event notify.Event) bool {
+func IsDeleteEvent(event fswatch.Event) bool {
 	for _, ev := range EventTypeDelete {
 		if event&ev != 0 {
 			return true

@@ -22,13 +22,13 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/rjeczalik/notify"
+	"github.com/delta592/mc/pkg/fswatch"
 )
 
-func testPipeChan(inputCh, outputCh chan notify.EventInfo, totalMsgs int) error {
+func testPipeChan(inputCh, outputCh chan fswatch.EventInfo, totalMsgs int) error {
 	var wg sync.WaitGroup
 
-	msgCtnt := notify.EventInfo(nil)
+	msgCtnt := fswatch.EventInfo(nil)
 
 	// Send messages up to totalMsgs
 	wg.Go(func() {
@@ -78,7 +78,7 @@ func TestPipeChannel(t *testing.T) {
 }
 
 func TestRegularChannel(t *testing.T) {
-	ch := make(chan notify.EventInfo, 1000)
+	ch := make(chan fswatch.EventInfo, 1000)
 	err := testPipeChan(ch, ch, 10*1000)
 	if err != nil {
 		t.Errorf("ERR: %v\n", err)
@@ -89,7 +89,7 @@ func TestRegularChannel(t *testing.T) {
 
 func benchmarkRegular(b *testing.B, msgsNum int) {
 	for n := 0; n < b.N; n++ {
-		ch := make(chan notify.EventInfo, msgsNum)
+		ch := make(chan fswatch.EventInfo, msgsNum)
 		testPipeChan(ch, ch, msgsNum)
 	}
 }

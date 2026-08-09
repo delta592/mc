@@ -17,7 +17,7 @@
 
 package cmd
 
-import "github.com/rjeczalik/notify"
+import "github.com/delta592/mc/pkg/fswatch"
 
 // Dynamically sized logical channel: a pipe which never blocks even when
 // it receives too many elements. Memory consumption is increased and decresed
@@ -35,17 +35,17 @@ import "github.com/rjeczalik/notify"
 // BenchmarkPipeChan1K-4             100000            550623 ns/op
 
 // PipeChan builds a new dynamically sized channel
-func PipeChan(capacity int) (inputCh, outputCh chan notify.EventInfo) {
+func PipeChan(capacity int) (inputCh, outputCh chan fswatch.EventInfo) {
 	// A set of channels which store all elements received from input
-	channels := make(chan chan notify.EventInfo, 1000)
+	channels := make(chan chan fswatch.EventInfo, 1000)
 
-	inputCh = make(chan notify.EventInfo, capacity)
+	inputCh = make(chan fswatch.EventInfo, capacity)
 
 	// A goroutine which receives elements from inputCh and creates
 	// new channels when needed.
 	go func() {
 		// Create the first channel
-		currCh := make(chan notify.EventInfo, capacity)
+		currCh := make(chan fswatch.EventInfo, capacity)
 		channels <- currCh
 
 		for elem := range inputCh {
@@ -53,14 +53,14 @@ func PipeChan(capacity int) (inputCh, outputCh chan notify.EventInfo) {
 			// half of the current channel is already filled.
 			if len(currCh) >= cap(currCh)/2 {
 				close(currCh)
-				currCh = make(chan notify.EventInfo, cap(currCh)*2)
+				currCh = make(chan fswatch.EventInfo, cap(currCh)*2)
 				channels <- currCh
 			}
 			// Prepare next channel with half capacity when
 			// current channel is 1/4 filled
 			if len(currCh) >= capacity && len(currCh) <= cap(currCh)/4 {
 				close(currCh)
-				currCh = make(chan notify.EventInfo, cap(currCh)/2)
+				currCh = make(chan fswatch.EventInfo, cap(currCh)/2)
 				channels <- currCh
 			}
 			// Send element to current channel
@@ -72,7 +72,7 @@ func PipeChan(capacity int) (inputCh, outputCh chan notify.EventInfo) {
 	}()
 
 	// Copy elements from infinite channel set to the output
-	outputCh = make(chan notify.EventInfo, capacity)
+	outputCh = make(chan fswatch.EventInfo, capacity)
 	go func() {
 		for {
 			currCh, ok := <-channels
