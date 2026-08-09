@@ -21,7 +21,7 @@ import (
 	"net/url"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -41,7 +41,7 @@ func (s supportProxySetMessage) JSON() string {
 	return toJSON(s)
 }
 
-var supportProxySetCmd = cli.Command{
+var supportProxySetCmd = &cli.Command{
 	Name:            "set",
 	Usage:           "configure proxy to given URL",
 	Action:          mainSupportProxySet,
@@ -65,7 +65,7 @@ EXAMPLES:
 }
 
 func checkSupportProxySetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminUserSvcAcctSubcommands = []cli.Command{
+var adminUserSvcAcctSubcommands = []*cli.Command{
 	adminUserSvcAcctAddCmd,
 	adminUserSvcAcctListCmd,
 	adminUserSvcAcctRemoveCmd,
@@ -29,7 +29,7 @@ var adminUserSvcAcctSubcommands = []cli.Command{
 	adminUserSvcAcctDisableCmd,
 }
 
-var adminUserSvcAcctCmd = cli.Command{
+var adminUserSvcAcctCmd = &cli.Command{
 	Name:            "svcacct",
 	Usage:           "manage service accounts",
 	Action:          mainAdminUserSvcAcct,

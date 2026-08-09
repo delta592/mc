@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminGroupSubcommands = []cli.Command{
+var adminGroupSubcommands = []*cli.Command{
 	adminGroupAddCmd,
 	adminGroupRemoveCmd,
 	adminGroupInfoCmd,
@@ -28,7 +28,7 @@ var adminGroupSubcommands = []cli.Command{
 	adminGroupDisableCmd,
 }
 
-var adminGroupCmd = cli.Command{
+var adminGroupCmd = &cli.Command{
 	Name:            "group",
 	Usage:           "manage groups",
 	Action:          mainAdminGroup,

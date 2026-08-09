@@ -19,27 +19,27 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
 
 var adminAccesskeySTSRevokeFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "revoke all STS accounts for the specified user",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "self",
 		Usage: "revoke all STS accounts for the authenticated user",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "token-type",
 		Usage: "specify the token type to revoke",
 	},
 }
 
-var adminAccesskeySTSRevokeCmd = cli.Command{
+var adminAccesskeySTSRevokeCmd = &cli.Command{
 	Name:         "sts-revoke",
 	Usage:        "revokes all STS accounts or specified types for the specified user",
 	Action:       mainAdminAccesskeySTSRevoke,
@@ -101,7 +101,7 @@ func (m stsRevokeMessage) JSON() string {
 
 // checkSTSRevokeSyntax - validate all the passed arguments
 func checkSTSRevokeSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) > 2 || len(ctx.Args()) == 0 {
+	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -138,7 +138,7 @@ func mainAdminAccesskeySTSRevoke(ctx *cli.Context) error {
 		TokenRevokeType: tokenRevokeType,
 		FullRevoke:      fullRevoke,
 	})
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to revoke tokens for %s", user)
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to revoke tokens for %s", user)
 
 	printMsg(stsRevokeMessage{
 		User:            user,

@@ -29,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
@@ -38,69 +38,69 @@ import (
 )
 
 var replicateAddFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "arn",
 		Usage:  "unique role ARN",
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "id",
 		Usage: "id for the rule, should be a unique value",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "tags",
 		Usage: "format '<key1>=<value1>&<key2>=<value2>&<key3>=<value3>', multiple values allowed for multiple key/value pairs",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "storage-class",
 		Usage: `storage class for destination, valid values are either "STANDARD" or "REDUCED_REDUNDANCY"`,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "disable",
 		Usage: "disable the rule",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "priority",
 		Usage: "priority of the rule, should be unique and is a required field",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "remote-bucket",
 		Usage: "remote bucket, should be a unique value for the configuration",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "replicate",
 		Value: `delete-marker,delete,existing-objects,metadata-sync`,
 		Usage: `comma separated list to enable replication of soft deletes, permanent deletes, existing objects and metadata sync`,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "path",
 		Value: "auto",
 		Usage: "bucket path lookup supported by the server. Valid options are ['auto', 'on', 'off']'",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "region",
 		Usage: "region of the destination bucket (optional)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "bandwidth",
 		Usage: "set bandwidth limit in bytes per second (K,B,G,T for metric and Ki,Bi,Gi,Ti for IEC units)",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "sync",
 		Usage: "enable synchronous replication for this target. default is async",
 	},
-	cli.UintFlag{
+	&cli.UintFlag{
 		Name:  "healthcheck-seconds",
 		Usage: "health check interval in seconds",
 		Value: 60,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "disable-proxy",
 		Usage: "disable proxying in active-active replication. If unset, default behavior is to proxy",
 	},
 }
 
-var replicateAddCmd = cli.Command{
+var replicateAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a server side replication configuration rule",
 	Action:       mainReplicateAdd,
@@ -146,7 +146,7 @@ EXAMPLES:
 
 // checkReplicateAddSyntax - validate all the passed arguments
 func checkReplicateAddSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	if ctx.String("remote-bucket") == "" {
@@ -292,7 +292,7 @@ func mainReplicateAdd(cliCtx *cli.Context) error {
 	case *S3Client:
 		sourceBucket, _ = c.url2BucketAndObject()
 	default:
-		fatalIf(err.Trace(args...), "replication is not supported for filesystem")
+		fatalIf(err.Trace(args.Slice()...), "replication is not supported for filesystem")
 	}
 	// Create a new MinIO Admin Client
 	admclient, cerr := newAdminClient(aliasedURL)
@@ -300,10 +300,10 @@ func mainReplicateAdd(cliCtx *cli.Context) error {
 
 	bktTarget := fetchRemoteTarget(cliCtx)
 	arn, e := admclient.SetRemoteTarget(globalContext, sourceBucket, bktTarget)
-	fatalIf(probe.NewError(e).Trace(args...), "unable to configure remote target")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "unable to configure remote target")
 
 	rcfg, err := client.GetReplication(ctx)
-	fatalIf(err.Trace(args...), "unable to fetch replication configuration")
+	fatalIf(err.Trace(args.Slice()...), "unable to fetch replication configuration")
 
 	ruleStatus := enableStatus
 	if cliCtx.Bool(disableStatus) {

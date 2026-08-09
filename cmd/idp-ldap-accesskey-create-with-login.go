@@ -27,7 +27,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/minio/pkg/v3/console"
@@ -35,17 +35,17 @@ import (
 )
 
 var idpLdapAccesskeyCreateWithLoginFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "ldap-username",
 		Usage: "username to login as (prompt if empty)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "ldap-password",
 		Usage: "password for ldap-user (prompt if empty)",
 	},
 }
 
-var idpLdapAccesskeyCreateWithLoginCmd = cli.Command{
+var idpLdapAccesskeyCreateWithLoginCmd = &cli.Command{
 	Name:         "create-with-login",
 	Usage:        "login using LDAP credentials to generate access key pair",
 	Action:       mainIDPLdapAccesskeyCreateWithLogin,

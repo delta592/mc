@@ -22,16 +22,16 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/env"
 
 	"github.com/fatih/color"
 )
 
-var aliasListCmd = cli.Command{
+var aliasListCmd = &cli.Command{
 	Name:      "list",
-	ShortName: "ls",
+	Aliases: []string{"ls"},
 	Usage:     "list aliases in configuration file",
 	Action: func(ctx *cli.Context) error {
 		return mainAliasList(ctx, false)
@@ -62,8 +62,8 @@ EXAMPLES:
 func checkAliasListSyntax(ctx *cli.Context) {
 	args := ctx.Args()
 
-	if len(ctx.Args()) > 1 {
-		fatalIf(errInvalidArgument().Trace(args...),
+	if ctx.Args().Len() > 1 {
+		fatalIf(errInvalidArgument().Trace(args.Slice()...),
 			"Incorrect number of arguments to alias list command.")
 	}
 }

@@ -23,12 +23,12 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminDecommissionCancelCmd = cli.Command{
+var adminDecommissionCancelCmd = &cli.Command{
 	Name:         "cancel",
 	Usage:        "cancel an ongoing decommissioning of a pool",
 	Action:       mainAdminDecommissionCancel,
@@ -55,7 +55,7 @@ EXAMPLES:
 
 // checkAdminDecommissionCancelSyntax - validate all the passed arguments
 func checkAdminDecommissionCancelSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) > 2 || len(ctx.Args()) == 0 {
+	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -75,12 +75,12 @@ func mainAdminDecommissionCancel(ctx *cli.Context) error {
 
 	if pool := args.Get(1); pool != "" {
 		e := client.CancelDecommissionPool(globalContext, pool)
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to cancel decommissioning, please try again")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to cancel decommissioning, please try again")
 		return nil
 	}
 
 	poolStatuses, e := client.ListPoolsStatus(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get status for all pools")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get status for all pools")
 
 	var newPoolStatuses []madmin.PoolStatus
 	for _, pool := range poolStatuses {

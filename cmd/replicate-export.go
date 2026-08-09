@@ -22,13 +22,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
 
-var replicateExportCmd = cli.Command{
+var replicateExportCmd = &cli.Command{
 	Name:         "export",
 	Usage:        "export server side replication configuration",
 	Action:       mainReplicateExport,
@@ -55,7 +55,7 @@ EXAMPLES:
 
 // checkReplicateExportSyntax - validate all the passed arguments
 func checkReplicateExportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -99,7 +99,7 @@ func mainReplicateExport(cliCtx *cli.Context) error {
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	rCfg, err := client.GetReplication(ctx)
-	fatalIf(err.Trace(args...), "Unable to get replication configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get replication configuration")
 	printMsg(replicateExportMessage{
 		Op:                cliCtx.Command.Name,
 		Status:            "success",

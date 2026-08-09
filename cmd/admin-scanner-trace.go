@@ -23,46 +23,47 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminScannerTraceFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "verbose, v",
+	&cli.BoolFlag{
+		Name: "verbose",
+		Aliases: []string{"v"},
 		Usage: "print verbose trace",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "funcname",
 		Usage: "trace only matching func name (eg 'scanner.ScanObject')",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "node",
 		Usage: "trace only matching servers",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "path",
 		Usage: "trace only matching path",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "filter-request",
 		Usage: "trace calls only with request bytes greater than this threshold, use with filter-size",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "filter-response",
 		Usage: "trace calls only with response bytes greater than this threshold, use with filter-size",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "response-duration",
 		Usage: "trace calls only with response duration greater than this threshold (e.g. `5ms`)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "filter-size",
 		Usage: "filter size, use with filter (see UNITS)",
 	},
 }
 
-var adminScannerTraceCmd = cli.Command{
+var adminScannerTraceCmd = &cli.Command{
 	Name:            "trace",
 	Usage:           "show trace for MinIO scanner operations",
 	Action:          mainAdminScannerTrace,
@@ -112,7 +113,7 @@ EXAMPLES:
 }
 
 func checkAdminScannerTraceSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	filterFlag := ctx.Bool("filter-request") || ctx.Bool("filter-response")

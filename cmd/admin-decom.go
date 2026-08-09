@@ -18,16 +18,16 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminDecommissionSubcommands = []cli.Command{
+var adminDecommissionSubcommands = []*cli.Command{
 	adminDecommissionStartCmd,
 	adminDecommissionStatusCmd,
 	adminDecommissionCancelCmd,
 }
 
-var adminDecommissionCmd = cli.Command{
+var adminDecommissionCmd = &cli.Command{
 	Name:            "decommission",
 	Aliases:         []string{"decom"},
 	Usage:           "manage MinIO server pool decommissioning",

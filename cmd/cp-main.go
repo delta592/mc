@@ -28,7 +28,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
@@ -37,68 +37,72 @@ import (
 // cp command flags.
 var (
 	cpFlags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "rewind",
 			Usage: "roll back object(s) to current version at specified time",
 		},
-		cli.StringFlag{
-			Name:  "version-id, vid",
+		&cli.StringFlag{
+			Name: "version-id",
+			Aliases: []string{"vid"},
 			Usage: "select an object version to copy",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "copy recursively",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "older-than",
 			Usage: "copy objects older than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "newer-than",
 			Usage: "copy objects newer than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
-			Name:  "storage-class, sc",
+		&cli.StringFlag{
+			Name: "storage-class",
+			Aliases: []string{"sc"},
 			Usage: "set storage class for new object(s) on target",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "attr",
 			Usage: "add custom metadata for the object",
 		},
-		cli.BoolFlag{
-			Name:  "preserve, a",
+		&cli.BoolFlag{
+			Name: "preserve",
+			Aliases: []string{"a"},
 			Usage: "preserve filesystem attributes (mode, ownership, timestamps)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "disable-multipart",
 			Usage: "disable multipart upload feature",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "md5",
 			Usage:  "force all upload(s) to calculate md5sum checksum",
 			Hidden: true,
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "tags",
 			Usage: "apply one or more tags to the uploaded objects",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  rmFlag,
 			Usage: "retention mode to be applied on the object (governance, compliance)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  rdFlag,
 			Usage: "retention duration for the object in d days or y years",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  lhFlag,
 			Usage: "apply legal hold to the copied object (on, off)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "zip",
 			Usage: "Extract from remote zip file (MinIO server source only)",
 		},
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "max-workers",
 			Usage: "maximum number of concurrent copies (default: autodetect)",
 		},
@@ -116,7 +120,7 @@ var (
 var ErrInvalidMetadata = errors.New("specified metadata should be of form key1=value1;key2=value2;... and so on")
 
 // Copy command.
-var cpCmd = cli.Command{
+var cpCmd = &cli.Command{
 	Name:         "cp",
 	Usage:        "copy objects",
 	Action:       mainCopy,
@@ -323,8 +327,9 @@ func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.
 	} else {
 		pg = newAccounter(totalBytes)
 	}
-	sourceURLs := cli.Args()[:len(cli.Args())-1]
-	targetURL := cli.Args()[len(cli.Args())-1] // Last one is target
+	args := cli.Args().Slice()
+	sourceURLs := args[:len(args)-1]
+	targetURL := args[len(args)-1] // Last one is target
 
 	// Check if the target path has object locking enabled
 	withLock, _ := isBucketLockEnabled(ctx, targetURL)
@@ -554,7 +559,7 @@ func mainCopy(cliCtx *cli.Context) error {
 	// Parse encryption keys per command.
 	encryptionKeyMap, err := validateAndCreateEncryptionKeys(cliCtx)
 	if err != nil {
-		err.Trace(cliCtx.Args()...)
+		err.Trace(cliCtx.Args().Slice()...)
 	}
 	fatalIf(err, "SSE Error")
 

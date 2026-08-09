@@ -30,31 +30,33 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var headFlags = []cli.Flag{
-	cli.Int64Flag{
-		Name:  "n,lines",
+	&cli.Int64Flag{
+		Name: "n",
+		Aliases: []string{"lines"},
 		Usage: "print the first 'n' lines",
 		Value: 10,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "select an object version at specified time",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "select an object version to display",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "zip",
 		Usage: "extract from remote zip file (MinIO server source only)",
 	},
 }
 
 // Display contents of a file.
-var headCmd = cli.Command{
+var headCmd = &cli.Command{
 	Name:         "head",
 	Usage:        "display first 'n' lines of an object",
 	Action:       mainHead,
@@ -170,7 +172,7 @@ func headOut(r io.Reader, nlines int64) *probe.Error {
 
 // parseHeadSyntax performs command-line input validation for head command.
 func parseHeadSyntax(ctx *cli.Context) (args []string, versionID string, timeRef time.Time) {
-	args = ctx.Args()
+	args = ctx.Args().Slice()
 
 	versionID = ctx.String("version-id")
 	rewind := ctx.String("rewind")
@@ -204,7 +206,7 @@ func mainHead(ctx *cli.Context) error {
 	}
 
 	// Convert arguments to URLs: expand alias, fix format.
-	for _, url := range ctx.Args() {
+	for _, url := range ctx.Args().Slice() {
 		err = headURL(
 			url,
 			versionID,

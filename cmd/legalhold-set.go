@@ -25,31 +25,33 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var lhSetFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "apply legal hold recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "apply legal hold to a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "apply legal hold on an object version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "apply legal hold on multiple versions of an object",
 	},
 }
 
-var legalHoldSetCmd = cli.Command{
+var legalHoldSetCmd = &cli.Command{
 	Name:         "set",
 	Usage:        "set legal hold for object(s)",
 	Action:       mainLegalHoldSet,
@@ -172,11 +174,11 @@ func setLegalHold(ctx context.Context, urlStr, versionID string, timeRef time.Ti
 // Validate command line arguments.
 func parseLegalHoldArgs(cliCtx *cli.Context) (targetURL, versionID string, timeRef time.Time, recursive, withVersions bool) {
 	args := cliCtx.Args()
-	if len(args) != 1 {
+	if args.Len() != 1 {
 		showCommandHelpAndExit(cliCtx, 1)
 	}
 
-	targetURL = args[0]
+	targetURL = args.Get(0)
 	if targetURL == "" {
 		fatalIf(errInvalidArgument(), "You cannot pass an empty target url.")
 	}

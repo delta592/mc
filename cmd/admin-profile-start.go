@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminProfileStartCmd = cli.Command{
+var adminProfileStartCmd = &cli.Command{
 	Name:               "start",
 	Usage:              "start recording profile data",
 	Action:             mainAdminProfileStart,

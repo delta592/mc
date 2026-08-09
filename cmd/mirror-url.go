@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/wildcard"
 )
@@ -38,13 +38,13 @@ import (
 
 // checkMirrorSyntax(URLs []string)
 func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) (srcURL, tgtURL string) {
-	if len(cliCtx.Args()) != 2 {
+	if cliCtx.Args().Len() != 2 {
 		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
 	}
 	parseChecksum(cliCtx)
 
 	// extract URLs.
-	URLs := cliCtx.Args()
+	URLs := cliCtx.Args().Slice()
 	srcURL = URLs[0]
 	tgtURL = URLs[1]
 

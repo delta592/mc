@@ -17,13 +17,13 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminKMSSubcommands = []cli.Command{
+var adminKMSSubcommands = []*cli.Command{
 	adminKMSKeyCmd,
 }
 
-var adminKMSCmd = cli.Command{
+var adminKMSCmd = &cli.Command{
 	Name:            "kms",
 	Usage:           "perform KMS management operations",
 	Action:          mainAdminKMS,

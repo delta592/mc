@@ -24,16 +24,16 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var eventListFlags = []cli.Flag{}
 
-var eventListCmd = cli.Command{
+var eventListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list bucket notifications",
 	Action:       mainEventList,
 	OnUsageError: onUsageError,
@@ -59,7 +59,7 @@ EXAMPLES:
 
 // checkEventListSyntax - validate all the passed arguments
 func checkEventListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 && len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 2 && ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -111,10 +111,10 @@ func mainEventList(cliCtx *cli.Context) error {
 	checkEventListSyntax(cliCtx)
 
 	args := cliCtx.Args()
-	path := args[0]
+	path := args.Get(0)
 	arn := ""
-	if len(args) > 1 {
-		arn = args[1]
+	if args.Len() > 1 {
+		arn = args.Get(1)
 	}
 
 	client, err := newClient(path)

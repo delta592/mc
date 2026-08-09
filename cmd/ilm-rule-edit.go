@@ -22,14 +22,14 @@ import (
 
 	"github.com/delta592/mc/cmd/ilm"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"
 )
 
-var ilmEditCmd = cli.Command{
+var ilmEditCmd = &cli.Command{
 	Name:         "edit",
 	Usage:        "modify a lifecycle configuration rule with given id",
 	Action:       mainILMEdit,
@@ -65,15 +65,15 @@ EXAMPLES:
 var ilmEditFlags = append(
 	// Start by showing --id in edit command
 	[]cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "id",
 			Usage: "id of the rule to be modified",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "disable",
 			Usage: "disable the rule",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "enable",
 			Usage: "enable the rule",
 		},
@@ -99,7 +99,7 @@ func (i ilmEditMessage) JSON() string {
 
 // Validate user given arguments
 func checkILMEditSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 	id := ctx.String("id")
@@ -127,14 +127,14 @@ func mainILMEdit(cliCtx *cli.Context) error {
 		if e := err.ToGoError(); minio.ToErrorResponse(e).Code == "NoSuchLifecycleConfiguration" {
 			lfcCfg = lifecycle.NewConfiguration()
 		} else {
-			fatalIf(err.Trace(args...), "Unable to fetch lifecycle rules for "+urlStr)
+			fatalIf(err.Trace(args.Slice()...), "Unable to fetch lifecycle rules for "+urlStr)
 		}
 	}
 
 	// Configuration that needs to be set is returned by ilm.GetILMConfigToSet.
 	// A new rule is added or the rule (if existing) is replaced
 	opts, err := ilm.GetLifecycleOptions(cliCtx)
-	fatalIf(err.Trace(args...), "Unable to generate new lifecycle rules for the input")
+	fatalIf(err.Trace(args.Slice()...), "Unable to generate new lifecycle rules for the input")
 
 	var rule *lifecycle.Rule
 	for i := range lfcCfg.Rules {
@@ -150,7 +150,7 @@ func mainILMEdit(cliCtx *cli.Context) error {
 	}
 
 	err = ilm.ApplyRuleFields(rule, opts)
-	fatalIf(err.Trace(args...), "Unable to generate new lifecycle rules for the input")
+	fatalIf(err.Trace(args.Slice()...), "Unable to generate new lifecycle rules for the input")
 
 	fatalIf(client.SetLifecycle(ctx, lfcCfg).Trace(urlStr), "Unable to set new lifecycle rules")
 

@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var versionSubcommands = []cli.Command{
+var versionSubcommands = []*cli.Command{
 	versionEnableCmd,
 	versionSuspendCmd,
 	versionInfoCmd,
 }
 
-var versionCmd = cli.Command{
+var versionCmd = &cli.Command{
 	Name:            "version",
 	Usage:           "manage bucket versioning",
 	HideHelpCommand: true,

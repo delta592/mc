@@ -22,15 +22,15 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var shareListFlags = []cli.Flag{}
 
 // Share documents via URL.
-var shareList = cli.Command{
+var shareList = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list previously shared objects",
 	Action:       mainShareList,
 	OnUsageError: onUsageError,

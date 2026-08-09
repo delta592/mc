@@ -22,7 +22,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
@@ -35,18 +35,18 @@ const (
 )
 
 var supportGlobalFlags = append(globalFlags,
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "dev",
 		Usage:  "Development mode",
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "airgap",
 		Usage: "use in environments without network access to SUBNET (e.g. airgapped, firewalled, etc.)",
 	},
 )
 
-var supportSubcommands = []cli.Command{
+var supportSubcommands = []*cli.Command{
 	supportRegisterCmd,
 	supportCallhomeCmd,
 	supportDiagCmd,
@@ -58,7 +58,7 @@ var supportSubcommands = []cli.Command{
 	supportUploadCmd,
 }
 
-var supportCmd = cli.Command{
+var supportCmd = &cli.Command{
 	Name:            "support",
 	Usage:           "support related commands",
 	Action:          mainSupport,
@@ -81,7 +81,7 @@ func validateToggleCmdArg(arg string) error {
 }
 
 func checkToggleCmdSyntax(ctx *cli.Context) (string, string) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

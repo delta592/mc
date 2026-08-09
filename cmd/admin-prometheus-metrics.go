@@ -26,14 +26,14 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 )
 
 var metricsFlags = append(metricsV3Flags,
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "api-version",
 		Usage: "version of metrics api to use. valid values are ['v2', 'v3']. defaults to 'v2' if not specified.",
 		Value: "v2",
@@ -41,7 +41,7 @@ var metricsFlags = append(metricsV3Flags,
 
 var metricsV2SubSystems = set.CreateStringSet("node", "bucket", "cluster", "resource")
 
-var adminPrometheusMetricsCmd = cli.Command{
+var adminPrometheusMetricsCmd = &cli.Command{
 	Name:         "metrics",
 	Usage:        "print prometheus metrics",
 	OnUsageError: onUsageError,
@@ -123,7 +123,7 @@ type prometheusMetricsReq struct {
 
 // checkSupportMetricsSyntax - validate arguments passed by a user
 func checkSupportMetricsSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -143,7 +143,7 @@ func fetchMetrics(metricsURL string, token string) (*http.Response, error) {
 
 func validateV2Args(ctx *cli.Context, subsys string) {
 	for _, flag := range metricsV3Flags {
-		flagName := flag.GetName()
+		flagName := flag.Names()[0]
 		if ctx.IsSet(flagName) {
 			fatalIf(errInvalidArgument().Trace(), "Flag `"+flagName+"` is not supported with v2 metrics")
 		}

@@ -25,7 +25,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
@@ -33,15 +33,15 @@ import (
 )
 
 var replicateListFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "status",
 		Usage: "show rules by status. Valid options are [enabled,disabled]",
 	},
 }
 
-var replicateListCmd = cli.Command{
+var replicateListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list server side replication configuration rules",
 	Action:       mainReplicateList,
 	OnUsageError: onUsageError,
@@ -64,7 +64,7 @@ EXAMPLES:
 
 // checkReplicateListSyntax - validate all the passed arguments
 func checkReplicateListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -143,7 +143,7 @@ func mainReplicateList(cliCtx *cli.Context) error {
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	rCfg, err := client.GetReplication(ctx)
-	fatalIf(err.Trace(args...), "Unable to get replication configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get replication configuration")
 
 	if rCfg.Empty() {
 		fatalIf(probe.NewError(errors.New("replication configuration not set")).Trace(aliasedURL),
@@ -153,9 +153,9 @@ func mainReplicateList(cliCtx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	admClient, cerr := newAdminClient(aliasedURL)
 	fatalIf(cerr, "Unable to initialize admin connection.")
-	_, sourceBucket := url2Alias(args[0])
+	_, sourceBucket := url2Alias(args.Get(0))
 	targets, e := admClient.ListRemoteTargets(globalContext, sourceBucket, "")
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch remote target.")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch remote target.")
 
 	statusFlag := cliCtx.String("status")
 	for _, rule := range rCfg.Rules {

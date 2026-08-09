@@ -29,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
@@ -37,38 +37,38 @@ import (
 )
 
 var adminUserSvcAcctAddFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "access-key",
 		Usage: "set an access key for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Usage: "set a secret key for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "path to a JSON policy file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "friendly name for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "description",
 		Usage: "description for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "comment",
 		Hidden: true,
 		Usage:  "description for the service account (DEPRECATED: use --description instead)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry",
 		Usage: "time of expiration for the service account",
 	},
 }
 
-var adminUserSvcAcctAddCmd = cli.Command{
+var adminUserSvcAcctAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a new service account",
 	Action:       mainAdminUserSvcAcctAdd,
@@ -107,7 +107,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctAddSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctAddSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -351,7 +351,7 @@ func mainAdminUserSvcAcctAdd(ctx *cli.Context) error {
 	}
 
 	creds, e := client.AddServiceAccount(globalContext, opts)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to add a new service account.")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to add a new service account.")
 
 	printMsg(acctMessage{
 		op:            svcAccOpAdd,

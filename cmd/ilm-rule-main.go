@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var ilmRuleSubcommands = []cli.Command{
+var ilmRuleSubcommands = []*cli.Command{
 	ilmAddCmd,
 	ilmEditCmd,
 	ilmLsCmd,
@@ -28,7 +28,7 @@ var ilmRuleSubcommands = []cli.Command{
 	ilmImportCmd,
 }
 
-var ilmRuleCmd = cli.Command{
+var ilmRuleCmd = &cli.Command{
 	Name:            "rule",
 	Usage:           "manage bucket lifecycle rules",
 	Before:          setGlobalsFromContext,

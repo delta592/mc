@@ -18,19 +18,20 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 var policyFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "list recursively",
 	},
 }
 
 // Manage anonymous access to buckets and objects.
-var policyCmd = cli.Command{
+var policyCmd = &cli.Command{
 	Name:         "policy",
 	Usage:        "manage anonymous access to buckets and objects",
 	Action:       mainPolicy,

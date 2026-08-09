@@ -18,15 +18,15 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminProfileSubcommands = []cli.Command{
+var adminProfileSubcommands = []*cli.Command{
 	adminProfileStartCmd,
 	adminProfileStopCmd,
 }
 
-var adminProfileCmd = cli.Command{
+var adminProfileCmd = &cli.Command{
 	Name:            "profile",
 	Usage:           "generate profile data for debugging purposes",
 	Action:          mainAdminProfile,

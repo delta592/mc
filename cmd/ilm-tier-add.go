@@ -25,98 +25,98 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminTierAddFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "endpoint",
 		Value: "",
 		Usage: "remote tier endpoint. e.g https://s3.amazonaws.com",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "region",
 		Value: "",
 		Usage: "remote tier region. e.g us-west-2",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "access-key",
 		Value: "",
 		Usage: "AWS S3 or compatible object storage access-key",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Value: "",
 		Usage: "AWS S3 or compatible object storage secret-key",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "use-aws-role",
 		Usage: "use AWS S3 role",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "aws-role-arn",
 		Usage: "use AWS S3 role name",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "aws-web-identity-file",
 		Usage: "use AWS S3 web identity file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "account-name",
 		Value: "",
 		Usage: "Azure Blob Storage account name",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "account-key",
 		Value: "",
 		Usage: "Azure Blob Storage account key",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-tenant-id",
 		Value: "",
 		Usage: "Directory ID for the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-client-id",
 		Value: "",
 		Usage: "The client ID of the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-client-secret",
 		Value: "",
 		Usage: "The client secret of the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "credentials-file",
 		Value: "",
 		Usage: "path to Google Cloud Storage credentials file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "bucket",
 		Value: "",
 		Usage: "remote tier bucket",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "prefix",
 		Value: "",
 		Usage: "remote tier prefix",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "storage-class",
 		Value: "",
 		Usage: "remote tier storage-class",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "force",
 		Hidden: true,
 		Usage:  "ignores in-use check for remote tier bucket/prefix",
 	},
 }
 
-var adminTierAddCmd = cli.Command{
+var adminTierAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a new remote tier target",
 	Action:       mainAdminTierAdd,
@@ -160,7 +160,7 @@ EXAMPLES:
 
 // checkAdminTierAddSyntax validates all the positional arguments
 func checkAdminTierAddSyntax(ctx *cli.Context) {
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr < 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -424,9 +424,9 @@ func mainAdminTierAdd(ctx *cli.Context) error {
 	tCfg := fetchTierConfig(ctx, strings.ToUpper(tierName), tierType)
 	ignoreInUse := ctx.Bool("force")
 	if ignoreInUse {
-		fatalIf(probe.NewError(client.AddTierIgnoreInUse(globalContext, tCfg)).Trace(args...), "Unable to configure remote tier target")
+		fatalIf(probe.NewError(client.AddTierIgnoreInUse(globalContext, tCfg)).Trace(args.Slice()...), "Unable to configure remote tier target")
 	} else {
-		fatalIf(probe.NewError(client.AddTier(globalContext, tCfg)).Trace(args...), "Unable to configure remote tier target")
+		fatalIf(probe.NewError(client.AddTier(globalContext, tCfg)).Trace(args.Slice()...), "Unable to configure remote tier target")
 	}
 
 	msg := &tierMessage{

@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var encryptSubcommands = []cli.Command{
+var encryptSubcommands = []*cli.Command{
 	encryptSetCmd,
 	encryptClearCmd,
 	encryptInfoCmd,
 }
 
-var encryptCmd = cli.Command{
+var encryptCmd = &cli.Command{
 	Name:            "encrypt",
 	Usage:           "manage bucket encryption config",
 	HideHelpCommand: true,

@@ -27,7 +27,7 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
 )
 
@@ -135,7 +135,7 @@ func validateAndParseKey(ctx *cli.Context, key string, keyType sseKeyType) (SSEP
 
 	ssePairPrefix := alias + "/" + prefix
 
-	for _, arg := range ctx.Args() {
+	for _, arg := range ctx.Args().Slice() {
 		if strings.HasPrefix(arg, ssePairPrefix) {
 			matchedCount++
 		} else if strings.HasPrefix(ssePairPrefix, arg) {

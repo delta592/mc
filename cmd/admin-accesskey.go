@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminAccesskeySubcommands = []cli.Command{
+var adminAccesskeySubcommands = []*cli.Command{
 	adminAccesskeyListCmd,
 	adminAccesskeyRemoveCmd,
 	adminAccesskeyInfoCmd,
@@ -30,7 +30,7 @@ var adminAccesskeySubcommands = []cli.Command{
 	adminAccesskeySTSRevokeCmd,
 }
 
-var adminAccesskeyCmd = cli.Command{
+var adminAccesskeyCmd = &cli.Command{
 	Name:            "accesskey",
 	Usage:           "manage access keys defined in the MinIO server",
 	Action:          mainAdminAccesskey,

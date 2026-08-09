@@ -26,11 +26,11 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminRebalanceStatusCmd = cli.Command{
+var adminRebalanceStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "summarize an ongoing rebalance operation",
 	Action:       mainAdminRebalanceStatus,
@@ -53,7 +53,7 @@ EXAMPLES:
 }
 
 func mainAdminRebalanceStatus(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

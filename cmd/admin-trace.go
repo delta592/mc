@@ -38,84 +38,87 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zstd"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminTraceFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "verbose, v",
+	&cli.BoolFlag{
+		Name: "verbose",
+		Aliases: []string{"v"},
 		Usage: "print verbose trace",
 	},
-	cli.BoolFlag{
-		Name:  "all, a",
+	&cli.BoolFlag{
+		Name: "all",
+		Aliases: []string{"a"},
 		Usage: "trace all call types",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "call",
 		Usage: "trace only matching call types. See CALL TYPES below for list. (default: s3)",
 	},
-	cli.IntSliceFlag{
+	&cli.IntSliceFlag{
 		Name:  "status-code",
 		Usage: "trace only matching status code",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "method",
 		Usage: "trace only matching HTTP method",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "funcname",
 		Usage: "trace only matching func name",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "path",
 		Usage: "trace only matching path",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "node",
 		Usage: "trace only matching servers",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "request-header",
 		Usage: "trace only matching request headers",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "request-query",
 		Usage: "trace only matching request queries",
 	},
-	cli.BoolFlag{
-		Name:  "errors, e",
+	&cli.BoolFlag{
+		Name: "errors",
+		Aliases: []string{"e"},
 		Usage: "trace only failed requests",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "stats",
 		Usage: "print statistical summary of all the traced calls",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "stats-n",
 		Usage:  "maximum number of stat entries",
 		Value:  20,
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "filter-request",
 		Usage: "trace calls only with request bytes greater than this threshold, use with filter-size",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "filter-response",
 		Usage: "trace calls only with response bytes greater than this threshold, use with filter-size",
 	},
-	cli.DurationFlag{
+	&cli.DurationFlag{
 		Name:  "response-duration",
 		Usage: "trace calls only with response duration greater than this threshold (e.g. `5ms`)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "filter-size",
 		Usage: "filter size, use with filter (see UNITS)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "in",
 		Usage: "read previously saved json from file and replay",
 	},
@@ -188,7 +191,7 @@ func traceCallsHelp() string {
 	return strings.Join(help, "\n")
 }
 
-var adminTraceCmd = cli.Command{
+var adminTraceCmd = &cli.Command{
 	Name:            "trace",
 	Usage:           "Show HTTP call trace for all incoming and internode on MinIO",
 	Action:          mainAdminTrace,
@@ -247,7 +250,7 @@ const traceTimeFormat = "2006-01-02T15:04:05.000"
 var colors = []color.Attribute{color.FgCyan, color.FgWhite, color.FgYellow, color.FgGreen}
 
 func checkAdminTraceSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 && len(ctx.String("in")) == 0 {
+	if ctx.Args().Len() != 1 && len(ctx.String("in")) == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	filterFlag := ctx.Bool("filter-request") || ctx.Bool("filter-response")

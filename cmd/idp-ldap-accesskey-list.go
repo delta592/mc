@@ -22,36 +22,36 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var idpLdapAccesskeyListFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "users-only",
 		Usage: "only list user DNs",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "temp-only",
 		Usage: "only list temporary access keys",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "svcacc-only",
 		Usage: "only list service account access keys",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "self",
 		Usage: "list access keys for the authenticated user",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "list all access keys for all LDAP users",
 	},
 }
 
-var idpLdapAccesskeyListCmd = cli.Command{
+var idpLdapAccesskeyListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyList,
 	Before:       setGlobalsFromContext,
@@ -121,7 +121,7 @@ func mainIDPLdapAccesskeyList(ctx *cli.Context) error {
 }
 
 func commonAccesskeyList(ctx *cli.Context) (aliasedURL string, tentativeAll bool, users []string, opts madmin.ListAccessKeysOpts) {
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

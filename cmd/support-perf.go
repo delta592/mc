@@ -27,65 +27,66 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var supportPerfFlags = append([]cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "size",
 		Usage: "size of the object used for uploads/downloads",
 		Value: "64MiB",
 	},
-	cli.BoolFlag{
-		Name:  "verbose, v",
+	&cli.BoolFlag{
+		Name: "verbose",
+		Aliases: []string{"v"},
 		Usage: "display per-server stats",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "duration",
 		Usage:  "maximum duration each perf tests are run",
 		Value:  "10s",
 		Hidden: true,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "concurrent",
 		Usage:  "number of concurrent requests per server",
 		Value:  32,
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "bucket",
 		Usage:  "provide a custom bucket name to use (NOTE: bucket must be created prior)",
 		Hidden: true, // Hidden for now.
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "noclear",
 		Usage:  "do not clear bucket after running object perf test",
 		Hidden: true, // Hidden for now.
 	},
 	// Drive test specific flags.
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "filesize",
 		Usage:  "total amount of data read/written to each drive",
 		Value:  "1GiB",
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "blocksize",
 		Usage:  "read/write block size",
 		Value:  "4MiB",
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "serial",
 		Usage:  "run tests on drive(s) one-by-one",
 		Hidden: true,
 	},
 }, subnetCommonFlags...)
 
-var supportPerfCmd = cli.Command{
+var supportPerfCmd = &cli.Command{
 	Name:            "perf",
 	Usage:           "upload object, network and drive performance analysis",
 	Action:          mainSupportPerf,
@@ -276,17 +277,17 @@ func mainSupportPerf(ctx *cli.Context) error {
 	// the alias parameter from cli
 	aliasedURL := ""
 	perfType := ""
-	switch len(args) {
+	switch args.Len() {
 	case 1:
 		// cannot use alias by the name 'drive' or 'net'
-		if args[0] == "drive" || args[0] == "net" || args[0] == "object" || args[0] == "site-replication" {
+		if args.Get(0) == "drive" || args.Get(0) == "net" || args.Get(0) == "object" || args.Get(0) == "site-replication" {
 			showCommandHelpAndExit(ctx, 1)
 		}
-		aliasedURL = args[0]
+		aliasedURL = args.Get(0)
 
 	case 2:
-		perfType = args[0]
-		aliasedURL = args[1]
+		perfType = args.Get(0)
+		aliasedURL = args.Get(1)
 	default:
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}

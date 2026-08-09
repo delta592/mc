@@ -23,19 +23,19 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var supportTopLocksFlag = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "stale",
 		Usage:  "list all stale locks",
 		Hidden: true,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "count",
 		Usage:  "list N number of locks",
 		Hidden: true,
@@ -43,7 +43,7 @@ var supportTopLocksFlag = []cli.Flag{
 	},
 }
 
-var supportTopLocksCmd = cli.Command{
+var supportTopLocksCmd = &cli.Command{
 	Name:         "locks",
 	Usage:        "list all active locks on a MinIO cluster",
 	Before:       setGlobalsFromContext,
@@ -129,7 +129,7 @@ func (u lockMessage) JSON() string {
 
 // checkAdminTopLocksSyntax - validate all the passed arguments
 func checkSupportTopLocksSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

@@ -18,15 +18,15 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var topLocksFlag = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "stale",
 		Usage: "list stale locks",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "count",
 		Usage:  "number of top locks",
 		Hidden: true,
@@ -34,7 +34,7 @@ var topLocksFlag = []cli.Flag{
 	},
 }
 
-var adminTopLocksCmd = cli.Command{
+var adminTopLocksCmd = &cli.Command{
 	Name:         "locks",
 	Usage:        "get a list of the 10 oldest locks on a MinIO cluster.",
 	Before:       setGlobalsFromContext,

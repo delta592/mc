@@ -30,13 +30,13 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
-var adminReplicateResyncStatusCmd = cli.Command{
+var adminReplicateResyncStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "show site replication resync status",
 	Action:       mainAdminReplicationResyncStatus,
@@ -61,7 +61,7 @@ EXAMPLES:
 
 func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
 	// Check argument count
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -123,7 +123,7 @@ func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
 			}
 		})
 		if e != nil && !errors.Is(e, context.Canceled) {
-			fatalIf(probe.NewError(e).Trace(ctx.Args()...), "Unable to get resync status")
+			fatalIf(probe.NewError(e).Trace(ctx.Args().Slice()...), "Unable to get resync status")
 		}
 	}()
 

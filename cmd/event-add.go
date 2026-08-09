@@ -23,32 +23,33 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var eventAddFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "event",
 		Value: "put,delete,get",
 		Usage: "filter specific type of event. Defaults to all event",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "prefix",
 		Usage: "filter event associated to the specified prefix",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "suffix",
 		Usage: "filter event associated to the specified suffix",
 	},
-	cli.BoolFlag{
-		Name:  "ignore-existing, p",
+	&cli.BoolFlag{
+		Name: "ignore-existing",
+		Aliases: []string{"p"},
 		Usage: "ignore if event already exists",
 	},
 }
 
-var eventAddCmd = cli.Command{
+var eventAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a new bucket notification",
 	Action:       mainEventAdd,
@@ -81,7 +82,7 @@ EXAMPLES:
 
 // checkEventAddSyntax - validate all the passed arguments
 func checkEventAddSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -117,8 +118,8 @@ func mainEventAdd(cliCtx *cli.Context) error {
 	checkEventAddSyntax(cliCtx)
 
 	args := cliCtx.Args()
-	path := args[0]
-	arn := args[1]
+	path := args.Get(0)
+	arn := args.Get(1)
 	ignoreExisting := cliCtx.Bool("p")
 
 	event := strings.Split(cliCtx.String("event"), ",")

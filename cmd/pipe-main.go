@@ -26,7 +26,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
@@ -38,29 +38,30 @@ func defaultPartSize() string {
 }
 
 var pipeFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "storage-class, sc",
+	&cli.StringFlag{
+		Name: "storage-class",
+		Aliases: []string{"sc"},
 		Usage: "set storage class for new object(s) on target",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "attr",
 		Usage: "add custom metadata for the object",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "tags",
 		Usage: "apply one or more tags to the uploaded objects",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "concurrent",
 		Value: 1,
 		Usage: "allow N concurrent uploads [WARNING: will use more memory use it with caution]",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "part-size",
 		Value: defaultPartSize(),
 		Usage: "customize chunk size for each concurrent upload",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "pipe-max-size",
 		Usage:  "increase the pipe buffer size to a custom value",
 		Hidden: true,
@@ -69,7 +70,7 @@ var pipeFlags = []cli.Flag{
 }
 
 // Display contents of a file.
-var pipeCmd = cli.Command{
+var pipeCmd = &cli.Command{
 	Name:         "pipe",
 	Usage:        "stream STDIN to an object",
 	Action:       mainPipe,
@@ -209,7 +210,7 @@ func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPai
 
 // checkPipeSyntax - validate arguments passed by user
 func checkPipeSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
 	}
 }
@@ -235,12 +236,12 @@ func mainPipe(ctx *cli.Context) error {
 	if tags := ctx.String("tags"); tags != "" {
 		meta["X-Amz-Tagging"] = tags
 	}
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		err = pipe(ctx, "", nil, meta, quiet, json)
 		fatalIf(err.Trace("stdout"), "Unable to write to one or more targets.")
 	} else {
 		// extract URLs.
-		URLs := ctx.Args()
+		URLs := ctx.Args().Slice()
 		err = pipe(ctx, URLs[0], encKeyDB, meta, quiet, json)
 		fatalIf(err.Trace(URLs[0]), "Unable to write to one or more targets.")
 	}

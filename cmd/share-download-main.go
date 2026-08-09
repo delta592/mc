@@ -23,23 +23,25 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var shareDownloadFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "share all objects recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "share a particular object version",
 	},
 	shareFlagExpire,
 }
 
 // Share documents via URL.
-var shareDownload = cli.Command{
+var shareDownload = &cli.Command{
 	Name:         "download",
 	Usage:        "generate URLs for download access",
 	Action:       mainShareDownload,
@@ -103,7 +105,7 @@ func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB
 
 	// Validate if object exists only if the `--recursive` flag was NOT specified
 	if !isRecursive {
-		for _, url := range cliCtx.Args() {
+		for _, url := range cliCtx.Args().Slice() {
 			_, _, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false})
 			if err != nil {
 				fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
@@ -227,7 +229,7 @@ func mainShareDownload(cliCtx *cli.Context) error {
 		fatalIf(probe.NewError(e), "Unable to parse expire=`"+cliCtx.String("expire")+"`.")
 	}
 
-	for _, targetURL := range cliCtx.Args() {
+	for _, targetURL := range cliCtx.Args().Slice() {
 		err := doShareDownloadURL(ctx, targetURL, versionID, isRecursive, expiry)
 		if err != nil {
 			switch err.ToGoError().(type) {

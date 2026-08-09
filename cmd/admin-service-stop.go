@@ -20,12 +20,12 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminServiceStopCmd = cli.Command{
+var adminServiceStopCmd = &cli.Command{
 	Name:         "stop",
 	Usage:        "stop a MinIO cluster",
 	Action:       mainAdminServiceStop,
@@ -69,7 +69,7 @@ func (s serviceStopMessage) JSON() string {
 
 // checkAdminServiceStopSyntax - validate all the passed arguments
 func checkAdminServiceStopSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

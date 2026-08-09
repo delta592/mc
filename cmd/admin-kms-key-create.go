@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 	"golang.org/x/term"
 )
 
-var adminKMSCreateKeyCmd = cli.Command{
+var adminKMSCreateKeyCmd = &cli.Command{
 	Name:         "create",
 	Usage:        "creates a new master KMS key",
 	Action:       mainAdminKMSCreateKey,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // adminKMSCreateKeyCmd is the handler for the "mc admin kms key create" command.
 func mainAdminKMSCreateKey(ctx *cli.Context) error {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

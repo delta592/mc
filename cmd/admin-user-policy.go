@@ -24,13 +24,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
 )
 
-var adminUserPolicyCmd = cli.Command{
+var adminUserPolicyCmd = &cli.Command{
 	Name:         "policy",
 	Usage:        "export user policies in JSON format",
 	Action:       mainAdminUserPolicy,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkAdminUserPolicySyntax - validate all the passed arguments
 func checkAdminUserPolicySyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -72,11 +72,11 @@ func mainAdminUserPolicy(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	user, e := client.GetUserInfo(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get user info")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get user info")
 
 	if user.PolicyName == "" {
 		e = fmt.Errorf("policy not found for user %s", args.Get(1))
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch user policy document")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch user policy document")
 	}
 
 	policyNames := strings.Split(user.PolicyName, ",")

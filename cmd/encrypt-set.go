@@ -24,12 +24,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var encryptSetCmd = cli.Command{
+var encryptSetCmd = &cli.Command{
 	Name:         "set",
 	Usage:        "set encryption config",
 	Action:       mainEncryptSet,
@@ -56,7 +56,7 @@ EXAMPLES:
 
 // checkEncryptSetSyntax - validate all the passed arguments
 func checkEncryptSetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) < 2 || len(ctx.Args()) > 3 {
+	if ctx.Args().Len() < 2 || ctx.Args().Len() > 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -92,17 +92,18 @@ func mainEncryptSet(cliCtx *cli.Context) error {
 
 	// Get the alias parameter from cli
 	args := cliCtx.Args()
-	aliasedURL := args.Get(len(args) - 1)
+	argsSlice := args.Slice()
+	aliasedURL := args.Get(args.Len() - 1)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	var algorithm, keyID string
-	switch len(args) {
+	switch args.Len() {
 	case 3:
-		algorithm = strings.ToLower(args[0])
-		keyID = args[1]
+		algorithm = strings.ToLower(argsSlice[0])
+		keyID = argsSlice[1]
 	case 2:
-		algorithm = strings.ToLower(args[0])
+		algorithm = strings.ToLower(argsSlice[0])
 	}
 	if algorithm != "sse-s3" && algorithm != "sse-kms" {
 		fatalIf(probe.NewError(fmt.Errorf("Unknown argument `%s` passed", algorithm)), "Invalid encryption algorithm")

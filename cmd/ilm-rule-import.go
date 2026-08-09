@@ -22,13 +22,13 @@ import (
 	"os"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"
 )
 
-var ilmImportCmd = cli.Command{
+var ilmImportCmd = &cli.Command{
 	Name:         "import",
 	Usage:        "import lifecycle configuration in JSON format",
 	Action:       mainILMImport,
@@ -84,7 +84,7 @@ func readILMConfig() (*lifecycle.Configuration, *probe.Error) {
 
 // checkILMImportSyntax - validate arguments passed by user
 func checkILMImportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 }
@@ -103,7 +103,7 @@ func mainILMImport(cliCtx *cli.Context) error {
 	fatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
 
 	ilmCfg, err := readILMConfig()
-	fatalIf(err.Trace(args...), "Unable to read ILM configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to read ILM configuration")
 
 	if len(ilmCfg.Rules) == 0 {
 		// Abort here, otherwise client.SetLifecycle will remove the lifecycle configuration

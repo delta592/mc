@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var ilmDepCmds = []cli.Command{
+var ilmDepCmds = []*cli.Command{
 	ilmDepAddCmd,
 	ilmDepEditCmd,
 	ilmDepLsCmd,
@@ -29,7 +29,7 @@ var ilmDepCmds = []cli.Command{
 }
 
 var (
-	ilmDepAddCmd = cli.Command{
+	ilmDepAddCmd = &cli.Command{
 		Name:         "add",
 		Usage:        "add a lifecycle configuration rule for a bucket",
 		Action:       mainILMAdd,
@@ -70,7 +70,7 @@ EXAMPLES:
           myminio/mybucket/
 `,
 	}
-	ilmDepRmCmd = cli.Command{
+	ilmDepRmCmd = &cli.Command{
 		Name:         "rm",
 		Usage:        "remove (if any) existing lifecycle configuration rule",
 		Action:       mainILMRemove,
@@ -101,7 +101,7 @@ EXAMPLES:
 `,
 	}
 
-	ilmDepEditCmd = cli.Command{
+	ilmDepEditCmd = &cli.Command{
 		Name:         "edit",
 		Usage:        "modify a lifecycle configuration rule with given id",
 		Action:       mainILMEdit,
@@ -135,7 +135,7 @@ EXAMPLES:
 `,
 	}
 
-	ilmDepLsCmd = cli.Command{
+	ilmDepLsCmd = &cli.Command{
 		Name:         "ls",
 		Usage:        "lists lifecycle configuration rules set on a bucket",
 		Action:       mainILMList,
@@ -170,7 +170,7 @@ EXAMPLES:
 `,
 	}
 
-	ilmDepExportCmd = cli.Command{
+	ilmDepExportCmd = &cli.Command{
 		Name:         "export",
 		Usage:        "export lifecycle configuration in JSON format",
 		Action:       mainILMExport,
@@ -196,7 +196,7 @@ EXAMPLES:
 `,
 	}
 
-	ilmDepImportCmd = cli.Command{
+	ilmDepImportCmd = &cli.Command{
 		Name:         "import",
 		Usage:        "import lifecycle configuration in JSON format",
 		Action:       mainILMImport,

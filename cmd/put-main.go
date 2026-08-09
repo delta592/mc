@@ -24,7 +24,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -32,34 +32,37 @@ import (
 var (
 	putFlags = []cli.Flag{
 		checksumFlag,
-		cli.IntFlag{
-			Name:  "parallel, P",
+		&cli.IntFlag{
+			Name: "parallel",
+			Aliases: []string{"P"},
 			Usage: "upload number of parts in parallel",
 			Value: 4,
 		},
-		cli.StringFlag{
-			Name:  "part-size, s",
+		&cli.StringFlag{
+			Name: "part-size",
+			Aliases: []string{"s"},
 			Usage: "each part size",
 			Value: "16MiB",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "if-not-exists",
 			Usage:  "upload only if object does not exist",
 			Hidden: true,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "disable-multipart",
 			Usage: "disable multipart upload feature",
 		},
-		cli.StringFlag{
-			Name:  "storage-class, sc",
+		&cli.StringFlag{
+			Name: "storage-class",
+			Aliases: []string{"sc"},
 			Usage: "set storage class for new object on target",
 		},
 	}
 )
 
 // Put command.
-var putCmd = cli.Command{
+var putCmd = &cli.Command{
 	Name:         "put",
 	Usage:        "upload an object to a bucket",
 	Action:       mainPut,
@@ -104,7 +107,7 @@ EXAMPLES:
 // mainPut is the entry point for put command.
 func mainPut(cliCtx *cli.Context) (e error) {
 	args := cliCtx.Args()
-	if len(args) < 2 {
+	if args.Len() < 2 {
 		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
 	}
 
@@ -132,21 +135,22 @@ func mainPut(cliCtx *cli.Context) (e error) {
 	// Parse encryption keys per command.
 	encryptionKeys, err := validateAndCreateEncryptionKeys(cliCtx)
 	if err != nil {
-		err.Trace(cliCtx.Args()...)
+		err.Trace(cliCtx.Args().Slice()...)
 	}
 	fatalIf(err, "SSE Error")
 	md5, checksum := parseChecksum(cliCtx)
 
-	if len(args) < 2 {
-		fatalIf(errInvalidArgument().Trace(args...), "Invalid number of arguments.")
+	if args.Len() < 2 {
+		fatalIf(errInvalidArgument().Trace(args.Slice()...), "Invalid number of arguments.")
 	}
 
 	// Check and handle storage class if passed in command line args
 	storageClass := cliCtx.String("sc")
 
 	// get source and target
-	sourceURLs := args[:len(args)-1]
-	targetURL := args[len(args)-1]
+	argsSlice := args.Slice()
+	sourceURLs := argsSlice[:len(argsSlice)-1]
+	targetURL := argsSlice[len(argsSlice)-1]
 
 	putURLsCh := make(chan URLs, 10000)
 	var totalObjects, totalBytes int64

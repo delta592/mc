@@ -19,26 +19,26 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var adminTierRmFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "force",
 		Usage:  "forcefully remove the specified tier",
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "dangerous",
 		Usage:  "additional flag to be required in addition to force flag",
 		Hidden: true,
 	},
 }
 
-var adminTierRmCmd = cli.Command{
+var adminTierRmCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove an empty remote tier",
 	Action:       mainAdminTierRm,
 	OnUsageError: onUsageError,
@@ -64,7 +64,7 @@ EXAMPLES:
 
 func mainAdminTierRm(ctx *cli.Context) error {
 	args := ctx.Args()
-	nArgs := len(args)
+	nArgs := args.Len()
 	if nArgs < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
@@ -88,7 +88,7 @@ func mainAdminTierRm(ctx *cli.Context) error {
 	fatalIf(cerr, "Unable to initialize admin connection.")
 
 	e := client.RemoveTierV2(globalContext, tierName, madmin.RemoveTierOpts{Force: ctx.Bool("force")})
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to remove remote tier target")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove remote tier target")
 
 	printMsg(&tierMessage{
 		op:       ctx.Command.Name,

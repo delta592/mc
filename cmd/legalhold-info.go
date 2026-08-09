@@ -26,32 +26,34 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var lhInfoFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "show legal hold status recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "show legal hold status of a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "show legal hold status of an object version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "show legal hold status of multiple versions of object(s)",
 	},
 }
 
-var legalHoldInfoCmd = cli.Command{
+var legalHoldInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show legal hold info for object(s)",
 	Action:       mainLegalHoldInfo,

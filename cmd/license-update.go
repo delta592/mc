@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var licenseUpdateCmd = cli.Command{
+var licenseUpdateCmd = &cli.Command{
 	Name:         "update",
 	Usage:        "update the license",
 	OnUsageError: onUsageError,
@@ -75,7 +75,7 @@ func (li licUpdateMessage) JSON() string {
 
 func mainLicenseUpdate(ctx *cli.Context) error {
 	args := ctx.Args()
-	argsLen := len(args)
+	argsLen := args.Len()
 	if argsLen > 2 || argsLen < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}

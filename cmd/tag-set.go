@@ -24,35 +24,37 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var tagSetFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "set tags on a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "set tags on a specific object version at specific time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "set tags on multiple versions for an object",
 	},
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "recursivley set tags for all objects of subdirs",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "exclude-folders",
 		Usage: "exclude setting tags on folder objects",
 	},
 }
 
-var tagSetCmd = cli.Command{
+var tagSetCmd = &cli.Command{
 	Name: "set", Usage: "set tags for a bucket and object(s)",
 	Action:       mainSetTag,
 	OnUsageError: onUsageError,
@@ -120,7 +122,7 @@ func (t tagSetMessage) JSON() string {
 }
 
 func parseSetTagSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions bool, tags string, recursive bool, excludeFolders bool) {
-	if len(ctx.Args()) != 2 || ctx.Args().Get(1) == "" {
+	if ctx.Args().Len() != 2 || ctx.Args().Get(1) == "" {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 
@@ -185,7 +187,7 @@ func mainSetTag(cliCtx *cli.Context) error {
 	}
 
 	clnt, err := newClient(targetURL)
-	fatalIf(err.Trace(cliCtx.Args()...), "Unable to initialize target "+targetURL)
+	fatalIf(err.Trace(cliCtx.Args().Slice()...), "Unable to initialize target "+targetURL)
 
 	alias, urlStr, _ := mustExpandAlias(targetURL)
 	if timeRef.IsZero() && !withVersions && !recursive && !excludeFolders {

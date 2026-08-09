@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminIDPCmd = cli.Command{
+var adminIDPCmd = &cli.Command{
 	Name:            "idp",
 	Usage:           "manage MinIO IDentity Provider server configuration",
 	Action:          mainAdminIDP,

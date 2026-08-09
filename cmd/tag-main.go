@@ -18,16 +18,16 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var tagSubcommands = []cli.Command{
+var tagSubcommands = []*cli.Command{
 	tagListCmd,
 	tagRemoveCmd,
 	tagSetCmd,
 }
 
-var tagCmd = cli.Command{
+var tagCmd = &cli.Command{
 	Name:            "tag",
 	Usage:           "manage tags for bucket and object(s)",
 	Action:          mainTag,

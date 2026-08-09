@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminSubnetRegisterCmd = cli.Command{
+var adminSubnetRegisterCmd = &cli.Command{
 	Name:               "register",
 	Usage:              "Register the MinIO Cluster with SUBNET",
 	OnUsageError:       onUsageError,

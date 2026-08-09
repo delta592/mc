@@ -24,39 +24,41 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var retentionSetFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "apply retention recursively",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "bypass",
 		Usage: "bypass governance",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "apply retention to a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "roll back object(s) to current version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "apply retention object(s) and all its versions",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "default",
 		Usage: "set bucket default retention mode",
 	},
 }
 
-var retentionSetCmd = cli.Command{
+var retentionSetCmd = &cli.Command{
 	Name:         "set",
 	Usage:        "apply retention settings on object(s)",
 	Action:       mainRetentionSet,
@@ -95,20 +97,20 @@ EXAMPLES:
 
 func parseSetRetentionArgs(cliCtx *cli.Context) (target, versionID string, recursive bool, timeRef time.Time, withVersions bool, mode minio.RetentionMode, validity uint64, unit minio.ValidityUnit, bypass, bucketMode bool) {
 	args := cliCtx.Args()
-	if len(args) != 3 {
+	if args.Len() != 3 {
 		showCommandHelpAndExit(cliCtx, 1)
 	}
 
-	mode = minio.RetentionMode(strings.ToUpper(args[0]))
+	mode = minio.RetentionMode(strings.ToUpper(args.Get(0)))
 	if !mode.IsValid() {
-		fatalIf(errInvalidArgument().Trace(args...), "invalid retention mode '%v'", mode)
+		fatalIf(errInvalidArgument().Trace(args.Slice()...), "invalid retention mode '%v'", mode)
 	}
 
 	var err *probe.Error
-	validity, unit, err = parseRetentionValidity(args[1])
-	fatalIf(err.Trace(args[1]), "invalid validity argument")
+	validity, unit, err = parseRetentionValidity(args.Get(1))
+	fatalIf(err.Trace(args.Get(1)), "invalid validity argument")
 
-	target = args[2]
+	target = args.Get(2)
 	if target == "" {
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}

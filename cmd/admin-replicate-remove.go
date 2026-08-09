@@ -22,30 +22,29 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminReplicateRemoveFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "remove site replication from all participating sites",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force removal of site(s) from site replication configuration",
 	},
 }
 
-var adminReplicateRemoveCmd = cli.Command{
+var adminReplicateRemoveCmd = &cli.Command{
 	Name:          "remove",
-	ShortName:     "rm",
+	Aliases: []string{"rm"},
 	Usage:         "remove one or more sites from site replication",
 	Action:        mainAdminReplicationRemoveStatus,
 	OnUsageError:  onUsageError,
-	HiddenAliases: true,
 	Before:        setGlobalsFromContext,
 	Flags:         append(globalFlags, adminReplicateRemoveFlags...),
 	CustomHelpTemplate: `NAME:
@@ -94,7 +93,7 @@ func (i srRemoveStatus) String() string {
 
 func checkAdminReplicateRemoveSyntax(ctx *cli.Context) {
 	// Check argument count
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if ctx.Bool("all") && argsNr > 1 {
 		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 			"")
@@ -124,7 +123,7 @@ func mainAdminReplicationRemoveStatus(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	st, e := client.SiteReplicationRemove(globalContext, rreq)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to remove cluster replication")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove cluster replication")
 
 	printMsg(srRemoveStatus{
 		ReplicateRemoveStatus: st,

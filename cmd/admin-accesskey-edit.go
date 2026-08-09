@@ -18,37 +18,37 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var adminAccesskeyEditFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Usage: "set a secret key for the  account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "path to a JSON policy file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "friendly name for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "description",
 		Usage: "description for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry-duration",
 		Usage: "duration before the access key expires",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry",
 		Usage: "expiry date for the access key",
 	},
 }
 
-var adminAccesskeyEditCmd = cli.Command{
+var adminAccesskeyEditCmd = &cli.Command{
 	Name:         "edit",
 	Usage:        "edit existing access keys",
 	Action:       mainAdminAccesskeyEdit,

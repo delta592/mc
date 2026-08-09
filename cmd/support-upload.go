@@ -22,26 +22,26 @@ import (
 	"net/url"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // profile command flags.
 var (
 	uploadFlags = append(globalFlags,
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "issue",
 			Usage: "SUBNET issue number to which the file is to be uploaded",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "comment",
 			Usage: "comment to be posted on the issue along with the file",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "enc",
 			Usage: "encrypt content with key only accessible to minio employees",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "dev",
 			Usage:  "Development mode",
 			Hidden: true,
@@ -66,7 +66,7 @@ func (s supportUploadMessage) JSON() string {
 	return toJSON(s)
 }
 
-var supportUploadCmd = cli.Command{
+var supportUploadCmd = &cli.Command{
 	Name:            "upload",
 	Usage:           "upload file to a SUBNET issue",
 	Action:          mainSupportUpload,
@@ -93,7 +93,7 @@ EXAMPLES:
 }
 
 func checkSupportUploadSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

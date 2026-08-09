@@ -27,20 +27,21 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var anonymousFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "list recursively",
 	},
 }
 
 // Manage anonymous access to buckets and objects.
-var anonymousCmd = cli.Command{
+var anonymousCmd = &cli.Command{
 	Name:         "anonymous",
 	Usage:        "manage anonymous access to buckets and objects",
 	Action:       mainAnonymous,
@@ -175,7 +176,7 @@ func (s anonymousLinksMessage) JSON() string {
 
 // checkAnonymousSyntax check for incoming syntax.
 func checkAnonymousSyntax(ctx *cli.Context) {
-	argsLength := len(ctx.Args())
+	argsLength := ctx.Args().Len()
 	// Always print a help message when we have extra arguments
 	if argsLength > 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
@@ -333,11 +334,11 @@ func doGetAccessRules(ctx context.Context, targetURL string) (r map[string]strin
 }
 
 // Run anonymous list command
-func runAnonymousListCmd(args cli.Args) {
+func runAnonymousListCmd(args []string) {
 	ctx, cancelAnonymousList := context.WithCancel(globalContext)
 	defer cancelAnonymousList()
 
-	targetURL := args.First()
+	targetURL := args[0]
 	policies, err := doGetAccessRules(ctx, targetURL)
 	if err != nil {
 		switch err.ToGoError().(type) {
@@ -353,12 +354,12 @@ func runAnonymousListCmd(args cli.Args) {
 }
 
 // Run anonymous links command
-func runAnonymousLinksCmd(args cli.Args, recursive bool) {
+func runAnonymousLinksCmd(args []string, recursive bool) {
 	ctx, cancelAnonymousLinks := context.WithCancel(globalContext)
 	defer cancelAnonymousLinks()
 
 	// Get alias/bucket/prefix argument
-	targetURL := args.First()
+	targetURL := args[0]
 
 	// Fetch all policies associated to the passed url
 	policies, err := doGetAccessRules(ctx, targetURL)

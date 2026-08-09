@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var idpLdapPolicySubcommands = []cli.Command{
+var idpLdapPolicySubcommands = []*cli.Command{
 	idpLdapPolicyAttachCmd,
 	idpLdapPolicyDetachCmd,
 	idpLdapPolicyEntitiesCmd,
 }
 
-var idpLdapPolicyCmd = cli.Command{
+var idpLdapPolicyCmd = &cli.Command{
 	Name:            "policy",
 	Usage:           "manage policy assignments for LDAP",
 	Action:          mainIDPLDAPPolicy,

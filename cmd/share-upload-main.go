@@ -25,12 +25,13 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var shareUploadFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "recursively upload any object matching the prefix",
 	},
 	shareFlagExpire,
@@ -38,7 +39,7 @@ var shareUploadFlags = []cli.Flag{
 }
 
 // Share documents via URL.
-var shareUpload = cli.Command{
+var shareUpload = &cli.Command{
 	Name:         "upload",
 	Usage:        "generate `curl` command to upload objects without requiring access/secret keys",
 	Action:       mainShareUpload,
@@ -104,7 +105,7 @@ func checkShareUploadSyntax(ctx *cli.Context) {
 			"Expiry cannot be larger than 7 days.")
 	}
 
-	for _, targetURL := range ctx.Args() {
+	for _, targetURL := range ctx.Args().Slice() {
 		url := newClientURL(targetURL)
 		if strings.HasSuffix(targetURL, string(url.Separator)) && !isRecursive {
 			fatalIf(errInvalidArgument().Trace(targetURL),
@@ -208,7 +209,7 @@ func mainShareUpload(cliCtx *cli.Context) error {
 		fatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
 	}
 
-	for _, targetURL := range cliCtx.Args() {
+	for _, targetURL := range cliCtx.Args().Slice() {
 		err := doShareUploadURL(ctx, targetURL, isRecursive, expiry, contentType)
 		if err != nil {
 			switch err.ToGoError().(type) {

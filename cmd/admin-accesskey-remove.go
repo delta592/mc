@@ -18,12 +18,12 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminAccesskeyRemoveCmd = cli.Command{
+var adminAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "delete access key pairs for builtin users",
 	Action:       mainAdminAccesskeyRemove,
 	Before:       setGlobalsFromContext,

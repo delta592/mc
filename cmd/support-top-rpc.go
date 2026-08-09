@@ -33,36 +33,35 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/klauspost/compress/zstd"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
 var supportTopRPCFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "nodes",
 		Usage: "collect only metrics from matching servers, comma separate multiple",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "interval",
 		Usage: "interval between requests in seconds",
 		Value: 1,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "n",
 		Usage: "number of requests to run before exiting. 0 for endless (default)",
 		Value: 0,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "in",
 		Usage: "read previously saved json from file and replay",
 	},
 }
 
-var supportTopRPCCmd = cli.Command{
+var supportTopRPCCmd = &cli.Command{
 	Name:            "rpc",
-	HiddenAliases:   true,
 	Usage:           "show real-time rpc metrics (grid only)",
 	Action:          mainSupportTopRPC,
 	OnUsageError:    onUsageError,
@@ -89,7 +88,7 @@ func checkSupportTopRPCSyntax(ctx *cli.Context) {
 	if ctx.String("in") != "" {
 		return
 	}
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminBucketRemoteSubcommands = []cli.Command{
+var adminBucketRemoteSubcommands = []*cli.Command{
 	adminBucketRemoteAddCmd,
 	adminBucketRemoteEditCmd,
 	adminBucketRemoteRmCmd,
 }
 
-var adminBucketRemoteCmd = cli.Command{
+var adminBucketRemoteCmd = &cli.Command{
 	Name:            "remote",
 	Usage:           "configure remote target buckets",
 	Action:          mainadminBucketRemote,

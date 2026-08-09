@@ -25,13 +25,13 @@ import (
 	"charm.land/lipgloss/v2/table"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminTierInfoCmd = cli.Command{
+var adminTierInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display tier statistics",
 	Action:       mainAdminTierInfo,
@@ -59,7 +59,7 @@ EXAMPLES:
 
 // checkAdminTierInfoSyntax - validate all the passed arguments
 func checkAdminTierInfoSyntax(ctx *cli.Context) {
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -194,7 +194,7 @@ func mainAdminTierInfo(ctx *cli.Context) error {
 		// check if that tier name is valid
 		// if valid will show that with empty data
 		tiers, e := client.ListTiers(globalContext)
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to list configured remote tier targets")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to list configured remote tier targets")
 		for _, t := range tiers {
 			if t.Name == tier {
 				filteredData = tierInfos([]madmin.TierInfo{

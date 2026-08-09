@@ -31,7 +31,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
@@ -43,72 +43,78 @@ const (
 )
 
 var adminHealFlags = []cli.Flag{
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "pool",
 		Usage:  "heal only the given pool",
 		Hidden: true,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:   "set",
 		Usage:  "heal only the given set",
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "scan",
 		Usage:  "select the healing scan mode (normal/deep)",
 		Value:  scanNormalMode,
 		Hidden: true,
 	},
-	cli.BoolFlag{
-		Name:   "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage:  "heal recursively",
 		Hidden: true,
 	},
-	cli.BoolFlag{
-		Name:   "dry-run, n",
+	&cli.BoolFlag{
+		Name: "dry-run",
+		Aliases: []string{"n"},
 		Usage:  "only inspect data, but do not mutate",
 		Hidden: true,
 	},
-	cli.BoolFlag{
-		Name:   "force-start, f",
+	&cli.BoolFlag{
+		Name: "force-start",
+		Aliases: []string{"f"},
 		Usage:  "force start a new heal sequence",
 		Hidden: true,
 	},
-	cli.BoolFlag{
-		Name:   "force-stop, s",
+	&cli.BoolFlag{
+		Name: "force-stop",
+		Aliases: []string{"s"},
 		Usage:  "force stop a running heal sequence",
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "avoid showing a warning prompt",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "remove",
 		Usage:  "remove dangling objects in heal sequence",
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "storage-class",
 		Usage:  "show server/drives failure tolerance with the given storage class",
 		Hidden: true,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "rewrite",
 		Usage:  "rewrite objects from older to newer format",
 		Hidden: true,
 	},
-	cli.BoolFlag{
-		Name:  "verbose, v",
+	&cli.BoolFlag{
+		Name: "verbose",
+		Aliases: []string{"v"},
 		Usage: "show verbose information",
 	},
-	cli.BoolFlag{
-		Name:  "all-drives, a",
+	&cli.BoolFlag{
+		Name: "all-drives",
+		Aliases: []string{"a"},
 		Usage: "select all drives for verbose printing",
 	},
 }
 
-var adminHealCmd = cli.Command{
+var adminHealCmd = &cli.Command{
 	Name:            "heal",
 	Usage:           "monitor healing for bucket(s) and object(s) on MinIO server",
 	Action:          mainAdminHeal,
@@ -132,7 +138,7 @@ EXAMPLES:
 }
 
 func checkAdminHealSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

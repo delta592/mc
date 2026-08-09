@@ -27,32 +27,34 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var tagListFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "list tags of particular object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "list tags of particular object version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "list tags on all versions for an object",
 	},
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "recursivley show tags for all objects",
 	},
 }
 
-var tagListCmd = cli.Command{
+var tagListCmd = &cli.Command{
 	Name:         "list",
 	Usage:        "list tags of a bucket or an object",
 	Action:       mainListTag,
@@ -148,7 +150,7 @@ func (t tagListMessage) String() string {
 
 // parseTagListSyntax performs command-line input validation for tag list command.
 func parseTagListSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 

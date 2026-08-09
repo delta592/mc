@@ -20,14 +20,14 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminGroupRemoveCmd = cli.Command{
+var adminGroupRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove group or members from a group",
 	Action:       mainAdminGroupRemove,
 	OnUsageError: onUsageError,
@@ -53,7 +53,7 @@ EXAMPLES:
 
 // checkAdminGroupRemoveSyntax - validate all the passed arguments
 func checkAdminGroupRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -83,7 +83,7 @@ func mainAdminGroupRemove(ctx *cli.Context) error {
 	}
 
 	e := client.UpdateGroupMembers(globalContext, gAddRemove)
-	fatalIf(probe.NewError(e).Trace(args...), "Could not perform remove operation")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Could not perform remove operation")
 
 	printMsg(groupMessage{
 		op:        ctx.Command.Name,

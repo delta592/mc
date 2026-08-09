@@ -23,19 +23,19 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminConfigEnvFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "env",
 		Usage: "list all the env only help",
 	},
 }
 
-var adminConfigResetCmd = cli.Command{
+var adminConfigResetCmd = &cli.Command{
 	Name:         "reset",
 	Usage:        "interactively reset a config key parameters",
 	Before:       setGlobalsFromContext,
@@ -114,7 +114,7 @@ func mainAdminConfigReset(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	if len(ctx.Args()) == 1 {
+	if ctx.Args().Len() == 1 {
 		// Call get config API
 		hr, e := client.HelpConfigKV(globalContext, "", "", ctx.Bool("env"))
 		fatalIf(probe.NewError(e), "Unable to get help for the sub-system")

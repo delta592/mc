@@ -18,16 +18,16 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var supportProxySubcommands = []cli.Command{
+var supportProxySubcommands = []*cli.Command{
 	supportProxySetCmd,
 	supportProxyRemoveCmd,
 	supportProxyShowCmd,
 }
 
-var supportProxyCmd = cli.Command{
+var supportProxyCmd = &cli.Command{
 	Name:            "proxy",
 	Usage:           "configure proxy",
 	Action:          mainSupportProxy,

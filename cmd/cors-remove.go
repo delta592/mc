@@ -19,11 +19,11 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var corsRemoveCmd = cli.Command{
+var corsRemoveCmd = &cli.Command{
 	Name:         "remove",
 	Usage:        "remove a bucket CORS configuration",
 	Action:       mainCorsRemove,
@@ -47,7 +47,7 @@ EXAMPLES:
 
 // checkCorsRemoveSyntax - validate all the passed arguments
 func checkCorsRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

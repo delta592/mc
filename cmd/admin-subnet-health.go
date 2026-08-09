@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/set"
 )
 
-var adminSubnetHealthCmd = cli.Command{
+var adminSubnetHealthCmd = &cli.Command{
 	Name:               "health",
 	Usage:              "generate MinIO health report for SUBNET",
 	OnUsageError:       onUsageError,
@@ -39,24 +39,25 @@ var adminSubnetHealthCmd = cli.Command{
 func mainSubnetHealth(ctx *cli.Context) error {
 	boolValSet := set.CreateStringSet("true", "false")
 	newCmd := []string{"mc support diag"}
-	newCmd = append(newCmd, ctx.Args()...)
+	newCmd = append(newCmd, ctx.Args().Slice()...)
 	for _, flg := range ctx.Command.Flags {
-		flgName := flg.GetName()
-		if !ctx.IsSet(flgName) {
-			continue
-		}
+		for _, flgName := range flg.Names() {
+			if !ctx.IsSet(flgName) {
+				continue
+			}
 
-		// replace the deprecated --offline with --airgap
-		if flgName == "offline" {
-			flgName = "airgap"
-		}
+			// replace the deprecated --offline with --airgap
+			if flgName == "offline" {
+				flgName = "airgap"
+			}
 
-		flgStr := "--" + flgName
-		flgVal := ctx.String(flgName)
-		if !boolValSet.Contains(flgVal) {
-			flgStr = fmt.Sprintf("%s \"%s\"", flgStr, flgVal)
+			flgStr := "--" + flgName
+			flgVal := ctx.String(flgName)
+			if !boolValSet.Contains(flgVal) {
+				flgStr = fmt.Sprintf("%s \"%s\"", flgStr, flgVal)
+			}
+			newCmd = append(newCmd, flgStr)
 		}
-		newCmd = append(newCmd, flgStr)
 	}
 
 	deprecatedError(strings.Join(newCmd, " "))

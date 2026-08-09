@@ -29,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
@@ -38,18 +38,20 @@ import (
 )
 
 var replicateStatusFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "backlog,b",
+	&cli.StringFlag{
+		Name: "backlog",
+		Aliases: []string{"b"},
 		Usage: "show most recent failures for one or more nodes. Valid values are 'all', or node name",
 		Value: "all",
 	},
-	cli.BoolFlag{
-		Name:  "nodes,n",
+	&cli.BoolFlag{
+		Name: "nodes",
+		Aliases: []string{"n"},
 		Usage: "show replication speed for all nodes",
 	},
 }
 
-var replicateStatusCmd = cli.Command{
+var replicateStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "show server side replication status",
 	Action:       mainReplicateStatus,
@@ -76,7 +78,7 @@ EXAMPLES:
 
 // checkReplicateStatusSyntax - validate all the passed arguments
 func checkReplicateStatusSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -304,14 +306,14 @@ func mainReplicateStatus(cliCtx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	admClient, cerr := newAdminClient(aliasedURL)
 	fatalIf(cerr, "Unable to initialize admin connection.")
-	_, sourceBucket := url2Alias(args[0])
+	_, sourceBucket := url2Alias(args.Get(0))
 
 	replicateStatus, err := client.GetReplicationMetrics(ctx)
-	fatalIf(err.Trace(args...), "Unable to get replication status")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get replication status")
 	targets, e := admClient.ListRemoteTargets(globalContext, sourceBucket, "")
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch remote target.")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch remote target.")
 	cfg, err := client.GetReplication(ctx)
-	fatalIf(err.Trace(args...), "Unable to fetch replication configuration.")
+	fatalIf(err.Trace(args.Slice()...), "Unable to fetch replication configuration.")
 
 	if cliCtx.IsSet("nodes") {
 		printMsg(replicateXferMessage{

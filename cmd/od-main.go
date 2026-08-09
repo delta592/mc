@@ -27,11 +27,11 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 // make a bucket.
-var odCmd = cli.Command{
+var odCmd = &cli.Command{
 	Name:         "od",
 	Usage:        "measure single stream upload and download",
 	Action:       mainOD,
@@ -148,7 +148,7 @@ func mainOD(cliCtx *cli.Context) error {
 	}
 
 	var kvsArgs argKVS
-	for _, arg := range cliCtx.Args() {
+	for _, arg := range cliCtx.Args().Slice() {
 		kv := strings.SplitN(arg, "=", 2)
 		kvsArgs.Set(kv[0], kv[1])
 	}

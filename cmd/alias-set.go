@@ -31,7 +31,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 	"golang.org/x/term"
@@ -40,20 +40,20 @@ import (
 const cred = "YellowItalics"
 
 var aliasSetFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "path",
 		Value: "auto",
 		Usage: "bucket path lookup supported by the server. Valid options are '[auto, on, off]'",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "api",
 		Usage: "API signature. Valid options are '[S3v4, S3v2]'",
 	},
 }
 
-var aliasSetCmd = cli.Command{
+var aliasSetCmd = &cli.Command{
 	Name:      "set",
-	ShortName: "s",
+	Aliases: []string{"s"},
 	Usage:     "set a new alias to configuration file",
 	Action: func(cli *cli.Context) error {
 		return mainAliasSet(cli, false)
@@ -101,7 +101,7 @@ EXAMPLES:
 // checkAliasSetSyntax - verifies input arguments to 'alias set'.
 func checkAliasSetSyntax(ctx *cli.Context, accessKey, secretKey string, deprecated bool) {
 	args := ctx.Args()
-	argsNr := len(args)
+	argsNr := args.Len()
 
 	if argsNr == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
@@ -271,7 +271,7 @@ func fetchAliasKeys(args cli.Args) (string, string) {
 	isTerminal := term.IsTerminal(int(os.Stdin.Fd()))
 	reader := bufio.NewReader(os.Stdin)
 
-	argsNr := len(args)
+	argsNr := args.Len()
 
 	if argsNr == 2 {
 		if isTerminal {

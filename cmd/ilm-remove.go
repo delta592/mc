@@ -22,29 +22,29 @@ import (
 
 	"github.com/delta592/mc/cmd/ilm"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var ilmRemoveFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "id",
 		Usage: "id of the lifecycle rule",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force flag is to be used when deleting all lifecycle configuration rules for the bucket",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "delete all lifecycle configuration rules of the bucket, force flag enforced",
 	},
 }
 
-var ilmRmCmd = cli.Command{
+var ilmRmCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove (if any) existing lifecycle configuration rule",
 	Action:       mainILMRemove,
 	OnUsageError: onUsageError,
@@ -95,7 +95,7 @@ func (i ilmRmMessage) JSON() string {
 }
 
 func checkILMRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 
@@ -126,7 +126,7 @@ func mainILMRemove(cliCtx *cli.Context) error {
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)
-	fatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
+	fatalIf(err.Trace(args.Slice()...), "Unable to initialize client for "+urlStr+".")
 
 	ilmCfg, _, err := client.GetLifecycle(ctx)
 	fatalIf(err.Trace(urlStr), "Unable to fetch lifecycle rules")

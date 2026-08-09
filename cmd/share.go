@@ -27,7 +27,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -39,12 +39,14 @@ const (
 
 // Upload specific flags.
 var (
-	shareFlagContentType = cli.StringFlag{
-		Name:  "content-type, T",
+	shareFlagContentType = &cli.StringFlag{
+		Name: "content-type",
+		Aliases: []string{"T"},
 		Usage: "specify a content-type to allow",
 	}
-	shareFlagExpire = cli.StringFlag{
-		Name:  "expire, E",
+	shareFlagExpire = &cli.StringFlag{
+		Name: "expire",
+		Aliases: []string{"E"},
 		Value: "168h",
 		Usage: "set expiry in NN[h|m|s]",
 	}

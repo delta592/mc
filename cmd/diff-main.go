@@ -25,7 +25,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -36,7 +36,7 @@ var (
 )
 
 // Compute differences in object name, size, and date between two buckets.
-var diffCmd = cli.Command{
+var diffCmd = &cli.Command{
 	Name:         "diff",
 	Usage:        "list differences in object name, size, and date between two buckets",
 	Action:       mainDiff,
@@ -115,15 +115,15 @@ func (d diffMessage) JSON() string {
 }
 
 func checkDiffSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
-	if len(cliCtx.Args()) != 2 {
+	if cliCtx.Args().Len() != 2 {
 		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code
 	}
-	for _, arg := range cliCtx.Args() {
+	for _, arg := range cliCtx.Args().Slice() {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(cliCtx.Args()...), "Unable to validate empty argument.")
+			fatalIf(errInvalidArgument().Trace(cliCtx.Args().Slice()...), "Unable to validate empty argument.")
 		}
 	}
-	URLs := cliCtx.Args()
+	URLs := cliCtx.Args().Slice()
 	firstURL := URLs[0]
 	secondURL := URLs[1]
 

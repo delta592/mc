@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var aliasExportCmd = cli.Command{
+var aliasExportCmd = &cli.Command{
 	Name:            "export",
-	ShortName:       "e",
+	Aliases: []string{"e"},
 	Usage:           "export configuration info to stdout",
 	Action:          mainAliasExport,
 	OnUsageError:    onUsageError,

@@ -25,12 +25,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminReplicateResyncStartCmd = cli.Command{
+var adminReplicateResyncStartCmd = &cli.Command{
 	Name:         "start",
 	Usage:        "start resync to site",
 	Action:       mainAdminReplicateResyncStart,
@@ -76,7 +76,7 @@ func (m resyncMessage) String() string {
 
 func mainAdminReplicateResyncStart(ctx *cli.Context) error {
 	// Check argument count
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -108,7 +108,7 @@ func mainAdminReplicateResyncStart(ctx *cli.Context) error {
 			"alias provided is not part of cluster replication.")
 	}
 	res, e := client.SiteReplicationResyncOp(globalContext, peer, madmin.SiteResyncStart)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to start replication resync")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to start replication resync")
 	printMsg(resyncMessage(res))
 
 	return nil

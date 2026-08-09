@@ -25,7 +25,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
@@ -34,19 +34,21 @@ import (
 const logTimeFormat string = "15:04:05 MST 01/02/2006"
 
 var logsShowFlags = []cli.Flag{
-	cli.IntFlag{
-		Name:  "last, l",
+	&cli.IntFlag{
+		Name: "last",
+		Aliases: []string{"l"},
 		Usage: "show last n log entries",
 		Value: 10,
 	},
-	cli.StringFlag{
-		Name:  "type, t",
+	&cli.StringFlag{
+		Name: "type",
+		Aliases: []string{"t"},
 		Usage: "list error logs by type. Valid options are '[minio, application, all]'",
 		Value: "all",
 	},
 }
 
-var adminLogsCmd = cli.Command{
+var adminLogsCmd = &cli.Command{
 	Name:            "logs",
 	Usage:           "show MinIO logs",
 	OnUsageError:    onUsageError,
@@ -72,7 +74,7 @@ EXAMPLES:
 }
 
 func checkLogsShowSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 3 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -169,19 +171,19 @@ func mainAdminLogs(ctx *cli.Context) error {
 	}
 	aliasedURL := ctx.Args().Get(0)
 	var node string
-	if len(ctx.Args()) > 1 {
+	if ctx.Args().Len() > 1 {
 		node = ctx.Args().Get(1)
 	}
 	var last int
 	if ctx.IsSet("last") {
 		last = ctx.Int("last")
 		if last <= 0 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args()...), "please set a proper limit, for example: '--last 5' to display last 5 logs, omit this flag to display all available logs")
+			fatalIf(errInvalidArgument().Trace(ctx.Args().Slice()...), "please set a proper limit, for example: '--last 5' to display last 5 logs, omit this flag to display all available logs")
 		}
 	}
 	logType := strings.ToLower(ctx.String("type"))
 	if logType != "minio" && logType != "application" && logType != "all" {
-		fatalIf(errInvalidArgument().Trace(ctx.Args()...), "Invalid value for --type flag. Valid options are [minio, application, all]")
+		fatalIf(errInvalidArgument().Trace(ctx.Args().Slice()...), "Invalid value for --type flag. Valid options are [minio, application, all]")
 	}
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)

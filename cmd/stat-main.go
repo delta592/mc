@@ -24,34 +24,37 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // stat specific flags.
 var (
 	statFlags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "rewind",
 			Usage: "stat on older version(s)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "stat all versions",
 		},
-		cli.StringFlag{
-			Name:  "version-id, vid",
+		&cli.StringFlag{
+			Name: "version-id",
+			Aliases: []string{"vid"},
 			Usage: "stat a specific object version",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "stat all objects recursively",
 		},
-		cli.BoolFlag{
-			Name:  "verbose, v",
+		&cli.BoolFlag{
+			Name: "verbose",
+			Aliases: []string{"v"},
 			Usage: "show extended bucket(s) stat",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "no-list",
 			Usage: "disable all LIST operations for stat",
 		},
@@ -59,7 +62,7 @@ var (
 )
 
 // show object metadata
-var statCmd = cli.Command{
+var statCmd = &cli.Command{
 	Name:         "stat",
 	Usage:        "show object metadata",
 	Action:       mainStat,
@@ -108,9 +111,9 @@ func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string
 	}
 
 	args := cliCtx.Args()
-	for _, arg := range args {
+	for _, arg := range args.Slice() {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			fatalIf(errInvalidArgument().Trace(args.Slice()...), "Unable to validate empty argument.")
 		}
 	}
 
@@ -121,18 +124,18 @@ func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string
 	rewind := parseRewindFlag(cliCtx.String("rewind"))
 
 	// extract URLs.
-	URLs := cliCtx.Args()
+	URLs := cliCtx.Args().Slice()
 
-	if versionID != "" && len(args) > 1 {
-		fatalIf(errInvalidArgument().Trace(args...), "You cannot specify --version-id with multiple arguments.")
+	if versionID != "" && args.Len() > 1 {
+		fatalIf(errInvalidArgument().Trace(args.Slice()...), "You cannot specify --version-id with multiple arguments.")
 	}
 
 	if versionID != "" && (recursive || withVersions || !rewind.IsZero()) {
-		fatalIf(errInvalidArgument().Trace(args...), "You cannot specify --version-id with either --rewind, --versions or --recursive.")
+		fatalIf(errInvalidArgument().Trace(args.Slice()...), "You cannot specify --version-id with either --rewind, --versions or --recursive.")
 	}
 
 	if (recursive || withVersions) && headOnly {
-		fatalIf(errInvalidArgument().Trace(args...), "You cannot specify --no-list with either --versions or --recursive.")
+		fatalIf(errInvalidArgument().Trace(args.Slice()...), "You cannot specify --no-list with either --versions or --recursive.")
 	}
 
 	var targetUrls []string
@@ -143,7 +146,7 @@ func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string
 			continue
 		}
 		clnt, err := newClient(url)
-		fatalIf(err.Trace(args...), "Unable to initialize `"+url+"`.")
+		fatalIf(err.Trace(args.Slice()...), "Unable to initialize `"+url+"`.")
 		buckets, e := clnt.ListBuckets(ctx)
 		if e != nil || len(buckets) == 0 {
 			targetUrls = append(targetUrls, url)

@@ -25,38 +25,41 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // ls specific flags.
 var (
 	lsFlags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "rewind",
 			Usage: "list all object versions no later than specified date",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "list all versions",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "list recursively",
 		},
-		cli.BoolFlag{
-			Name:  "incomplete, I",
+		&cli.BoolFlag{
+			Name: "incomplete",
+			Aliases: []string{"I"},
 			Usage: "list incomplete uploads",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "summarize",
 			Usage: "display summary information (number of objects, total size)",
 		},
-		cli.StringFlag{
-			Name:  "storage-class, sc",
+		&cli.StringFlag{
+			Name: "storage-class",
+			Aliases: []string{"sc"},
 			Usage: "filter to specified storage class",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "zip",
 			Usage: "list files inside zip archive (MinIO servers only)",
 		},
@@ -64,7 +67,7 @@ var (
 )
 
 // list files and folders.
-var lsCmd = cli.Command{
+var lsCmd = &cli.Command{
 	Name:         "ls",
 	Usage:        "list buckets and objects",
 	Action:       mainList,
@@ -159,13 +162,15 @@ func parseRewindFlag(rewind string) (timeRef time.Time) {
 
 // checkListSyntax - validate all the passed arguments
 func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
-	args := cliCtx.Args()
+	var urlArgs []string
 	if !cliCtx.Args().Present() {
-		args = []string{"."}
+		urlArgs = []string{"."}
+	} else {
+		urlArgs = cliCtx.Args().Slice()
 	}
-	for _, arg := range args {
+	for _, arg := range urlArgs {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			fatalIf(errInvalidArgument().Trace(urlArgs...), "Unable to validate empty argument.")
 		}
 	}
 
@@ -178,7 +183,7 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 	timeRef := parseRewindFlag(cliCtx.String("rewind"))
 
 	if listZip && (withVersions || !timeRef.IsZero()) {
-		fatalIf(errInvalidArgument().Trace(args...), "Zip file listing can only be performed on the latest version")
+		fatalIf(errInvalidArgument().Trace(urlArgs...), "Zip file listing can only be performed on the latest version")
 	}
 	storageClasss := cliCtx.String("storage-class")
 	opts := doListOptions{
@@ -190,7 +195,7 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 		listZip:      listZip,
 		filter:       storageClasss,
 	}
-	return args, opts
+	return urlArgs, opts
 }
 
 // mainList - is a handler for mc ls command

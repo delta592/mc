@@ -12,14 +12,14 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
-var batchStatusCmd = cli.Command{
+var batchStatusCmd = &cli.Command{
 	Name:            "status",
 	Usage:           "summarize job events on MinIO server in real-time",
 	Action:          mainBatchStatus,
@@ -62,7 +62,7 @@ func (c batchJobStatusMessage) String() string {
 
 // checkBatchStatusSyntax - validate all the passed arguments
 func checkBatchStatusSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -150,7 +150,7 @@ func mainBatchStatus(ctx *cli.Context) error {
 				}
 			})
 			if e != nil && !errors.Is(e, context.Canceled) {
-				fatalIf(probe.NewError(e).Trace(ctx.Args()...), "Unable to get current batch status")
+				fatalIf(probe.NewError(e).Trace(ctx.Args().Slice()...), "Unable to get current batch status")
 			}
 		}()
 	}

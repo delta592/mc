@@ -29,13 +29,13 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zip"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminClusterBucketImportCmd = cli.Command{
+var adminClusterBucketImportCmd = &cli.Command{
 	Name:            "import",
 	Usage:           "restore bucket metadata from a zip file",
 	Action:          mainClusterBucketImport,
@@ -59,7 +59,7 @@ EXAMPLES:
 }
 
 func checkBucketImportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -83,7 +83,7 @@ func mainClusterBucketImport(ctx *cli.Context) error {
 	var sz int64
 	f, e := os.Open(args.Get(1))
 	if e != nil {
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to get bucket metadata")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get bucket metadata")
 	}
 	if st, e := f.Stat(); e == nil {
 		sz = st.Size()
@@ -92,10 +92,10 @@ func mainClusterBucketImport(ctx *cli.Context) error {
 	r = f
 
 	_, e = zip.NewReader(r.(io.ReaderAt), sz)
-	fatalIf(probe.NewError(e).Trace(args...), fmt.Sprintf("Unable to read zip file %s", args.Get(1)))
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), fmt.Sprintf("Unable to read zip file %s", args.Get(1)))
 
 	f, e = os.Open(args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get bucket metadata")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get bucket metadata")
 	defer f.Close()
 
 	// Create a new MinIO Admin Client

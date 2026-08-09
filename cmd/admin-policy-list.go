@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminPolicyListCmd = cli.Command{
+var adminPolicyListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list all IAM policies",
 	Action:       mainAdminPolicyList,
 	OnUsageError: onUsageError,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminPolicyListSyntax - validate all the passed arguments
 func checkAdminPolicyListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -69,7 +69,7 @@ func mainAdminPolicyList(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	policies, e := client.ListCannedPolicies(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to list policy")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to list policy")
 
 	for k := range policies {
 		printMsg(userPolicyMessage{

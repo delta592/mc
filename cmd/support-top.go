@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var supportTopSubcommands = []cli.Command{
+var supportTopSubcommands = []*cli.Command{
 	supportTopAPICmd,
 	supportTopDriveCmd,
 	supportTopLocksCmd,
@@ -27,7 +27,7 @@ var supportTopSubcommands = []cli.Command{
 	supportTopRPCCmd,
 }
 
-var supportTopCmd = cli.Command{
+var supportTopCmd = &cli.Command{
 	Name:            "top",
 	Usage:           "provide top like statistics for MinIO",
 	Action:          mainSupportTop,

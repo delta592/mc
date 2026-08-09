@@ -35,36 +35,38 @@ import (
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/compat"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var replicateBacklogFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "arn",
 		Usage: "unique role ARN",
 	},
-	cli.BoolFlag{
-		Name:  "verbose,v",
+	&cli.BoolFlag{
+		Name: "verbose",
+		Aliases: []string{"v"},
 		Usage: "include replicated versions",
 	},
-	cli.StringFlag{
-		Name:  "nodes,n",
+	&cli.StringFlag{
+		Name: "nodes",
+		Aliases: []string{"n"},
 		Usage: "show most recent failures for one or more nodes. Valid values are 'all', or node name",
 		Value: "all",
 	},
-	cli.BoolFlag{
-		Name:  "full,a",
+	&cli.BoolFlag{
+		Name: "full",
+		Aliases: []string{"a"},
 		Usage: "list and show all replication failures for bucket",
 	},
 }
 
-var replicateBacklogCmd = cli.Command{
+var replicateBacklogCmd = &cli.Command{
 	Name:          "backlog",
 	Aliases:       []string{"diff"},
-	HiddenAliases: true,
 	Usage:         "show unreplicated object versions",
 	Action:        mainReplicateBacklog,
 	OnUsageError:  onUsageError,
@@ -91,7 +93,7 @@ EXAMPLES:
 
 // checkReplicateBacklogSyntax - validate all the passed arguments
 func checkReplicateBacklogSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

@@ -26,25 +26,25 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var rbFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force a recursive remove operation on all object versions",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "dangerous",
 		Usage: "allow site-wide removal of objects",
 	},
 }
 
 // remove a bucket.
-var rbCmd = cli.Command{
+var rbCmd = &cli.Command{
 	Name:         "rb",
 	Usage:        "remove a bucket",
 	Action:       mainRemoveBucket,
@@ -104,7 +104,7 @@ func checkRbSyntax(cliCtx *cli.Context) {
 	isForce := cliCtx.Bool("force")
 	isDangerous := cliCtx.Bool("dangerous")
 
-	for _, url := range cliCtx.Args() {
+	for _, url := range cliCtx.Args().Slice() {
 		if isS3NamespaceRemoval(url) {
 			if isForce && isDangerous {
 				continue
@@ -246,7 +246,7 @@ func mainRemoveBucket(cliCtx *cli.Context) error {
 	console.SetColor("RemoveBucket", color.New(color.FgGreen, color.Bold))
 
 	var cErr error
-	for _, targetURL := range cliCtx.Args() {
+	for _, targetURL := range cliCtx.Args().Slice() {
 		// Instantiate client for URL.
 		clnt, err := newClient(targetURL)
 		if err != nil {

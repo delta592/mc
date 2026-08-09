@@ -27,7 +27,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -62,23 +62,25 @@ func (t treeMessage) JSON() string {
 }
 
 var treeFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "files, f",
+	&cli.BoolFlag{
+		Name: "files",
+		Aliases: []string{"f"},
 		Usage: "includes files in tree",
 	},
-	cli.IntFlag{
-		Name:  "depth, d",
+	&cli.IntFlag{
+		Name: "depth",
+		Aliases: []string{"d"},
 		Usage: "sets the depth threshold",
 		Value: -1,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "display tree no later than specified date",
 	},
 }
 
 // trees files and folders.
-var treeCmd = cli.Command{
+var treeCmd = &cli.Command{
 	Name:         "tree",
 	Usage:        "list buckets and objects in a tree format",
 	Action:       mainTree,
@@ -114,7 +116,7 @@ EXAMPLES:
 
 // parseTreeSyntax - validate all the passed arguments
 func parseTreeSyntax(ctx context.Context, cliCtx *cli.Context) (args []string, depth int, files bool, timeRef time.Time) {
-	args = cliCtx.Args()
+	args = cliCtx.Args().Slice()
 	depth = cliCtx.Int("depth")
 	files = cliCtx.Bool("files")
 

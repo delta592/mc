@@ -20,11 +20,11 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminGroupInfoCmd = cli.Command{
+var adminGroupInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display group info",
 	Action:       mainAdminGroupInfo,
@@ -48,7 +48,7 @@ EXAMPLES:
 
 // checkAdminGroupInfoSyntax - validate all the passed arguments
 func checkAdminGroupInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -69,7 +69,7 @@ func mainAdminGroupInfo(ctx *cli.Context) error {
 
 	group := args.Get(1)
 	gd, e := client.GetGroupDescription(globalContext, group)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch group info")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch group info")
 
 	printMsg(groupMessage{
 		op:          ctx.Command.Name,

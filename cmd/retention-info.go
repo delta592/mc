@@ -25,36 +25,38 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var retentionInfoFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "show retention info recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "show retention info of specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "roll back object(s) to current version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "show retention info on object(s) and all its versions",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "default",
 		Usage: "show bucket default retention mode",
 	},
 }
 
-var retentionInfoCmd = cli.Command{
+var retentionInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show retention settings on object(s)",
 	Action:       mainRetentionInfo,
@@ -92,11 +94,11 @@ EXAMPLES:
 func parseInfoRetentionArgs(cliCtx *cli.Context) (target, versionID string, recursive bool, timeRef time.Time, withVersions, defaultMode bool) {
 	args := cliCtx.Args()
 
-	if len(args) != 1 {
+	if args.Len() != 1 {
 		showCommandHelpAndExit(cliCtx, 1)
 	}
 
-	target = args[0]
+	target = args.Get(0)
 	if target == "" {
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}

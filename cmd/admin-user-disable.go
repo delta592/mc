@@ -20,12 +20,12 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserDisableCmd = cli.Command{
+var adminUserDisableCmd = &cli.Command{
 	Name:         "disable",
 	Usage:        "disable user",
 	Action:       mainAdminUserDisable,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminUserDisableSyntax - validate all the passed arguments
 func checkAdminUserDisableSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -69,7 +69,7 @@ func mainAdminUserDisable(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	e := client.SetUserStatus(globalContext, args.Get(1), madmin.AccountDisabled)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to disable user")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to disable user")
 
 	printMsg(userMessage{
 		op:        ctx.Command.Name,

@@ -22,12 +22,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminDecommissionStartCmd = cli.Command{
+var adminDecommissionStartCmd = &cli.Command{
 	Name:         "start",
 	Usage:        "start decommissioning a pool",
 	Action:       mainAdminDecommissionStart,
@@ -51,7 +51,7 @@ EXAMPLES:
 
 // checkAdminDecommissionStartSyntax - validate all the passed arguments
 func checkAdminDecommissionStartSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -92,7 +92,7 @@ func mainAdminDecommissionStart(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	e := client.DecommissionPool(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to start decommission on the specified pool")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to start decommission on the specified pool")
 
 	printMsg(startDecomMessage{
 		Status: "success",

@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserInfoCmd = cli.Command{
+var adminUserInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display info of a user",
 	Action:       mainAdminUserInfo,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkAdminUserAddSyntax - validate all the passed arguments
 func checkAdminUserInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -72,12 +72,12 @@ func mainAdminUserInfo(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	user, e := client.GetUserInfo(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get user info")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get user info")
 
 	memberOf := []userGroup{}
 	for _, group := range user.MemberOf {
 		gd, e := client.GetGroupDescription(globalContext, group)
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch group info")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch group info")
 		policies := []string{}
 		if gd.Policy != "" {
 			policies = strings.Split(gd.Policy, ",")

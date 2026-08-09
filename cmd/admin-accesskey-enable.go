@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminAccesskeyEnableCmd = cli.Command{
+var adminAccesskeyEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable an access key",
 	Action:       mainAdminAccesskeyEnable,

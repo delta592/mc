@@ -25,24 +25,26 @@ import (
 
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 )
 
 var idpLdapPolicyAttachFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "user, u",
+	&cli.StringFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "attach policy to user by DN or by login name",
 	},
-	cli.StringFlag{
-		Name:  "group, g",
+	&cli.StringFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "attach policy to LDAP Group DN",
 	},
 }
 
-var idpLdapPolicyAttachCmd = cli.Command{
+var idpLdapPolicyAttachCmd = &cli.Command{
 	Name:         "attach",
 	Usage:        "attach a policy to an entity",
 	Action:       mainIDPLdapPolicyAttach,
@@ -81,7 +83,7 @@ EXAMPLES:
 
 func mainIDPLdapPolicyAttach(ctx *cli.Context) error {
 	// We need exactly one alias, and at least one policy.
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 	user := ctx.String("user")
@@ -90,7 +92,7 @@ func mainIDPLdapPolicyAttach(ctx *cli.Context) error {
 	args := ctx.Args()
 	aliasedURL := args.Get(0)
 
-	policies := args[1:]
+	policies := args.Tail()
 	req := madmin.PolicyAssociationReq{
 		Policies: policies,
 		User:     user,
@@ -158,17 +160,19 @@ func (m policyAssociationMessage) JSON() string {
 }
 
 var idpLdapPolicyDetachFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "user, u",
+	&cli.StringFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "attach policy to user by DN or by login name",
 	},
-	cli.StringFlag{
-		Name:  "group, g",
+	&cli.StringFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "attach policy to LDAP Group DN",
 	},
 }
 
-var idpLdapPolicyDetachCmd = cli.Command{
+var idpLdapPolicyDetachCmd = &cli.Command{
 	Name:         "detach",
 	Usage:        "detach a policy from an entity",
 	Action:       mainIDPLdapPolicyDetach,
@@ -207,7 +211,7 @@ EXAMPLES:
 
 func mainIDPLdapPolicyDetach(ctx *cli.Context) error {
 	// We need exactly one alias, and at least one policy.
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -222,7 +226,7 @@ func mainIDPLdapPolicyDetach(ctx *cli.Context) error {
 	args := ctx.Args()
 	aliasedURL := args.Get(0)
 
-	policies := args[1:]
+	policies := args.Tail()
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
@@ -248,21 +252,24 @@ func mainIDPLdapPolicyDetach(ctx *cli.Context) error {
 }
 
 var idpLdapPolicyEntitiesFlags = []cli.Flag{
-	cli.StringSliceFlag{
-		Name:  "user, u",
+	&cli.StringSliceFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "list policies associated with user(s)",
 	},
-	cli.StringSliceFlag{
-		Name:  "group, g",
+	&cli.StringSliceFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "list policies associated with group(s)",
 	},
-	cli.StringSliceFlag{
-		Name:  "policy, p",
+	&cli.StringSliceFlag{
+		Name: "policy",
+		Aliases: []string{"p"},
 		Usage: "list users or groups associated with policy",
 	},
 }
 
-var idpLdapPolicyEntitiesCmd = cli.Command{
+var idpLdapPolicyEntitiesCmd = &cli.Command{
 	Name:         "entities",
 	Usage:        "list policy association entities",
 	Action:       mainIDPLdapPolicyEntities,
@@ -300,7 +307,7 @@ EXAMPLES:
 }
 
 func mainIDPLdapPolicyEntities(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

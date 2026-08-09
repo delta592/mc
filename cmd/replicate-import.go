@@ -23,13 +23,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
 
-var replicateImportCmd = cli.Command{
+var replicateImportCmd = &cli.Command{
 	Name:         "import",
 	Usage:        "import server side replication configuration in JSON format",
 	Action:       mainReplicateImport,
@@ -56,7 +56,7 @@ EXAMPLES:
 
 // checkReplicateImportSyntax - validate all the passed arguments
 func checkReplicateImportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -107,7 +107,7 @@ func mainReplicateImport(cliCtx *cli.Context) error {
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	rCfg, err := readReplicationConfig()
-	fatalIf(err.Trace(args...), "Unable to read replication configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to read replication configuration")
 
 	fatalIf(client.SetReplication(ctx, rCfg, replication.Options{Op: replication.ImportOption}).Trace(aliasedURL), "Unable to set replication configuration")
 	printMsg(replicateImportMessage{

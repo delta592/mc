@@ -19,7 +19,7 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
@@ -38,7 +38,7 @@ func (s supportProxyRemoveMessage) JSON() string {
 	return toJSON(s)
 }
 
-var supportProxyRemoveCmd = cli.Command{
+var supportProxyRemoveCmd = &cli.Command{
 	Name:            "remove",
 	Usage:           "Remove proxy configuration",
 	Action:          mainSupportProxyRemove,
@@ -62,7 +62,7 @@ EXAMPLES:
 }
 
 func checkSupportProxyRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

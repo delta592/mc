@@ -23,37 +23,37 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
 
 var adminAccesskeyListFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "users-only",
 		Usage: "only list user DNs",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "temp-only",
 		Usage: "only list temporary access keys",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "svcacc-only",
 		Usage: "only list service account access keys",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "self",
 		Usage: "list access keys for the authenticated user",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "list all access keys for all builtin users",
 	},
 }
 
-var adminAccesskeyListCmd = cli.Command{
+var adminAccesskeyListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list access key pairs for builtin users",
 	Action:       mainAdminAccesskeyList,
 	Before:       setGlobalsFromContext,

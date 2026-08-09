@@ -26,77 +26,77 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // List of all flags supported by find command.
 var (
 	findFlags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "exec",
 			Usage: "spawn an external process for each matching object (see FORMAT)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "ignore",
 			Usage: "exclude objects matching the wildcard pattern",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "include all objects versions",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "name",
 			Usage: "find object names matching wildcard pattern",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "newer-than",
 			Usage: "match all objects newer than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "older-than",
 			Usage: "match all objects older than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "path",
 			Usage: "match directory names matching wildcard pattern",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "print",
 			Usage: "print in custom format to STDOUT (see FORMAT)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "regex",
 			Usage: "match directory and object name with RE2 regex pattern",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "larger",
 			Usage: "match all objects larger than specified size in units (see UNITS)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "smaller",
 			Usage: "match all objects smaller than specified size in units (see UNITS)",
 		},
-		cli.UintFlag{
+		&cli.UintFlag{
 			Name:  "maxdepth",
 			Usage: "limit directory navigation to specified depth",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "watch",
 			Usage: "monitor a specified path for newly created object(s)",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "metadata",
 			Usage: "match metadata with RE2 regex pattern. Specify each with key=regex. MinIO server only.",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "tags",
 			Usage: "match tags with RE2 regex pattern. Specify each with key=regex. MinIO server only.",
 		},
 	}
 )
 
-var findCmd = cli.Command{
+var findCmd = &cli.Command{
 	Name:         "find",
 	Usage:        "search for objects",
 	Action:       mainFind,
@@ -176,21 +176,22 @@ EXAMPLES:
 
 // checkFindSyntax - validate the passed arguments
 func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
-	args := cliCtx.Args()
-	if !args.Present() {
-		args = []string{"./"} // No args just default to present directory.
-	} else if args.Get(0) == "." {
-		args[0] = "./" // If the arg is '.' treat it as './'.
+	cliArgs := cliCtx.Args()
+	urlArgs := cliArgs.Slice()
+	if !cliArgs.Present() {
+		urlArgs = []string{"./"} // No args just default to present directory.
+	} else if cliArgs.Get(0) == "." {
+		urlArgs[0] = "./" // If the arg is '.' treat it as './'.
 	}
 
-	for _, arg := range args {
+	for _, arg := range urlArgs {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			fatalIf(errInvalidArgument().Trace(urlArgs...), "Unable to validate empty argument.")
 		}
 	}
 
 	// Extract input URLs and validate.
-	for _, url := range args {
+	for _, url := range urlArgs {
 		_, _, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false})
 		if err != nil {
 			// Bucket name empty is a valid error for 'find myminio' unless we are using watch, treat it as such.
@@ -245,15 +246,16 @@ func mainFind(cliCtx *cli.Context) error {
 
 	checkFindSyntax(ctx, cliCtx, encKeyDB)
 
-	args := cliCtx.Args()
-	if !args.Present() {
-		args = []string{"./"} // Not args present default to present directory.
-	} else if args.Get(0) == "." {
-		args[0] = "./" // If the arg is '.' treat it as './'.
+	cliArgs := cliCtx.Args()
+	urlArgs := cliArgs.Slice()
+	if !cliArgs.Present() {
+		urlArgs = []string{"./"} // Not args present default to present directory.
+	} else if cliArgs.Get(0) == "." {
+		urlArgs[0] = "./" // If the arg is '.' treat it as './'.
 	}
 
-	clnt, err := newClient(args[0])
-	fatalIf(err.Trace(args...), "Unable to initialize `"+args[0]+"`.")
+	clnt, err := newClient(urlArgs[0])
+	fatalIf(err.Trace(urlArgs...), "Unable to initialize `"+urlArgs[0]+"`.")
 
 	var olderThan, newerThan string
 
@@ -282,8 +284,8 @@ func mainFind(cliCtx *cli.Context) error {
 	// Get --versions flag
 	withVersions := cliCtx.Bool("versions")
 
-	targetAlias, _, hostCfg, err := expandAlias(args[0])
-	fatalIf(err.Trace(args[0]), "Unable to expand alias.")
+	targetAlias, _, hostCfg, err := expandAlias(urlArgs[0])
+	fatalIf(err.Trace(urlArgs[0]), "Unable to expand alias.")
 
 	var targetFullURL string
 	if hostCfg != nil {
@@ -310,7 +312,7 @@ func mainFind(cliCtx *cli.Context) error {
 		smallerSize:   smallerSize,
 		watch:         cliCtx.Bool("watch"),
 		targetAlias:   targetAlias,
-		targetURL:     args[0],
+		targetURL:     urlArgs[0],
 		targetFullURL: targetFullURL,
 		clnt:          clnt,
 		matchMeta:     getRegexMap(cliCtx, "metadata"),

@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var replicateResyncSubcommands = []cli.Command{
+var replicateResyncSubcommands = []*cli.Command{
 	replicateResyncStartCmd,
 	replicateResyncStatusCmd,
 }
 
-var replicateResyncCmd = cli.Command{
+var replicateResyncCmd = &cli.Command{
 	Name:            "resync",
 	Usage:           "re-replicate all previously replicated objects",
 	HideHelpCommand: true,
@@ -33,7 +33,6 @@ var replicateResyncCmd = cli.Command{
 	Flags:           globalFlags,
 	Subcommands:     replicateResyncSubcommands,
 	Aliases:         []string{"reset"},
-	HiddenAliases:   true,
 }
 
 // mainReplicateResync is the handle for "mc replicate resync" command.

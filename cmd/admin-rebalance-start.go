@@ -22,12 +22,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminRebalanceStartCmd = cli.Command{
+var adminRebalanceStartCmd = &cli.Command{
 	Name:         "start",
 	Usage:        "start rebalance operation",
 	Action:       mainAdminRebalanceStart,
@@ -67,7 +67,7 @@ func (r rebalanceStartMsg) String() string {
 }
 
 func mainAdminRebalanceStart(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

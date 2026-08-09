@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var idpSubcommands = []cli.Command{
+var idpSubcommands = []*cli.Command{
 	idpOpenidCmd,
 	idpLdapCmd,
 }
 
-var idpCmd = cli.Command{
+var idpCmd = &cli.Command{
 	Name:            "idp",
 	Usage:           "manage MinIO IDentity Provider server configuration",
 	Action:          mainIDP,

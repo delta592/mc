@@ -23,7 +23,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 
 	json "github.com/minio/colorjson"
@@ -36,12 +36,12 @@ const (
 )
 
 var prometheusFlags = append(metricsFlags,
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "public",
 		Usage: "disable bearer token generation for scrape_configs",
 	})
 
-var adminPrometheusGenerateCmd = cli.Command{
+var adminPrometheusGenerateCmd = &cli.Command{
 	Name:            "generate",
 	Usage:           "generates prometheus config",
 	Action:          mainAdminPrometheusGenerate,
@@ -176,7 +176,7 @@ const (
 
 // checkAdminPrometheusSyntax - validate all the passed arguments
 func checkAdminPrometheusSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

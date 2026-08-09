@@ -22,54 +22,54 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminTierEditFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "access-key",
 		Value: "",
 		Usage: "AWS S3 or compatible object storage access-key",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Value: "",
 		Usage: "AWS S3 or compatible object storage secret-key",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "use-aws-role",
 		Usage: "use AWS S3 role",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "account-key",
 		Value: "",
 		Usage: "Azure Blob Storage account key",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-tenant-id",
 		Value: "",
 		Usage: "Directory ID for the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-client-id",
 		Value: "",
 		Usage: "The client ID of the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "az-sp-client-secret",
 		Value: "",
 		Usage: "The client secret of the Azure service principal account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "credentials-file",
 		Value: "",
 		Usage: "path to Google Cloud Storage credentials file",
 	},
 }
 
-var adminTierEditCmd = cli.Command{
+var adminTierEditCmd = &cli.Command{
 	Name:         "edit",
 	Usage:        "update an existing remote tier configuration",
 	Action:       mainAdminTierEdit,
@@ -103,7 +103,7 @@ EXAMPLES:
 
 // checkAdminTierEditSyntax - validate all the postitional arguments
 func checkAdminTierEditSyntax(ctx *cli.Context) {
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr < 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -162,7 +162,7 @@ func mainAdminTierEdit(ctx *cli.Context) error {
 	}
 
 	e := client.EditTier(globalContext, tierName, creds)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to edit remote tier")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to edit remote tier")
 
 	printMsg(&tierMessage{
 		op:       ctx.Command.Name,

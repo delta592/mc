@@ -24,7 +24,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
@@ -34,18 +34,18 @@ const (
 )
 
 var readyFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "cluster-read",
 		Usage: "check if the cluster has enough read quorum",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "maintenance",
 		Usage: "check if the cluster is taken down for maintenance",
 	},
 }
 
 // Checks if the cluster is ready or not
-var readyCmd = cli.Command{
+var readyCmd = &cli.Command{
 	Name:         "ready",
 	Usage:        "checks if the cluster is ready or not",
 	Action:       mainReady,

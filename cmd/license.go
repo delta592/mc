@@ -18,17 +18,17 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var licenseSubcommands = []cli.Command{
+var licenseSubcommands = []*cli.Command{
 	licenseRegisterCmd,
 	licenseInfoCmd,
 	licenseUpdateCmd,
 	licenseUnregisterCmd,
 }
 
-var licenseCmd = cli.Command{
+var licenseCmd = &cli.Command{
 	Name:            "license",
 	Usage:           "license related commands",
 	Action:          mainlicense,

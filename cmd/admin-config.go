@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminConfigSubcommands = []cli.Command{
+var adminConfigSubcommands = []*cli.Command{
 	adminConfigGetCmd,
 	adminConfigSetCmd,
 	adminConfigResetCmd,
@@ -29,7 +29,7 @@ var adminConfigSubcommands = []cli.Command{
 	adminConfigImportCmd,
 }
 
-var adminConfigCmd = cli.Command{
+var adminConfigCmd = &cli.Command{
 	Name:            "config",
 	Usage:           "manage MinIO server configuration",
 	Action:          mainAdminConfig,

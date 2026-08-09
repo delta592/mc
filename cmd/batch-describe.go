@@ -22,10 +22,10 @@ import (
 	"fmt"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var batchDescribeCmd = cli.Command{
+var batchDescribeCmd = &cli.Command{
 	Name:         "describe",
 	Usage:        "describe job definition for a job",
 	Action:       mainBatchDescribe,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkBatchDescribeSyntax - validate all the passed arguments
 func checkBatchDescribeSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

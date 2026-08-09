@@ -22,19 +22,20 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var policyInfoFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "policy-file, f",
+	&cli.StringFlag{
+		Name: "policy-file",
+		Aliases: []string{"f"},
 		Usage: "additionally (over-)write policy JSON to given file",
 	},
 }
 
-var adminPolicyInfoCmd = cli.Command{
+var adminPolicyInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show info on an IAM policy",
 	Action:       mainAdminPolicyInfo,
@@ -64,7 +65,7 @@ EXAMPLES:
 
 // checkAdminPolicyInfoSyntax - validate all the passed arguments
 func checkAdminPolicyInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -90,15 +91,15 @@ func mainAdminPolicyInfo(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection")
 
 	pinfo, e := getPolicyInfo(client, policyName)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch policy")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch policy")
 
 	policyFile := ctx.String("policy-file")
 	if policyFile != "" {
 		f, e := os.Create(policyFile)
-		fatalIf(probe.NewError(e).Trace(args...), "Could not open given policy file")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Could not open given policy file")
 
 		_, e = f.Write(pinfo.Policy)
-		fatalIf(probe.NewError(e).Trace(args...), "Could not write to given policy file")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Could not write to given policy file")
 	}
 
 	printMsg(userPolicyMessage{

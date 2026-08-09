@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var batchSubcommands = []cli.Command{
+var batchSubcommands = []*cli.Command{
 	batchGenerateCmd,
 	batchStartCmd,
 	batchListCmd,
@@ -29,7 +29,7 @@ var batchSubcommands = []cli.Command{
 	batchCancelCmd,
 }
 
-var batchCmd = cli.Command{
+var batchCmd = &cli.Command{
 	Name:            "batch",
 	Usage:           "manage batch jobs",
 	Action:          mainBatch,

@@ -20,11 +20,11 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var quotaInfoCmd = cli.Command{
+var quotaInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show bucket quota",
 	Action:       mainQuotaInfo,
@@ -48,7 +48,7 @@ EXAMPLES:
 
 // checkQuotaInfoSyntax - validate all the passed arguments
 func checkQuotaInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -68,9 +68,9 @@ func mainQuotaInfo(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	_, targetURL := url2Alias(args[0])
+	_, targetURL := url2Alias(args.Get(0))
 	qCfg, e := client.GetBucketQuota(globalContext, targetURL)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get bucket quota")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get bucket quota")
 	sz := qCfg.Size
 	printMsg(quotaMessage{
 		op:        ctx.Command.Name,

@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var corsSubcommands = []cli.Command{
+var corsSubcommands = []*cli.Command{
 	corsSetCmd,
 	corsGetCmd,
 	corsRemoveCmd,
 }
 
-var corsCmd = cli.Command{
+var corsCmd = &cli.Command{
 	Name:        "cors",
 	Usage:       "manage bucket CORS configuration",
 	Action:      mainCors,

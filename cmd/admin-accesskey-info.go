@@ -24,12 +24,12 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
 
-var adminAccesskeyInfoCmd = cli.Command{
+var adminAccesskeyInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "info about given access key pairs",
 	Action:       mainAdminAccesskeyInfo,
@@ -143,7 +143,7 @@ func mainAdminAccesskeyInfo(ctx *cli.Context) error {
 }
 
 func commonAccesskeyInfo(ctx *cli.Context) error {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

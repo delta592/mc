@@ -21,12 +21,12 @@ import (
 	"fmt"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
 
-var batchGenerateCmd = cli.Command{
+var batchGenerateCmd = &cli.Command{
 	Name:         "generate",
 	Usage:        "generate a new batch job definition",
 	Action:       mainBatchGenerate,
@@ -58,7 +58,7 @@ EXAMPLES:
 
 // checkBatchGenerateSyntax - validate all the passed arguments
 func checkBatchGenerateSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

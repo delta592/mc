@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminUserSubcommands = []cli.Command{
+var adminUserSubcommands = []*cli.Command{
 	adminUserAddCmd,
 	adminUserDisableCmd,
 	adminUserEnableCmd,
@@ -31,7 +31,7 @@ var adminUserSubcommands = []cli.Command{
 	adminUserSTSAcctCmd,
 }
 
-var adminUserCmd = cli.Command{
+var adminUserCmd = &cli.Command{
 	Name:            "user",
 	Usage:           "manage users",
 	Action:          mainAdminUser,

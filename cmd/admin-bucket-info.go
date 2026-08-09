@@ -18,12 +18,12 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var adminBucketInfoFlags = []cli.Flag{}
 
-var adminBucketInfoCmd = cli.Command{
+var adminBucketInfoCmd = &cli.Command{
 	Name:            "info",
 	Usage:           "display bucket information",
 	Action:          mainAdminBucketInfo,

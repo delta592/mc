@@ -24,24 +24,26 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var historyListFlags = []cli.Flag{
-	cli.IntFlag{
-		Name:  "count, n",
+	&cli.IntFlag{
+		Name: "count",
+		Aliases: []string{"n"},
 		Usage: "list only last 'n' entries",
 		Value: 10,
 	},
-	cli.BoolFlag{
-		Name:  "clear, c",
+	&cli.BoolFlag{
+		Name: "clear",
+		Aliases: []string{"c"},
 		Usage: "clear all history",
 	},
 }
 
-var adminConfigHistoryCmd = cli.Command{
+var adminConfigHistoryCmd = &cli.Command{
 	Name:         "history",
 	Usage:        "show all historic configuration changes",
 	Before:       setGlobalsFromContext,
@@ -108,7 +110,7 @@ func (u configHistoryMessage) JSON() string {
 
 // checkAdminConfigHistorySyntax - validate all the passed arguments
 func checkAdminConfigHistorySyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || len(ctx.Args()) > 1 {
+	if !ctx.Args().Present() || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

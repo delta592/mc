@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminKMSKeySubcommands = []cli.Command{
+var adminKMSKeySubcommands = []*cli.Command{
 	adminKMSCreateKeyCmd,
 	adminKMSKeyStatusCmd,
 	adminKMSKeyListCmd,
 }
 
-var adminKMSKeyCmd = cli.Command{
+var adminKMSKeyCmd = &cli.Command{
 	Name:            "key",
 	Usage:           "manage KMS master keys: Request key status information",
 	Action:          mainAdminKMSKey,

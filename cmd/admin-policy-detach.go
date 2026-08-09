@@ -18,21 +18,23 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var adminDetachPolicyFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "user, u",
+	&cli.StringFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "detach policy from user",
 	},
-	cli.StringFlag{
-		Name:  "group, g",
+	&cli.StringFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "detach policy from group",
 	},
 }
 
-var adminPolicyDetachCmd = cli.Command{
+var adminPolicyDetachCmd = &cli.Command{
 	Name:         "detach",
 	Usage:        "detach an IAM policy from a user or group",
 	Action:       mainAdminPolicyDetach,

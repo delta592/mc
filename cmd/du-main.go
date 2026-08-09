@@ -28,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -36,19 +36,21 @@ import (
 // du specific flags.
 var (
 	duFlags = []cli.Flag{
-		cli.IntFlag{
-			Name:  "depth, d",
+		&cli.IntFlag{
+			Name: "depth",
+			Aliases: []string{"d"},
 			Usage: "print the total for a folder prefix only if it is N or fewer levels below the command line argument",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "recursively print the total for a folder prefix",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "rewind",
 			Usage: "include all object versions no later than specified date",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "include all object versions",
 		},
@@ -56,7 +58,7 @@ var (
 )
 
 // Summarize disk usage.
-var duCmd = cli.Command{
+var duCmd = &cli.Command{
 	Name:         "du",
 	Usage:        "summarize disk usage recursively",
 	Action:       mainDu,
@@ -238,7 +240,7 @@ func mainDu(cliCtx *cli.Context) error {
 
 	var duErr error
 	var isDir bool
-	for _, urlStr := range cliCtx.Args() {
+	for _, urlStr := range cliCtx.Args().Slice() {
 		isDir, _ = isAliasURLDir(ctx, urlStr, nil, time.Time{}, false)
 		if !isDir {
 			fatalIf(errInvalidArgument().Trace(urlStr), fmt.Sprintf("Source `%s` is not a folder. Only folders are supported by 'du' command.", urlStr))

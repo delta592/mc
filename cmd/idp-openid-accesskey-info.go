@@ -22,10 +22,10 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var idpOpenidAccesskeyInfoCmd = cli.Command{
+var idpOpenidAccesskeyInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "info about given access key pairs for OpenID",
 	Action:       mainIDPOpenIDAccesskeyInfo,

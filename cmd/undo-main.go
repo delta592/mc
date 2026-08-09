@@ -26,7 +26,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -37,30 +37,31 @@ const (
 )
 
 var undoFlags = []cli.Flag{
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "last",
 		Usage: "undo N last changes",
 		Value: 1,
 	},
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "undo last S3 PUT/DELETE operations recursively",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force recursive operation",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "dry-run",
 		Usage: "fake an undo operation",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "action",
 		Usage: "undo only if the latest version is of the following type [PUT/DELETE]",
 	},
 }
 
-var undoCmd = cli.Command{
+var undoCmd = &cli.Command{
 	Name:         "undo",
 	Usage:        "undo PUT/DELETE operations",
 	Action:       mainUndo,

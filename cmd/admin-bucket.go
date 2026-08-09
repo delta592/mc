@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminBucketSubcommands = []cli.Command{
+var adminBucketSubcommands = []*cli.Command{
 	adminBucketRemoteCmd,
 	adminBucketQuotaCmd,
 	adminBucketInfoCmd,
 }
 
-var adminBucketCmd = cli.Command{
+var adminBucketCmd = &cli.Command{
 	Name:            "bucket",
 	Usage:           "manage buckets defined in the MinIO server",
 	Action:          mainAdminBucket,

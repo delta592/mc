@@ -29,24 +29,25 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var serviceRestartFlag = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "dry-run",
 		Usage: "do not attempt a restart, however verify the peer status",
 	},
-	cli.BoolFlag{
-		Name:  "wait, w",
+	&cli.BoolFlag{
+		Name: "wait",
+		Aliases: []string{"w"},
 		Usage: "wait for background initializations to complete",
 	},
 }
 
-var adminServiceRestartCmd = cli.Command{
+var adminServiceRestartCmd = &cli.Command{
 	Name:         "restart",
 	Usage:        "restart a MinIO cluster",
 	Action:       mainAdminServiceRestart,
@@ -225,7 +226,7 @@ func (s serviceRestartMessage) JSON() string {
 
 // checkAdminServiceRestartSyntax - validate all the passed arguments
 func checkAdminServiceRestartSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

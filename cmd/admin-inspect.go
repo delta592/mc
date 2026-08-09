@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminInspectCmd = cli.Command{
+var adminInspectCmd = &cli.Command{
 	Name:               "inspect",
 	Usage:              "inspect files on MinIO server",
 	Action:             mainAdminInspect,

@@ -20,12 +20,12 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserSvcAcctEnableCmd = cli.Command{
+var adminUserSvcAcctEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable a service account",
 	Action:       mainAdminUserSvcAcctEnable,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctEnableSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctEnableSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -74,7 +74,7 @@ func mainAdminUserSvcAcctEnable(ctx *cli.Context) error {
 	}
 
 	e := client.UpdateServiceAccount(globalContext, svcAccount, opts)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to enable the specified service account")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to enable the specified service account")
 
 	printMsg(acctMessage{
 		op:        svcAccOpEnable,

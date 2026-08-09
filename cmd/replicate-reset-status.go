@@ -25,20 +25,20 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
 
 var replicateResyncStatusFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "remote-bucket",
 		Usage: "remote bucket ARN",
 	},
 }
 
-var replicateResyncStatusCmd = cli.Command{
+var replicateResyncStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "status of replication recovery",
 	Action:       mainreplicateResyncStatus,
@@ -65,7 +65,7 @@ EXAMPLES:
 
 // checkreplicateResyncStatusSyntax - validate all the passed arguments
 func checkreplicateResyncStatusSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -151,7 +151,7 @@ func mainreplicateResyncStatus(cliCtx *cli.Context) error {
 	fatalIf(err, "Unable to initialize connection.")
 
 	rinfo, err := client.ReplicationResyncStatus(ctx, cliCtx.String("remote-bucket"))
-	fatalIf(err.Trace(args...), "Unable to get replication resync status")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get replication resync status")
 	printMsg(replicateResyncStatusMessage{
 		Op:                cliCtx.Command.Name,
 		URL:               aliasedURL,

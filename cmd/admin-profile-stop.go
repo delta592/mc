@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminProfileStopCmd = cli.Command{
+var adminProfileStopCmd = &cli.Command{
 	Name:               "stop",
 	Usage:              "stop and download profile data",
 	Action:             mainAdminProfileStop,

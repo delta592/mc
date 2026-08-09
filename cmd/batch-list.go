@@ -23,22 +23,22 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/olekukonko/tablewriter/tw"
 )
 
 var batchListFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "type",
 		Usage: "list all current batch jobs via job type",
 	},
 }
 
-var batchListCmd = cli.Command{
+var batchListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list all current batch jobs",
 	Action:       mainBatchList,
 	OnUsageError: onUsageError,
@@ -168,7 +168,7 @@ func (c batchListMessage) JSON() string {
 
 // checkBatchListSyntax - validate all the passed arguments
 func checkBatchListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

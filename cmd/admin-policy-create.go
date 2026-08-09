@@ -23,13 +23,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminPolicyCreateCmd = cli.Command{
+var adminPolicyCreateCmd = &cli.Command{
 	Name:         "create",
 	Usage:        "create a new IAM policy",
 	Action:       mainAdminPolicyCreate,
@@ -59,7 +59,7 @@ EXAMPLES:
 
 // checkAdminPolicyCreateSyntax - validate all the passed arguments
 func checkAdminPolicyCreateSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 3 {
+	if ctx.Args().Len() != 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -127,13 +127,13 @@ func mainAdminPolicyCreate(ctx *cli.Context) error {
 	aliasedURL := args.Get(0)
 
 	policy, e := os.ReadFile(args.Get(2))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get policy")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get policy")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	fatalIf(probe.NewError(client.AddCannedPolicy(globalContext, args.Get(1), policy)).Trace(args...), "Unable to create new policy")
+	fatalIf(probe.NewError(client.AddCannedPolicy(globalContext, args.Get(1), policy)).Trace(args.Slice()...), "Unable to create new policy")
 
 	printMsg(userPolicyMessage{
 		op:     ctx.Command.Name,

@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var ilmTierUpdateCmd = cli.Command{
+var ilmTierUpdateCmd = &cli.Command{
 	Name:         "update",
 	Usage:        "update an existing remote tier configuration",
 	Action:       mainAdminTierEdit,

@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var ilmTierSubcommands = []cli.Command{
+var ilmTierSubcommands = []*cli.Command{
 	adminTierInfoCmd,
 	adminTierListCmd,
 	adminTierAddCmd,
@@ -30,7 +30,7 @@ var ilmTierSubcommands = []cli.Command{
 	adminTierRmCmd,
 }
 
-var ilmTierCmd = cli.Command{
+var ilmTierCmd = &cli.Command{
 	Name:            "tier",
 	Usage:           "manage remote tiers",
 	Action:          mainILMTier,

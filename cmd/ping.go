@@ -33,42 +33,47 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var pingFlags = []cli.Flag{
-	cli.IntFlag{
-		Name:  "count, c",
+	&cli.IntFlag{
+		Name: "count",
+		Aliases: []string{"c"},
 		Usage: "perform liveliness check for count number of times",
 	},
-	cli.IntFlag{
-		Name:  "error-count, e",
+	&cli.IntFlag{
+		Name: "error-count",
+		Aliases: []string{"e"},
 		Usage: "exit after N consecutive ping errors",
 	},
-	cli.BoolFlag{
-		Name:  "exit, x",
+	&cli.BoolFlag{
+		Name: "exit",
+		Aliases: []string{"x"},
 		Usage: "exit when server(s) responds and reports being online",
 	},
-	cli.IntFlag{
-		Name:  "interval, i",
+	&cli.IntFlag{
+		Name: "interval",
+		Aliases: []string{"i"},
 		Usage: "wait interval between each request in seconds",
 		Value: 1,
 	},
-	cli.BoolFlag{
-		Name:  "distributed, a",
+	&cli.BoolFlag{
+		Name: "distributed",
+		Aliases: []string{"a"},
 		Usage: "ping all the servers in the cluster, use it when you have direct access to nodes/pods",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "node",
 		Usage: "ping the specified node",
 	},
 }
 
 // return latency and liveness probe.
-var pingCmd = cli.Command{
+var pingCmd = &cli.Command{
 	Name:            "ping",
 	Usage:           "perform liveness check",
 	Action:          mainPing,
@@ -485,7 +490,7 @@ func mainPing(cliCtx *cli.Context) error {
 	if cliCtx.IsSet("count") {
 		count := cliCtx.Int("count")
 		if count < 1 {
-			fatalIf(errInvalidArgument().Trace(cliCtx.Args()...), "ping count cannot be less than 1")
+			fatalIf(errInvalidArgument().Trace(cliCtx.Args().Slice()...), "ping count cannot be less than 1")
 		}
 		for index <= count {
 			// return if consecutive error count more then specified value

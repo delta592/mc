@@ -19,17 +19,17 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var ilmSubcommands = []cli.Command{
+var ilmSubcommands = []*cli.Command{
 	ilmRuleCmd,
 	ilmTierCmd,
 	ilmRestoreCmd,
 }
 
-var ilmCmd = cli.Command{
+var ilmCmd = &cli.Command{
 	Name:            "ilm",
 	Usage:           "manage bucket lifecycle",
 	Action:          mainILM,

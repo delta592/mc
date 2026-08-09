@@ -18,17 +18,17 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var supportRegisterFlags = append([]cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "Specify the name to associate to this MinIO cluster in SUBNET",
 	},
 }, subnetCommonFlags...)
 
-var supportRegisterCmd = cli.Command{
+var supportRegisterCmd = &cli.Command{
 	Name:               "register",
 	Usage:              "register with MinIO subscription network",
 	OnUsageError:       onUsageError,

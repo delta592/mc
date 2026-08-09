@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminTopSubcommands = []cli.Command{
+var adminTopSubcommands = []*cli.Command{
 	adminTopAPICmd,
 	adminTopLocksCmd,
 }
 
-var adminTopCmd = cli.Command{
+var adminTopCmd = &cli.Command{
 	Name:            "top",
 	Usage:           "provide top like statistics for MinIO",
 	Action:          mainAdminTop,

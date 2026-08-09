@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var idpLdapAccesskeySubcommands = []cli.Command{
+var idpLdapAccesskeySubcommands = []*cli.Command{
 	idpLdapAccesskeyListCmd,
 	idpLdapAccesskeyRemoveCmd,
 	idpLdapAccesskeyInfoCmd,
@@ -31,7 +31,7 @@ var idpLdapAccesskeySubcommands = []cli.Command{
 	idpLdapAccesskeySTSRevokeCmd,
 }
 
-var idpLdapAccesskeyCmd = cli.Command{
+var idpLdapAccesskeyCmd = &cli.Command{
 	Name:            "accesskey",
 	Usage:           "manage LDAP access key pairs",
 	Action:          mainIDPLDAPAccesskey,

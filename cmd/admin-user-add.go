@@ -25,13 +25,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 	"golang.org/x/term"
 )
 
-var adminUserAddCmd = cli.Command{
+var adminUserAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a new user",
 	Action:       mainAdminUserAdd,
@@ -77,7 +77,7 @@ EXAMPLES:
 
 // checkAdminUserAddSyntax - validate all the passed arguments
 func checkAdminUserAddSyntax(ctx *cli.Context) {
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr > 3 || argsNr < 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
@@ -157,7 +157,7 @@ func fetchUserKeys(args cli.Args) (string, string) {
 	isTerminal := term.IsTerminal(int(os.Stdin.Fd()))
 	reader := bufio.NewReader(os.Stdin)
 
-	argCount := len(args)
+	argCount := args.Len()
 
 	if argCount == 1 {
 		if isTerminal {
@@ -201,7 +201,7 @@ func mainAdminUserAdd(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	fatalIf(probe.NewError(client.AddUser(globalContext, accessKey, secretKey)).Trace(args...), "Unable to add new user")
+	fatalIf(probe.NewError(client.AddUser(globalContext, accessKey, secretKey)).Trace(args.Slice()...), "Unable to add new user")
 
 	printMsg(userMessage{
 		op:         ctx.Command.Name,

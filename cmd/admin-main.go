@@ -17,7 +17,7 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
 var adminFlags = []cli.Flag{}
 
@@ -28,7 +28,7 @@ const (
 	check = "✔"
 )
 
-var adminCmdSubcommands = []cli.Command{
+var adminCmdSubcommands = []*cli.Command{
 	adminServiceCmd,
 	adminServerUpdateCmd,
 	adminInfoCmd,
@@ -59,7 +59,7 @@ var adminCmdSubcommands = []cli.Command{
 	adminAccesskeyCmd,
 }
 
-var adminCmd = cli.Command{
+var adminCmd = &cli.Command{
 	Name:            "admin",
 	Usage:           "manage MinIO servers",
 	Action:          mainAdmin,

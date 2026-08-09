@@ -19,13 +19,13 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var aliasRemoveCmd = cli.Command{
+var aliasRemoveCmd = &cli.Command{
 	Name:      "remove",
-	ShortName: "rm",
+	Aliases: []string{"rm"},
 	Usage:     "remove an alias from configuration file",
 	Action: func(ctx *cli.Context) error {
 		return mainAliasRemove(ctx)
@@ -54,8 +54,8 @@ EXAMPLES:
 func checkAliasRemoveSyntax(ctx *cli.Context) {
 	args := ctx.Args()
 
-	if len(ctx.Args()) != 1 {
-		fatalIf(errInvalidArgument().Trace(args...),
+	if ctx.Args().Len() != 1 {
+		fatalIf(errInvalidArgument().Trace(args.Slice()...),
 			"Incorrect number of arguments for alias remove command.")
 	}
 

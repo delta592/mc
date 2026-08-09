@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var encryptInfoCmd = cli.Command{
+var encryptInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show bucket encryption status",
 	Action:       mainEncryptInfo,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkversionInfoSyntax - validate all the passed arguments
 func checkEncryptInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

@@ -22,30 +22,30 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
 
 var replicateRemoveFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "id",
 		Usage: "id for the rule, should be a unique value",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force remove all the replication configuration rules on the bucket",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "remove all replication configuration rules of the bucket, force flag enforced",
 	},
 }
 
-var replicateRemoveCmd = cli.Command{
+var replicateRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove a server side replication configuration rule",
 	Action:       mainReplicateRemove,
 	OnUsageError: onUsageError,
@@ -71,7 +71,7 @@ EXAMPLES:
 
 // checkReplicateRemoveSyntax - validate all the passed arguments
 func checkReplicateRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	rmAll := ctx.Bool("all")
@@ -128,7 +128,7 @@ func mainReplicateRemove(cliCtx *cli.Context) error {
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 	rcfg, err := client.GetReplication(ctx)
-	fatalIf(err.Trace(args...), "Unable to get replication configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get replication configuration")
 
 	rmAll := cliCtx.Bool("all")
 	rmForce := cliCtx.Bool("force")
@@ -158,8 +158,8 @@ func mainReplicateRemove(cliCtx *cli.Context) error {
 		fatalIf(client.SetReplication(ctx, &rcfg, opts), "Could not remove replication rule")
 		admclient, cerr := newAdminClient(aliasedURL)
 		fatalIf(cerr.Trace(aliasedURL), "Unable to initialize admin connection.")
-		_, sourceBucket := url2Alias(args[0])
-		fatalIf(probe.NewError(admclient.RemoveRemoteTarget(globalContext, sourceBucket, removeArn)).Trace(args...), "Unable to remove remote target")
+		_, sourceBucket := url2Alias(args.Get(0))
+		fatalIf(probe.NewError(admclient.RemoveRemoteTarget(globalContext, sourceBucket, removeArn)).Trace(args.Slice()...), "Unable to remove remote target")
 
 	}
 	printMsg(replicateRemoveMessage{

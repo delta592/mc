@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminClusterSubcommands = []cli.Command{
+var adminClusterSubcommands = []*cli.Command{
 	adminClusterBucketCmd,
 	adminClusterIAMCmd,
 }
 
-var adminClusterCmd = cli.Command{
+var adminClusterCmd = &cli.Command{
 	Name:            "cluster",
 	Usage:           "manage MinIO cluster metadata",
 	Action:          mainAdminCluster,

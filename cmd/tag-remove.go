@@ -24,31 +24,33 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var tagRemoveFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "remove tags on a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "remove tags on an object version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "remove tags on multiple versions of an object",
 	},
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "recursivley remove tags for all objects",
 	},
 }
 
-var tagRemoveCmd = cli.Command{
+var tagRemoveCmd = &cli.Command{
 	Name:         "remove",
 	Usage:        "remove tags assigned to a bucket or an object",
 	Action:       mainRemoveTag,
@@ -114,7 +116,7 @@ func (t tagRemoveMessage) JSON() string {
 }
 
 func parseRemoveTagSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 

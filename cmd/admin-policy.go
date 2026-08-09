@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminPolicySubcommands = []cli.Command{
+var adminPolicySubcommands = []*cli.Command{
 	adminPolicyCreateCmd,
 	adminPolicyRemoveCmd,
 	adminPolicyListCmd,
@@ -33,7 +33,7 @@ var adminPolicySubcommands = []cli.Command{
 	adminPolicyUpdateCmd,
 }
 
-var adminPolicyCmd = cli.Command{
+var adminPolicyCmd = &cli.Command{
 	Name:            "policy",
 	Usage:           "manage policies defined in the MinIO server",
 	Action:          mainAdminPolicy,

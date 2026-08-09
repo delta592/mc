@@ -24,12 +24,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var versionInfoCmd = cli.Command{
+var versionInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "show bucket versioning status",
 	Action:       mainVersionInfo,
@@ -53,7 +53,7 @@ EXAMPLES:
 
 // checkVersionInfoSyntax - validate all the passed arguments
 func checkVersionInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

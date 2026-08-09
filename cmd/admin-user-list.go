@@ -22,13 +22,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserListCmd = cli.Command{
+var adminUserListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list all users",
 	Action:       mainAdminUserList,
 	OnUsageError: onUsageError,
@@ -51,7 +51,7 @@ EXAMPLES:
 
 // checkAdminUserListSyntax - validate all the passed arguments
 func checkAdminUserListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -75,13 +75,13 @@ func mainAdminUserList(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	users, e := client.ListUsers(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to list user")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to list user")
 
 	for k, v := range users {
 		memberOf := []userGroup{}
 		for _, group := range v.MemberOf {
 			gd, e := client.GetGroupDescription(globalContext, group)
-			fatalIf(probe.NewError(e).Trace(args...), "Unable to fetch group info")
+			fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch group info")
 			policies := []string{}
 			if gd.Policy != "" {
 				policies = strings.Split(gd.Policy, ",")

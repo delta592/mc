@@ -23,34 +23,34 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var eventRemoveFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "force",
 		Usage: "force removing all bucket notifications",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "event",
 		Value: "put,delete,get",
 		Usage: "filter specific type of event. Defaults to all event",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "prefix",
 		Usage: "filter event associated to the specified prefix",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "suffix",
 		Usage: "filter event associated to the specified suffix",
 	},
 }
 
-var eventRemoveCmd = cli.Command{
+var eventRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove a bucket notification; '--force' removes all bucket notifications",
 	Action:       mainEventRemove,
 	OnUsageError: onUsageError,
@@ -76,10 +76,10 @@ EXAMPLES:
 
 // checkEventRemoveSyntax - validate all the passed arguments
 func checkEventRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
-	if len(ctx.Args()) == 1 && !ctx.Bool("force") {
+	if ctx.Args().Len() == 1 && !ctx.Bool("force") {
 		fatalIf(probe.NewError(errors.New("")), "--force flag needs to be passed to remove all bucket notifications.")
 	}
 }
@@ -115,7 +115,7 @@ func mainEventRemove(cliCtx *cli.Context) error {
 	path := args.Get(0)
 
 	arn := ""
-	if len(args) == 2 {
+	if args.Len() == 2 {
 		arn = args.Get(1)
 	}
 

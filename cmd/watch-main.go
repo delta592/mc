@@ -26,33 +26,33 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/notification"
 	"github.com/minio/pkg/v3/console"
 )
 
 var watchFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "events",
 		Value: "put,delete,get",
 		Usage: "filter specific types of events; defaults to all events by default",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "prefix",
 		Usage: "filter events for a prefix",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "suffix",
 		Usage: "filter events for a suffix",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "recursive",
 		Usage: "recursively watch for events",
 	},
 }
 
-var watchCmd = cli.Command{
+var watchCmd = &cli.Command{
 	Name:         "watch",
 	Usage:        "listen for object notification events",
 	Action:       mainWatch,
@@ -91,7 +91,7 @@ EXAMPLES:
 
 // checkWatchSyntax - validate all the passed arguments
 func checkWatchSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -140,7 +140,7 @@ func mainWatch(cliCtx *cli.Context) error {
 	checkWatchSyntax(cliCtx)
 
 	args := cliCtx.Args()
-	path := args[0]
+	path := args.Get(0)
 
 	prefix := cliCtx.String("prefix")
 	suffix := cliCtx.String("suffix")

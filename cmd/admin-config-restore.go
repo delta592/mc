@@ -22,12 +22,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminConfigRestoreCmd = cli.Command{
+var adminConfigRestoreCmd = &cli.Command{
 	Name:         "restore",
 	Usage:        "rollback back changes to a specific config history",
 	Before:       setGlobalsFromContext,
@@ -76,7 +76,7 @@ func (u configRestoreMessage) JSON() string {
 
 // checkAdminConfigRestoreSyntax - validate all the passed arguments
 func checkAdminConfigRestoreSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || len(ctx.Args()) > 2 {
+	if !ctx.Args().Present() || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

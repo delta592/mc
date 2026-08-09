@@ -18,15 +18,15 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var subnetHealthSubcommands = []cli.Command{
+var subnetHealthSubcommands = []*cli.Command{
 	adminSubnetHealthCmd,
 	adminSubnetRegisterCmd,
 }
 
-var adminSubnetCmd = cli.Command{
+var adminSubnetCmd = &cli.Command{
 	Name:        "subnet",
 	Usage:       "Subnet related commands",
 	Action:      mainAdminSubnet,
@@ -43,8 +43,8 @@ func mainAdminSubnet(_ *cli.Context) error {
 	// Sub-commands like "health", "register" have their own main.
 }
 
-func adminHealthCmd() cli.Command {
-	cmd := adminSubnetHealthCmd
+func adminHealthCmd() *cli.Command {
+	cmd := *adminSubnetHealthCmd
 	cmd.Hidden = true
-	return cmd
+	return &cmd
 }

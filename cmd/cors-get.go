@@ -19,11 +19,11 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var corsGetCmd = cli.Command{
+var corsGetCmd = &cli.Command{
 	Name:         "get",
 	Usage:        "get a bucket CORS configuration",
 	Action:       mainCorsGet,
@@ -47,7 +47,7 @@ EXAMPLES:
 
 // checkCorsGetSyntax - validate all the passed arguments
 func checkCorsGetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

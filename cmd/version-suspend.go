@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var versionSuspendCmd = cli.Command{
+var versionSuspendCmd = &cli.Command{
 	Name:         "suspend",
 	Usage:        "suspend bucket versioning",
 	Action:       mainVersionSuspend,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkVersionSuspendSyntax - validate all the passed arguments
 func checkVersionSuspendSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

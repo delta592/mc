@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminGroupDisableCmd = cli.Command{
+var adminGroupDisableCmd = &cli.Command{
 	Name:         "disable",
 	Usage:        "disable a group",
 	Action:       mainAdminGroupEnableDisable,

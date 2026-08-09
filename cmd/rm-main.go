@@ -30,7 +30,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
@@ -39,64 +39,67 @@ import (
 // rm specific flags.
 var (
 	rmFlags = []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "remove object(s) and all its versions",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "remove recursively",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "force",
 			Usage: "allow a recursive remove operation",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "dangerous",
 			Usage: "allow site-wide removal of objects",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "rewind",
 			Usage: "roll back object(s) to current version at specified time",
 		},
-		cli.StringFlag{
-			Name:  "version-id, vid",
+		&cli.StringFlag{
+			Name: "version-id",
+			Aliases: []string{"vid"},
 			Usage: "delete a specific version of an object",
 		},
-		cli.BoolFlag{
-			Name:  "incomplete, I",
+		&cli.BoolFlag{
+			Name: "incomplete",
+			Aliases: []string{"I"},
 			Usage: "remove incomplete uploads",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "dry-run",
 			Usage: "perform a fake remove operation",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "fake",
 			Usage:  "perform a fake remove operation",
 			Hidden: true, // deprecated 2022
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "stdin",
 			Usage: "read object names from STDIN",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "older-than",
 			Usage: "remove objects older than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "newer-than",
 			Usage: "remove objects newer than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "bypass",
 			Usage: "bypass governance",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "non-current",
 			Usage: "remove object(s) versions that are non-current",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "purge",
 			Usage:  "attempt a prefix purge, requires confirmation please use with caution - only works with '--force'",
 			Hidden: true,
@@ -105,7 +108,7 @@ var (
 )
 
 // remove a file or folder.
-var rmCmd = cli.Command{
+var rmCmd = &cli.Command{
 	Name:         "rm",
 	Usage:        "remove object(s)",
 	Action:       mainRm,
@@ -245,7 +248,7 @@ func checkRmSyntax(ctx context.Context, cliCtx *cli.Context) {
 	}
 
 	if !isForceDel {
-		for _, url := range cliCtx.Args() {
+		for _, url := range cliCtx.Args().Slice() {
 			// clean path for aliases like s3/.
 			// Note: UNC path using / works properly in go 1.9.2 even though it breaks the UNC specification.
 			url = filepath.ToSlash(filepath.Clean(url))
@@ -726,7 +729,7 @@ func mainRm(cliCtx *cli.Context) error {
 	var rerr error
 	var e error
 	// Support multiple targets.
-	for _, url := range cliCtx.Args() {
+	for _, url := range cliCtx.Args().Slice() {
 		if isRecursive || withVersions {
 			e = listAndRemove(url, removeOpts{
 				timeRef:           rewind,

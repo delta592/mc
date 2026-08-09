@@ -22,11 +22,11 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
-var idpLdapAddCmd = cli.Command{
+var idpLdapAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "Create an LDAP IDP server configuration",
 	Action:       mainIDPLDAPAdd,
@@ -56,7 +56,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPAdd(ctx *cli.Context) error {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -69,10 +69,10 @@ func mainIDPLDAPAdd(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	cfgName := madmin.Default
-	input := args[1:]
+	input := args.Slice()[1:]
 	if !strings.Contains(args.Get(1), "=") {
 		cfgName = args.Get(1)
-		input = args[2:]
+		input = args.Slice()[2:]
 	}
 
 	if cfgName != madmin.Default {
@@ -94,7 +94,7 @@ func mainIDPLDAPAdd(ctx *cli.Context) error {
 	return nil
 }
 
-var idpLdapUpdateCmd = cli.Command{
+var idpLdapUpdateCmd = &cli.Command{
 	Name:         "update",
 	Usage:        "Update an LDAP IDP configuration",
 	Action:       mainIDPLDAPUpdate,
@@ -119,7 +119,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPUpdate(ctx *cli.Context) error {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -132,10 +132,10 @@ func mainIDPLDAPUpdate(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	cfgName := madmin.Default
-	input := args[1:]
+	input := args.Slice()[1:]
 	if !strings.Contains(args.Get(1), "=") {
 		cfgName = args.Get(1)
-		input = args[2:]
+		input = args.Slice()[2:]
 	}
 
 	if cfgName != madmin.Default {
@@ -157,9 +157,9 @@ func mainIDPLDAPUpdate(ctx *cli.Context) error {
 	return nil
 }
 
-var idpLdapRemoveCmd = cli.Command{
+var idpLdapRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove LDAP IDP server configuration",
 	Action:       mainIDPLDAPRemove,
 	Before:       setGlobalsFromContext,
@@ -181,7 +181,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPRemove(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -189,9 +189,9 @@ func mainIDPLDAPRemove(ctx *cli.Context) error {
 	return idpRemove(ctx, false, cfgName)
 }
 
-var idpLdapListCmd = cli.Command{
+var idpLdapListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list LDAP IDP server configuration(s)",
 	Action:       mainIDPLDAPList,
 	Before:       setGlobalsFromContext,
@@ -213,14 +213,14 @@ EXAMPLES:
 }
 
 func mainIDPLDAPList(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
 	return idpListCommon(ctx, false)
 }
 
-var idpLdapInfoCmd = cli.Command{
+var idpLdapInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "get LDAP IDP server configuration info",
 	Action:       mainIDPLDAPInfo,
@@ -243,7 +243,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPInfo(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -251,7 +251,7 @@ func mainIDPLDAPInfo(ctx *cli.Context) error {
 	return idpInfo(ctx, false, cfgName)
 }
 
-var idpLdapEnableCmd = cli.Command{
+var idpLdapEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "manage LDAP IDP server configuration",
 	Action:       mainIDPLDAPEnable,
@@ -274,7 +274,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPEnable(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -282,7 +282,7 @@ func mainIDPLDAPEnable(ctx *cli.Context) error {
 	return idpEnableDisable(ctx, isOpenID, enable)
 }
 
-var idpLdapDisableCmd = cli.Command{
+var idpLdapDisableCmd = &cli.Command{
 	Name:         "disable",
 	Usage:        "Disable an LDAP IDP server configuration",
 	Action:       mainIDPLDAPDisable,
@@ -305,7 +305,7 @@ EXAMPLES:
 }
 
 func mainIDPLDAPDisable(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

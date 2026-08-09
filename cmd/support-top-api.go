@@ -22,30 +22,31 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var supportTopAPIFlags = []cli.Flag{
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "name",
 		Usage: "summarize current calls for matching API name",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "path",
 		Usage: "summarize current API calls only on matching path",
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:  "node",
 		Usage: "summarize current API calls only on matching servers",
 	},
-	cli.BoolFlag{
-		Name:  "errors, e",
+	&cli.BoolFlag{
+		Name: "errors",
+		Aliases: []string{"e"},
 		Usage: "summarize current API calls throwing only errors",
 	},
 }
 
-var supportTopAPICmd = cli.Command{
+var supportTopAPICmd = &cli.Command{
 	Name:            "api",
 	Usage:           "summarize API events on MinIO server in real-time",
 	Action:          mainSupportTopAPI,
@@ -73,7 +74,7 @@ EXAMPLES:
 
 // checkSupportTopAPISyntax - validate all the passed arguments
 func checkSupportTopAPISyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

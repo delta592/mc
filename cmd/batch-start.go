@@ -24,13 +24,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var batchStartCmd = cli.Command{
+var batchStartCmd = &cli.Command{
 	Name:         "start",
 	Usage:        "start a new batch job",
 	Action:       mainBatchStart,
@@ -74,7 +74,7 @@ func (c batchStartMessage) JSON() string {
 
 // checkBatchStartSyntax - validate all the passed arguments
 func checkBatchStartSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

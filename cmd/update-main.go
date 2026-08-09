@@ -39,20 +39,20 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/env"
 	"github.com/delta592/mc/pkg/selfupdate"
 )
 
 // Check for new software updates.
-var updateCmd = cli.Command{
+var updateCmd = &cli.Command{
 	Name:         "update",
 	Usage:        "update mc to latest release",
 	Action:       mainUpdate,
 	OnUsageError: onUsageError,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "json",
 			Usage: "enable JSON lines formatted output",
 		},
@@ -511,13 +511,13 @@ func (s updateMessage) JSON() string {
 	return string(updateJSONBytes)
 }
 
-func mainUpdate(ctx *cli.Context) {
-	if len(ctx.Args()) > 1 {
+func mainUpdate(ctx *cli.Context) error {
+	if ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, -1)
 	}
 
-	globalQuiet = ctx.Bool("quiet") || ctx.GlobalBool("quiet")
-	globalJSON = ctx.Bool("json") || ctx.GlobalBool("json")
+	globalQuiet = ctx.Bool("quiet") || ctx.Bool("quiet")
+	globalJSON = ctx.Bool("json") || ctx.Bool("json")
 
 	customReleaseURL := ctx.Args().Get(0)
 
@@ -554,4 +554,5 @@ func mainUpdate(ctx *cli.Context) {
 		printMsg(updateMessage{Status: "success", Message: updateStatusMsg})
 		os.Exit(1)
 	}
+	return nil
 }

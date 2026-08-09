@@ -18,12 +18,12 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var idpOpenidAccesskeyRemoveCmd = cli.Command{
+var idpOpenidAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "delete access key pairs for OpenID",
 	Action:       mainIDPOpenIDAccesskeyRemove,
 	Before:       setGlobalsFromContext,

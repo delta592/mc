@@ -37,7 +37,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/zstd"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
@@ -45,39 +45,38 @@ import (
 )
 
 var adminScannerInfoFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "nodes",
 		Usage: "show only on matching servers, comma separate multiple",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "n",
 		Usage: "number of requests to run before exiting. 0 for endless",
 		Value: 0,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "interval",
 		Usage: "interval between requests in seconds",
 		Value: 3,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "max-paths",
 		Usage: "maximum number of active paths to show. -1 for unlimited",
 		Value: -1,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "in",
 		Usage: "read previously saved json from file and replay",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "bucket",
 		Usage: "show scan stats about a given bucket",
 	},
 }
 
-var adminScannerInfo = cli.Command{
+var adminScannerInfo = &cli.Command{
 	Name:            "status",
 	Aliases:         []string{"info"},
-	HiddenAliases:   true,
 	Usage:           "summarize scanner events on MinIO server in real-time",
 	Action:          mainAdminScannerInfo,
 	OnUsageError:    onUsageError,
@@ -104,7 +103,7 @@ func checkAdminScannerInfoSyntax(ctx *cli.Context) {
 	if ctx.String("in") != "" {
 		return
 	}
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

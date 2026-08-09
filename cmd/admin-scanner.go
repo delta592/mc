@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminScannerSubcommands = []cli.Command{
+var adminScannerSubcommands = []*cli.Command{
 	adminScannerInfo,
 	adminScannerTraceCmd,
 }
 
-var adminScannerCmd = cli.Command{
+var adminScannerCmd = &cli.Command{
 	Name:            "scanner",
 	Usage:           "provide MinIO scanner info",
 	Action:          mainAdminScanner,

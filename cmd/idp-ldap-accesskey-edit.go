@@ -25,39 +25,39 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/policy"
 )
 
 var idpLdapAccesskeyEditFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Usage: "set a secret key for the  account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "path to a JSON policy file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "friendly name for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "description",
 		Usage: "description for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry-duration",
 		Usage: "duration before the access key expires",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry",
 		Usage: "expiry date for the access key",
 	},
 }
 
-var idpLdapAccesskeyEditCmd = cli.Command{
+var idpLdapAccesskeyEditCmd = &cli.Command{
 	Name:         "edit",
 	Usage:        "edit existing access keys for LDAP",
 	Action:       mainIDPLdapAccesskeyEdit,
@@ -86,7 +86,7 @@ func mainIDPLdapAccesskeyEdit(ctx *cli.Context) error {
 }
 
 func commonAccesskeyEdit(ctx *cli.Context) error {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

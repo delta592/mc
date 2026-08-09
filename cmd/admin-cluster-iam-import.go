@@ -27,13 +27,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/klauspost/compress/zip"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminClusterIAMImportCmd = cli.Command{
+var adminClusterIAMImportCmd = &cli.Command{
 	Name:            "import",
 	Usage:           "imports IAM info from zipped file",
 	Action:          mainClusterIAMImport,
@@ -175,7 +175,7 @@ func processErrIAMEntities(entities madmin.IAMErrEntities) []string {
 }
 
 func checkIAMImportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -194,7 +194,7 @@ func mainClusterIAMImport(ctx *cli.Context) error {
 	var sz int64
 	f, e := os.Open(args.Get(1))
 	if e != nil {
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to get IAM info")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get IAM info")
 	}
 	if st, e := f.Stat(); e == nil {
 		sz = st.Size()
@@ -203,10 +203,10 @@ func mainClusterIAMImport(ctx *cli.Context) error {
 	r = f
 
 	_, e = zip.NewReader(r.(io.ReaderAt), sz)
-	fatalIf(probe.NewError(e).Trace(args...), fmt.Sprintf("Unable to read zip file %s", args.Get(1)))
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), fmt.Sprintf("Unable to read zip file %s", args.Get(1)))
 
 	f, e = os.Open(args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get IAM info")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get IAM info")
 	defer f.Close()
 
 	// Create a new MinIO Admin Client

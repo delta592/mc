@@ -22,33 +22,35 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var mbFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "region",
 		Value: "us-east-1",
 		Usage: "specify bucket region; defaults to 'us-east-1'",
 	},
-	cli.BoolFlag{
-		Name:  "ignore-existing, p",
+	&cli.BoolFlag{
+		Name: "ignore-existing",
+		Aliases: []string{"p"},
 		Usage: "ignore if bucket/directory already exists",
 	},
-	cli.BoolFlag{
-		Name:  "with-lock, l",
+	&cli.BoolFlag{
+		Name: "with-lock",
+		Aliases: []string{"l"},
 		Usage: "enable object lock",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "with-versioning",
 		Usage: "enable versioned bucket",
 	},
 }
 
 // make a bucket.
-var mbCmd = cli.Command{
+var mbCmd = &cli.Command{
 	Name:         "mb",
 	Usage:        "make a bucket",
 	Action:       mainMakeBucket,
@@ -132,7 +134,7 @@ func mainMakeBucket(cliCtx *cli.Context) error {
 	withLock := cliCtx.Bool("l")
 
 	var cErr error
-	for _, targetURL := range cliCtx.Args() {
+	for _, targetURL := range cliCtx.Args().Slice() {
 		// Instantiate client for URL.
 		clnt, err := newClient(targetURL)
 		if err != nil {

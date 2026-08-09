@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var quotaSubcommands = []cli.Command{
+var quotaSubcommands = []*cli.Command{
 	quotaSetCmd,
 	quotaInfoCmd,
 	quotaClearCmd,
 }
 
-var quotaCmd = cli.Command{
+var quotaCmd = &cli.Command{
 	Name:            "quota",
 	Usage:           "manage bucket quota",
 	Action:          mainQuota,

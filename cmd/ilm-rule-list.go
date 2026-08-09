@@ -27,25 +27,25 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 )
 
 var ilmListFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "expiry",
 		Usage: "display only expiration fields",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "transition",
 		Usage: "display only transition fields",
 	},
 }
 
-var ilmLsCmd = cli.Command{
+var ilmLsCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "lists lifecycle configuration rules set on a bucket",
 	Action:       mainILMList,
 	OnUsageError: onUsageError,
@@ -111,7 +111,7 @@ func validateILMListFlagSet(ctx *cli.Context) bool {
 
 // checkILMListSyntax - validate arguments passed by a user
 func checkILMListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 
@@ -143,7 +143,7 @@ func mainILMList(cliCtx *cli.Context) error {
 	fatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
 
 	ilmCfg, updatedAt, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(args...), "Unable to get lifecycle")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get lifecycle")
 
 	if len(ilmCfg.Rules) == 0 {
 		fatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),

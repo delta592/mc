@@ -22,35 +22,37 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var retentionClearFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "clear retention recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "clear retention of a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "roll back object(s) to current version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "clear retention of object(s) and all its versions",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "default",
 		Usage: "set default bucket locking",
 	},
 }
 
-var retentionClearCmd = cli.Command{
+var retentionClearCmd = &cli.Command{
 	Name:         "clear",
 	Usage:        "clear all retention settings on object(s)",
 	Action:       mainRetentionClear,
@@ -91,11 +93,11 @@ EXAMPLES:
 func parseClearRetentionArgs(cliCtx *cli.Context) (target, versionID string, timeRef time.Time, withVersions, recursive, bucketMode bool) {
 	args := cliCtx.Args()
 
-	if len(args) != 1 {
+	if args.Len() != 1 {
 		showCommandHelpAndExit(cliCtx, 1)
 	}
 
-	target = args[0]
+	target = args.Get(0)
 	if target == "" {
 		fatalIf(errInvalidArgument().Trace(), "invalid target url '%v'", target)
 	}

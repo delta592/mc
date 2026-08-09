@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserRemoveCmd = cli.Command{
+var adminUserRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove user",
 	Action:       mainAdminUserRemove,
 	OnUsageError: onUsageError,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminUserRemoveSyntax - validate all the passed arguments
 func checkAdminUserRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -69,7 +69,7 @@ func mainAdminUserRemove(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	e := client.RemoveUser(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to remove %s", args.Get(1))
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove %s", args.Get(1))
 
 	printMsg(userMessage{
 		op:        ctx.Command.Name,

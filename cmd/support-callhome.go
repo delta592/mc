@@ -19,13 +19,13 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var supportCallhomeCmd = cli.Command{
+var supportCallhomeCmd = &cli.Command{
 	Name:         "callhome",
 	Usage:        "configure callhome settings",
 	OnUsageError: onUsageError,

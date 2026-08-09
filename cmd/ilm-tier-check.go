@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var ilmTierCheckCmd = cli.Command{
+var ilmTierCheckCmd = &cli.Command{
 	Name:         "check",
 	Usage:        "validate remote tier configuration",
 	Action:       mainAdminTierVerify,

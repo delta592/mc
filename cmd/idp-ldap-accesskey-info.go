@@ -21,10 +21,10 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var idpLdapAccesskeyInfoCmd = cli.Command{
+var idpLdapAccesskeyInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "info about given access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyInfo,

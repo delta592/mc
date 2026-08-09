@@ -23,12 +23,12 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var aliasImportCmd = cli.Command{
+var aliasImportCmd = &cli.Command{
 	Name:            "import",
-	ShortName:       "i",
+	Aliases: []string{"i"},
 	Usage:           "import configuration info to configuration file from a JSON formatted string ",
 	Action:          mainAliasImport,
 	OnUsageError:    onUsageError,
@@ -66,7 +66,7 @@ EXAMPLES:
 // checkAliasImportSyntax - verifies input arguments to 'alias import'.
 func checkAliasImportSyntax(ctx *cli.Context) {
 	args := ctx.Args()
-	argsNr := len(args)
+	argsNr := args.Len()
 
 	if argsNr == 0 {
 		showCommandHelpAndExit(ctx, 1)
@@ -142,10 +142,10 @@ func mainAliasImport(cli *cli.Context) error {
 		credsFile = os.Stdin.Name()
 	}
 	input, e := os.ReadFile(credsFile)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to parse credentials file")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to parse credentials file")
 
 	e = json.Unmarshal(input, &credentialsJSON)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to parse input credentials")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to parse input credentials")
 
 	msg := importAlias(alias, credentialsJSON)
 	msg.op = cli.Command.Name

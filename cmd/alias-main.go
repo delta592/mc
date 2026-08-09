@@ -19,7 +19,7 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -37,7 +37,7 @@ import (
 
 var aliasFlags = []cli.Flag{}
 
-var aliasSubcommands = []cli.Command{
+var aliasSubcommands = []*cli.Command{
 	aliasSetCmd,
 	aliasListCmd,
 	aliasRemoveCmd,
@@ -45,7 +45,7 @@ var aliasSubcommands = []cli.Command{
 	aliasExportCmd,
 }
 
-var aliasCmd = cli.Command{
+var aliasCmd = &cli.Command{
 	Name:            "alias",
 	Usage:           "manage server credentials in configuration file",
 	Action:          mainAlias,

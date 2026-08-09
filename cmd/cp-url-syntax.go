@@ -21,19 +21,19 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func checkCopySyntax(cliCtx *cli.Context) {
-	if len(cliCtx.Args()) < 2 {
+	if cliCtx.Args().Len() < 2 {
 		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
 	}
 	parseChecksum(cliCtx)
 
 	// extract URLs.
-	URLs := cliCtx.Args()
+	URLs := cliCtx.Args().Slice()
 	if len(URLs) < 2 {
-		fatalIf(errDummy().Trace(cliCtx.Args()...), "Unable to parse source and target arguments.")
+		fatalIf(errDummy().Trace(cliCtx.Args().Slice()...), "Unable to parse source and target arguments.")
 	}
 
 	srcURLs := URLs[:len(URLs)-1]
@@ -42,11 +42,11 @@ func checkCopySyntax(cliCtx *cli.Context) {
 	versionID := cliCtx.String("version-id")
 
 	if versionID != "" && len(srcURLs) > 1 {
-		fatalIf(errDummy().Trace(cliCtx.Args()...), "Unable to pass --version flag with multiple copy sources arguments.")
+		fatalIf(errDummy().Trace(cliCtx.Args().Slice()...), "Unable to pass --version flag with multiple copy sources arguments.")
 	}
 
 	if isZip && cliCtx.String("rewind") != "" {
-		fatalIf(errDummy().Trace(cliCtx.Args()...), "--zip and --rewind cannot be used together")
+		fatalIf(errDummy().Trace(cliCtx.Args().Slice()...), "--zip and --rewind cannot be used together")
 	}
 
 	// Check if bucket name is passed for URL type arguments.

@@ -19,11 +19,11 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
-var idpLdapAccesskeyEnableCmd = cli.Command{
+var idpLdapAccesskeyEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable an access key",
 	Action:       mainIDPLdapAccesskeyEnable,
@@ -50,7 +50,7 @@ func mainIDPLdapAccesskeyEnable(ctx *cli.Context) error {
 }
 
 func enableDisableAccesskey(ctx *cli.Context, enable bool) error {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

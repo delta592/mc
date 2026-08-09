@@ -17,10 +17,10 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
 var (
-	idpLdapSubcommands = []cli.Command{
+	idpLdapSubcommands = []*cli.Command{
 		idpLdapAddCmd,
 		idpLdapUpdateCmd,
 		idpLdapRemoveCmd,
@@ -31,7 +31,7 @@ var (
 		idpLdapPolicyCmd,
 		idpLdapAccesskeyCmd,
 	}
-	idpLdapCmd = cli.Command{
+	idpLdapCmd = &cli.Command{
 		Name:            "ldap",
 		Usage:           "manage Ldap IDP server configuration",
 		Action:          mainIDPLdap,

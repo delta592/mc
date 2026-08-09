@@ -35,7 +35,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/madmin-go/v4/estream"
@@ -47,13 +47,13 @@ const (
 )
 
 var supportInspectFlags = append(subnetCommonFlags,
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "legacy",
 		Usage: "use the older inspect format",
 	},
 )
 
-var supportInspectCmd = cli.Command{
+var supportInspectCmd = &cli.Command{
 	Name:            "inspect",
 	Usage:           "upload raw object contents for analysis",
 	Action:          mainSupportInspect,
@@ -117,7 +117,7 @@ func (t inspectMessage) JSON() string {
 }
 
 func checkSupportInspectSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

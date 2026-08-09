@@ -18,21 +18,21 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var adminQuotaFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "hard",
 		Usage: "set a hard quota, disallowing writes after quota is reached",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "clear",
 		Usage: "clears bucket quota configured for bucket",
 	},
 }
 
-var adminBucketQuotaCmd = cli.Command{
+var adminBucketQuotaCmd = &cli.Command{
 	Name:            "quota",
 	Usage:           "manage bucket quota",
 	Action:          mainAdminBucketQuota,

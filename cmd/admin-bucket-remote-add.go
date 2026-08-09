@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminBucketRemoteAddCmd = cli.Command{
+var adminBucketRemoteAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add a new remote target",
 	Action:       mainAdminBucketRemoteAdd,

@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
@@ -34,47 +34,47 @@ import (
 )
 
 var adminReplicateStatusFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "buckets",
 		Usage: "display only buckets",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "policies",
 		Usage: "display only policies",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "users",
 		Usage: "display only users",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "groups",
 		Usage: "display only groups",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "ilm-expiry-rules",
 		Usage: "display only ilm expiry rules",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "all",
 		Usage: "display all available site replication status",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "bucket",
 		Usage: "display bucket sync status",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "display policy sync status",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "user",
 		Usage: "display user sync status",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "group",
 		Usage: "display group sync status",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "ilm-expiry-rule",
 		Usage: "display ILM expiry rule sync status",
 	},
@@ -88,7 +88,7 @@ const (
 	fieldLen             = 15
 )
 
-var adminReplicateStatusCmd = cli.Command{
+var adminReplicateStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "display site replication status",
 	Action:       mainAdminReplicationStatus,
@@ -841,7 +841,7 @@ func srStatusOpts(ctx *cli.Context) (opts madmin.SRStatusOptions) {
 func mainAdminReplicationStatus(ctx *cli.Context) error {
 	{
 		// Check argument count
-		argsNr := len(ctx.Args())
+		argsNr := ctx.Args().Len()
 		if argsNr != 1 {
 			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 				"Need exactly one alias argument.")
@@ -894,7 +894,7 @@ func mainAdminReplicationStatus(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 	opts := srStatusOpts(ctx)
 	info, e := client.SRStatusInfo(globalContext, opts)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get cluster replication status")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get cluster replication status")
 
 	printMsg(srStatus{
 		SRStatusInfo: info,

@@ -25,19 +25,19 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
-var legalHoldSubcommands = []cli.Command{
+var legalHoldSubcommands = []*cli.Command{
 	legalHoldSetCmd,
 	legalHoldClearCmd,
 	legalHoldInfoCmd,
 }
 
-var legalHoldCmd = cli.Command{
+var legalHoldCmd = &cli.Command{
 	Name:        "legalhold",
 	Usage:       "manage legal hold for object(s)",
 	Action:      mainLegalHold,

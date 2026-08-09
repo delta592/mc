@@ -25,11 +25,11 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
-var adminSpeedtestCmd = cli.Command{
+var adminSpeedtestCmd = &cli.Command{
 	Name:               "speedtest",
 	Usage:              "Run server side speed test",
 	Action:             mainAdminSpeedtest,

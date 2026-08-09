@@ -34,7 +34,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
@@ -48,104 +48,107 @@ import (
 // mirror specific flags.
 var (
 	mirrorFlags = []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "force",
 			Usage:  "force allows forced overwrite or removal of object(s) on target",
 			Hidden: true, // Hidden since this option is deprecated.
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "overwrite",
 			Usage: "overwrite object(s) on target if it differs from source",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "fake",
 			Usage:  "perform a fake mirror operation",
 			Hidden: true, // deprecated 2022
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "dry-run",
 			Usage: "perform a fake mirror operation",
 		},
-		cli.BoolFlag{
-			Name:  "watch, w",
+		&cli.BoolFlag{
+			Name: "watch",
+			Aliases: []string{"w"},
 			Usage: "watch and synchronize changes",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "remove",
 			Usage: "remove extraneous object(s) on target",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "region",
 			Usage: "specify region when creating new bucket(s) on target",
 			Value: "us-east-1",
 		},
-		cli.BoolFlag{
-			Name:  "preserve, a",
+		&cli.BoolFlag{
+			Name: "preserve",
+			Aliases: []string{"a"},
 			Usage: "preserve file(s)/object(s) attributes and bucket(s) policy/locking configuration(s) on target bucket(s)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "md5",
 			Usage:  "force all upload(s) to calculate md5sum checksum",
 			Hidden: true,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:   "multi-master",
 			Usage:  "enable multi-master multi-site setup",
 			Hidden: true,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "active-active",
 			Usage: "enable active-active multi-site setup",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "disable-multipart",
 			Usage: "disable multipart upload feature",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "exclude",
 			Usage: "exclude object(s) that match specified object name pattern",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "exclude-bucket",
 			Usage: "exclude bucket(s) that match specified bucket name pattern",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "exclude-storageclass",
 			Usage: "exclude object(s) that match the specified storage class",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "older-than",
 			Usage: "filter object(s) older than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "newer-than",
 			Usage: "filter object(s) newer than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
-			Name:  "storage-class, sc",
+		&cli.StringFlag{
+			Name: "storage-class",
+			Aliases: []string{"sc"},
 			Usage: "specify storage class for new object(s) on target",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "attr",
 			Usage: "add custom metadata for all objects",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "monitoring-address",
 			Usage: "if specified, a new prometheus endpoint will be created to report mirroring activity. (eg: localhost:8081)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "retry",
 			Usage: "if specified, will enable retrying on a per object basis if errors occur",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "summary",
 			Usage: "print a summary of the mirror session",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "skip-errors",
 			Usage: "skip any errors when mirroring",
 		},
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "max-workers",
 			Usage: "maximum number of concurrent copies (default: autodetect)",
 		},
@@ -154,7 +157,7 @@ var (
 )
 
 // Mirror folders recursively from a single source to many destinations
-var mirrorCmd = cli.Command{
+var mirrorCmd = &cli.Command{
 	Name:         "mirror",
 	Usage:        "synchronize object(s) to a remote site",
 	Action:       mainMirror,

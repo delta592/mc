@@ -23,50 +23,49 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminReplicateUpdateFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "deployment-id",
 		Usage: "deployment id of the site, should be a unique value",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "endpoint",
 		Usage: "endpoint for the site",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "mode",
 		Usage: "change mode of replication for this target, valid values are ['sync', 'async'].",
 		Value: "",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "sync",
 		Usage:  "enable synchronous replication for this target, valid values are ['enable', 'disable'].",
 		Value:  "disable",
 		Hidden: true, // deprecated Jul 2023
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "bucket-bandwidth",
 		Usage: "Set default bandwidth limit for bucket in bytes per second (K,B,G,T for metric and Ki,Bi,Gi,Ti for IEC units)",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "disable-ilm-expiry-replication",
 		Usage: "disable ILM expiry rules replication",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "enable-ilm-expiry-replication",
 		Usage: "enable ILM expiry rules replication",
 	},
 }
 
-var adminReplicateUpdateCmd = cli.Command{
+var adminReplicateUpdateCmd = &cli.Command{
 	Name:          "update",
 	Aliases:       []string{"edit"},
-	HiddenAliases: true,
 	Usage:         "modify endpoint of site participating in site replication",
 	Action:        mainAdminReplicateUpdate,
 	OnUsageError:  onUsageError,
@@ -117,7 +116,7 @@ func (m updateSuccessMessage) String() string {
 
 func checkAdminReplicateUpdateSyntax(ctx *cli.Context) {
 	// Check argument count
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -161,7 +160,7 @@ func mainAdminReplicateUpdate(ctx *cli.Context) error {
 		switch syncState {
 		case "enable", "disable":
 		default:
-			fatalIf(errInvalidArgument().Trace(args...), "--sync can be either [enable|disable]")
+			fatalIf(errInvalidArgument().Trace(args.Slice()...), "--sync can be either [enable|disable]")
 		}
 	}
 
@@ -173,7 +172,7 @@ func mainAdminReplicateUpdate(ctx *cli.Context) error {
 		case "async":
 			syncState = "disable"
 		default:
-			fatalIf(errInvalidArgument().Trace(args...), "--mode can be either [sync|async]")
+			fatalIf(errInvalidArgument().Trace(args.Slice()...), "--mode can be either [sync|async]")
 		}
 	}
 
@@ -204,7 +203,7 @@ func mainAdminReplicateUpdate(ctx *cli.Context) error {
 		SyncState:        madmin.SyncStatus(syncState),
 		DefaultBandwidth: bwDefaults,
 	}, opts)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to edit cluster replication site endpoint")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to edit cluster replication site endpoint")
 
 	printMsg(updateSuccessMessage(res))
 

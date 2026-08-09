@@ -31,38 +31,39 @@ import (
 	"unicode/utf8"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var catFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "display an earlier object version",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "display a specific version of an object",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "zip",
 		Usage: "extract from remote zip file (MinIO server source only)",
 	},
-	cli.Int64Flag{
+	&cli.Int64Flag{
 		Name:  "offset",
 		Usage: "start offset",
 	},
-	cli.Int64Flag{
+	&cli.Int64Flag{
 		Name:  "tail",
 		Usage: "tail number of bytes at ending of file",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "part-number",
 		Usage: "download only a specific part number",
 	},
 }
 
 // Display contents of a file.
-var catCmd = cli.Command{
+var catCmd = &cli.Command{
 	Name:         "cat",
 	Usage:        "display object contents",
 	Action:       mainCat,
@@ -106,7 +107,7 @@ EXAMPLES:
 
 // checkCatSyntax - validate all the passed arguments
 func checkCatSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -177,7 +178,7 @@ func parseCatSyntax(ctx *cli.Context) catOpts {
 	checkCatSyntax(ctx)
 
 	var o catOpts
-	o.args = ctx.Args()
+	o.args = ctx.Args().Slice()
 
 	o.versionID = ctx.String("version-id")
 	rewind := ctx.String("rewind")

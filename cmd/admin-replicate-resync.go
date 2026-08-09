@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminReplicateResyncSubcommands = []cli.Command{
+var adminReplicateResyncSubcommands = []*cli.Command{
 	adminReplicateResyncStartCmd,
 	adminReplicateResyncStatusCmd,
 	adminReplicateResyncCancelCmd,
 }
 
-var adminReplicateResyncCmd = cli.Command{
+var adminReplicateResyncCmd = &cli.Command{
 	Name:            "resync",
 	Usage:           "resync content to site",
 	Action:          mainAdminReplicateResync,

@@ -20,12 +20,12 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminGroupEnableCmd = cli.Command{
+var adminGroupEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable a group",
 	Action:       mainAdminGroupEnableDisable,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminGroupEnableSyntax - validate all the passed arguments
 func checkAdminGroupEnableSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -79,7 +79,7 @@ func mainAdminGroupEnableDisable(ctx *cli.Context) error {
 		fatalIf(errInvalidArgument().Trace(ctx.Command.Name), "Invalid group status name")
 	}
 	e := client.SetGroupStatus(globalContext, group, status)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable set group status")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable set group status")
 
 	printMsg(groupMessage{
 		op:          ctx.Command.Name,

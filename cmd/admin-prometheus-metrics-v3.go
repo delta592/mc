@@ -24,13 +24,13 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/set"
 )
 
 var (
 	metricsV3Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "bucket",
 			Usage: "bucket name to list metrics for. only applicable with api version v3 for metric type 'api, replication'",
 		},

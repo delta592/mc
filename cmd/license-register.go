@@ -25,7 +25,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
@@ -38,17 +38,17 @@ const (
 )
 
 var licenseRegisterFlags = append([]cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "Specify the name to associate to this MinIO cluster in SUBNET",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "license",
 		Usage: "license of the account on SUBNET",
 	},
 }, subnetCommonFlags...)
 
-var licenseRegisterCmd = cli.Command{
+var licenseRegisterCmd = &cli.Command{
 	Name:         "register",
 	Usage:        "register with MinIO Subscription Network",
 	OnUsageError: onUsageError,
@@ -115,7 +115,7 @@ func (li licRegisterMessage) JSON() string {
 
 // checkLicenseRegisterSyntax - validate arguments passed by a user
 func checkLicenseRegisterSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

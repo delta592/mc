@@ -21,23 +21,25 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 var adminConsoleFlags = []cli.Flag{
-	cli.IntFlag{
-		Name:  "limit, l",
+	&cli.IntFlag{
+		Name: "limit",
+		Aliases: []string{"l"},
 		Usage: "show last n log entries",
 		Value: 10,
 	},
-	cli.StringFlag{
-		Name:  "type, t",
+	&cli.StringFlag{
+		Name: "type",
+		Aliases: []string{"t"},
 		Usage: "list error logs by type. Valid options are '[minio, application, all]'",
 		Value: "all",
 	},
 }
 
-var adminConsoleCmd = cli.Command{
+var adminConsoleCmd = &cli.Command{
 	Name:               "console",
 	Usage:              "show MinIO logs",
 	Action:             mainAdminConsole,
@@ -64,7 +66,7 @@ func mainAdminConsole(ctx *cli.Context) error {
 		flgStr = fmt.Sprintf("%s %s", "--type", strings.ToLower(ctx.String("type")))
 		newCmd = append(newCmd, flgStr)
 	}
-	newCmd = append(newCmd, ctx.Args()...)
+	newCmd = append(newCmd, ctx.Args().Slice()...)
 
 	deprecatedError(strings.Join(newCmd, " "))
 	return nil

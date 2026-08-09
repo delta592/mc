@@ -19,7 +19,7 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
@@ -28,17 +28,19 @@ const (
 )
 
 var adminAttachPolicyFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "user, u",
+	&cli.StringFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "attach policy to user",
 	},
-	cli.StringFlag{
-		Name:  "group, g",
+	&cli.StringFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "attach policy to group",
 	},
 }
 
-var adminPolicyAttachCmd = cli.Command{
+var adminPolicyAttachCmd = &cli.Command{
 	Name:         "attach",
 	Usage:        "attach an IAM policy to a user or group",
 	Action:       mainAdminPolicyAttach,
@@ -73,7 +75,7 @@ func mainAdminPolicyAttach(ctx *cli.Context) error {
 }
 
 func userAttachOrDetachPolicy(ctx *cli.Context, attach bool) error {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	user := ctx.String("user")
@@ -83,7 +85,7 @@ func userAttachOrDetachPolicy(ctx *cli.Context, attach bool) error {
 	args := ctx.Args()
 	aliasedURL := args.Get(0)
 
-	policies := args[1:]
+	policies := args.Tail()
 	req := madmin.PolicyAssociationReq{
 		User:     user,
 		Group:    group,

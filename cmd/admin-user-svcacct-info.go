@@ -23,20 +23,20 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
 )
 
 var adminUserSvcAcctInfoFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "policy",
 		Usage: "print policy in JSON format",
 	},
 }
 
-var adminUserSvcAcctInfoCmd = cli.Command{
+var adminUserSvcAcctInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display service account info",
 	Action:       mainAdminUserSvcAcctInfo,
@@ -60,7 +60,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctInfoSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -81,17 +81,17 @@ func mainAdminUserSvcAcctInfo(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	svcInfo, e := client.InfoServiceAccount(globalContext, svcAccount)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get information of the specified service account")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get information of the specified service account")
 
 	if ctx.Bool("policy") {
 		if svcInfo.Policy == "" {
-			fatalIf(errDummy().Trace(args...), "No policy found associated to the specified service account. Check the policy of its parent user.")
+			fatalIf(errDummy().Trace(args.Slice()...), "No policy found associated to the specified service account. Check the policy of its parent user.")
 		}
 		p, e := policy.ParseConfig(strings.NewReader(svcInfo.Policy))
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to parse policy.")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to parse policy.")
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", " ")
-		fatalIf(probe.NewError(enc.Encode(p)).Trace(args...), "Unable to write policy to stdout.")
+		fatalIf(probe.NewError(enc.Encode(p)).Trace(args.Slice()...), "Unable to write policy to stdout.")
 		return nil
 	}
 

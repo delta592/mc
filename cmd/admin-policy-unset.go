@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminPolicyUnsetCmd = cli.Command{
+var adminPolicyUnsetCmd = &cli.Command{
 	Name:               "unset",
 	Usage:              "unset an IAM policy for a user or group",
 	Action:             mainAdminPolicyUnsetErr,

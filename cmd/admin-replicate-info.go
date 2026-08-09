@@ -25,13 +25,13 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminReplicateInfoCmd = cli.Command{
+var adminReplicateInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "get site replication information",
 	Action:       mainAdminReplicationInfo,
@@ -120,7 +120,7 @@ func (i srInfo) String() string {
 func mainAdminReplicationInfo(ctx *cli.Context) error {
 	{
 		// Check argument count
-		argsNr := len(ctx.Args())
+		argsNr := ctx.Args().Len()
 		if argsNr != 1 {
 			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 				"Need exactly one alias argument.")
@@ -140,7 +140,7 @@ func mainAdminReplicationInfo(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	info, e := client.SiteReplicationInfo(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get cluster replication information")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get cluster replication information")
 
 	printMsg(srInfo(info))
 

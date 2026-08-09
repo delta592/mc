@@ -24,42 +24,45 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // mv command flags.
 var (
 	mvFlags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "move recursively",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "older-than",
 			Usage: "move objects older than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "newer-than",
 			Usage: "move objects newer than value in duration string (e.g. 7d10h31s)",
 		},
-		cli.StringFlag{
-			Name:  "storage-class, sc",
+		&cli.StringFlag{
+			Name: "storage-class",
+			Aliases: []string{"sc"},
 			Usage: "set storage class for new object(s) on target",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "attr",
 			Usage: "add custom metadata for the object",
 		},
-		cli.BoolFlag{
-			Name:  "preserve, a",
+		&cli.BoolFlag{
+			Name: "preserve",
+			Aliases: []string{"a"},
 			Usage: "preserve filesystem attributes (mode, ownership, timestamps)",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "disable-multipart",
 			Usage: "disable multipart upload feature",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "tags",
 			Usage: "apply one or more tags to the uploaded objects",
 		},
@@ -68,7 +71,7 @@ var (
 )
 
 // Move command.
-var mvCmd = cli.Command{
+var mvCmd = &cli.Command{
 	Name:         "mv",
 	Usage:        "move objects",
 	Action:       mainMove,

@@ -17,17 +17,17 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
 var eventFlags = []cli.Flag{}
 
-var eventSubcommands = []cli.Command{
+var eventSubcommands = []*cli.Command{
 	eventAddCmd,
 	eventRemoveCmd,
 	eventListCmd,
 }
 
-var eventCmd = cli.Command{
+var eventCmd = &cli.Command{
 	Name:            "event",
 	Usage:           "manage object notifications",
 	HideHelpCommand: true,

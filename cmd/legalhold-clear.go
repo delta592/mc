@@ -22,31 +22,33 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
 )
 
 var lhClearFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "clear legal hold recursively",
 	},
-	cli.StringFlag{
-		Name:  "version-id, vid",
+	&cli.StringFlag{
+		Name: "version-id",
+		Aliases: []string{"vid"},
 		Usage: "clear legal hold of a specific object version",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "rewind",
 		Usage: "clear legal hold on an object version at specified time",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "versions",
 		Usage: "clear legal hold on multiple versions of object(s)",
 	},
 }
 
-var legalHoldClearCmd = cli.Command{
+var legalHoldClearCmd = &cli.Command{
 	Name:         "clear",
 	Usage:        "clear legal hold for object(s)",
 	Action:       mainLegalHoldClear,

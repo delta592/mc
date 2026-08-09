@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserSvcAcctRemoveCmd = cli.Command{
+var adminUserSvcAcctRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove a service account",
 	Action:       mainAdminUserSvcAcctRemove,
 	OnUsageError: onUsageError,
@@ -49,7 +49,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctRemoveSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -70,7 +70,7 @@ func mainAdminUserSvcAcctRemove(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	e := client.DeleteServiceAccount(globalContext, svcAccount)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to remove the specified service account")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove the specified service account")
 
 	printMsg(acctMessage{
 		op:        svcAccOpRemove,

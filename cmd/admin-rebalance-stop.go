@@ -22,12 +22,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminRebalanceStopCmd = cli.Command{
+var adminRebalanceStopCmd = &cli.Command{
 	Name:         "stop",
 	Usage:        "stop an ongoing rebalance operation",
 	Action:       mainAdminRebalanceStop,
@@ -66,7 +66,7 @@ func (r rebalanceStopMsg) String() string {
 }
 
 func mainAdminRebalanceStop(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

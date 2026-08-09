@@ -25,24 +25,24 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
 )
 
 var replicateResyncStartFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "older-than",
 		Usage: "replicate back objects older than value in duration string (e.g. 7d10h31s)",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "remote-bucket",
 		Usage: "remote bucket ARN",
 	},
 }
 
-var replicateResyncStartCmd = cli.Command{
+var replicateResyncStartCmd = &cli.Command{
 	Name:         "start",
 	Usage:        "start replicating back all previously replicated objects",
 	Action:       mainReplicateResyncStart,
@@ -69,7 +69,7 @@ EXAMPLES:
 
 // checkReplicateResyncStartSyntax - validate all the passed arguments
 func checkReplicateResyncStartSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 	if ctx.String("remote-bucket") == "" {
@@ -130,7 +130,7 @@ func mainReplicateResyncStart(cliCtx *cli.Context) error {
 	}
 
 	rinfo, err := client.ResetReplication(ctx, olderThan, cliCtx.String("remote-bucket"))
-	fatalIf(err.Trace(args...), "Unable to reset replication")
+	fatalIf(err.Trace(args.Slice()...), "Unable to reset replication")
 	printMsg(replicateResyncMessage{
 		Op:                cliCtx.Command.Name,
 		URL:               aliasedURL,

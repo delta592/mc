@@ -23,13 +23,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminConfigSetCmd = cli.Command{
+var adminConfigSetCmd = &cli.Command{
 	Name:         "set",
 	Usage:        "interactively set a config key parameters",
 	Before:       setGlobalsFromContext,
@@ -87,7 +87,7 @@ func (u configSetMessage) JSON() string {
 
 // checkAdminConfigSetSyntax - validate all the passed arguments
 func checkAdminConfigSetSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() && len(ctx.Args()) < 1 {
+	if !ctx.Args().Present() && ctx.Args().Len() < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

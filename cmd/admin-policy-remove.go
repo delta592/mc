@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminPolicyRemoveCmd = cli.Command{
+var adminPolicyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove an IAM policy",
 	Action:       mainAdminPolicyRemove,
 	OnUsageError: onUsageError,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkAdminPolicyRemoveSyntax - validate all the passed arguments
 func checkAdminPolicyRemoveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -71,7 +71,7 @@ func mainAdminPolicyRemove(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	fatalIf(probe.NewError(client.RemoveCannedPolicy(globalContext, args.Get(1))).Trace(args...), "Unable to remove policy")
+	fatalIf(probe.NewError(client.RemoveCannedPolicy(globalContext, args.Get(1))).Trace(args.Slice()...), "Unable to remove policy")
 
 	printMsg(userPolicyMessage{
 		op:     ctx.Command.Name,

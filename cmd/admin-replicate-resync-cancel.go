@@ -23,13 +23,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminReplicateResyncCancelCmd = cli.Command{
+var adminReplicateResyncCancelCmd = &cli.Command{
 	Name:         "cancel",
 	Usage:        "cancel ongoing resync operation",
 	Action:       mainAdminReplicateResyncCancel,
@@ -75,7 +75,7 @@ func (m resyncCancelMessage) String() string {
 
 func mainAdminReplicateResyncCancel(ctx *cli.Context) error {
 	// Check argument count
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -107,7 +107,7 @@ func mainAdminReplicateResyncCancel(ctx *cli.Context) error {
 			"alias provided is not part of cluster replication.")
 	}
 	res, e := client.SiteReplicationResyncOp(globalContext, peer, madmin.SiteResyncCancel)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to cancel replication resync")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to cancel replication resync")
 
 	printMsg(resyncCancelMessage(res))
 

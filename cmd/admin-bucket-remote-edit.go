@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminBucketRemoteEditCmd = cli.Command{
+var adminBucketRemoteEditCmd = &cli.Command{
 	Name:         "edit",
 	Usage:        "edit remote target",
 	Action:       mainAdminBucketRemoteEdit,

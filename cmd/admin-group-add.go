@@ -23,13 +23,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminGroupAddCmd = cli.Command{
+var adminGroupAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "add users to a new or existing group",
 	Action:       mainAdminGroupAdd,
@@ -57,7 +57,7 @@ EXAMPLES:
 
 // checkAdminGroupAddSyntax - validate all the passed arguments
 func checkAdminGroupAddSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) < 3 {
+	if ctx.Args().Len() < 3 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -137,7 +137,7 @@ func mainAdminGroupAdd(ctx *cli.Context) error {
 		Members:  members,
 		IsRemove: false,
 	}
-	fatalIf(probe.NewError(client.UpdateGroupMembers(globalContext, gAddRemove)).Trace(args...), "Unable to add new group")
+	fatalIf(probe.NewError(client.UpdateGroupMembers(globalContext, gAddRemove)).Trace(args.Slice()...), "Unable to add new group")
 
 	printMsg(groupMessage{
 		op:        ctx.Command.Name,

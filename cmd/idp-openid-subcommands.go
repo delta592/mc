@@ -23,12 +23,12 @@ import (
 
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 )
 
-var idpOpenidAddCmd = cli.Command{
+var idpOpenidAddCmd = &cli.Command{
 	Name:         "add",
 	Usage:        "Create an OpenID IDP server configuration",
 	Action:       mainIDPOpenIDAdd,
@@ -69,7 +69,7 @@ func mainIDPOpenIDAdd(ctx *cli.Context) error {
 }
 
 func mainIDPOpenIDAddOrUpdate(ctx *cli.Context, update bool) error {
-	if len(ctx.Args()) < 2 {
+	if ctx.Args().Len() < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -82,10 +82,10 @@ func mainIDPOpenIDAddOrUpdate(ctx *cli.Context, update bool) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	cfgName := madmin.Default
-	input := args[1:]
+	input := args.Slice()[1:]
 	if !strings.Contains(args.Get(1), "=") {
 		cfgName = args.Get(1)
-		input = args[2:]
+		input = args.Slice()[2:]
 	}
 
 	inputCfg := strings.Join(input, " ")
@@ -102,7 +102,7 @@ func mainIDPOpenIDAddOrUpdate(ctx *cli.Context, update bool) error {
 	return nil
 }
 
-var idpOpenidUpdateCmd = cli.Command{
+var idpOpenidUpdateCmd = &cli.Command{
 	Name:         "update",
 	Usage:        "Update an OpenID IDP configuration",
 	Action:       mainIDPOpenIDUpdate,
@@ -134,9 +134,9 @@ func mainIDPOpenIDUpdate(ctx *cli.Context) error {
 	return mainIDPOpenIDAddOrUpdate(ctx, true)
 }
 
-var idpOpenidRemoveCmd = cli.Command{
+var idpOpenidRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove OpenID IDP server configuration",
 	Action:       mainIDPOpenIDRemove,
 	Before:       setGlobalsFromContext,
@@ -160,14 +160,14 @@ EXAMPLES:
 }
 
 func mainIDPOpenIDRemove(ctx *cli.Context) error {
-	if len(ctx.Args()) < 1 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
 	args := ctx.Args()
 
 	var cfgName string
-	if len(args) == 2 {
+	if args.Len() == 2 {
 		cfgName = args.Get(1)
 	}
 	return idpRemove(ctx, true, cfgName)
@@ -197,9 +197,9 @@ func idpRemove(ctx *cli.Context, isOpenID bool, cfgName string) error {
 	return nil
 }
 
-var idpOpenidListCmd = cli.Command{
+var idpOpenidListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list OpenID IDP server configuration(s)",
 	Action:       mainIDPOpenIDList,
 	Before:       setGlobalsFromContext,
@@ -221,7 +221,7 @@ EXAMPLES:
 }
 
 func mainIDPOpenIDList(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
@@ -342,7 +342,7 @@ func (i idpCfgList) String() string {
 	return boxStyle.Render(boxContent)
 }
 
-var idpOpenidInfoCmd = cli.Command{
+var idpOpenidInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "get OpenID IDP server configuration info",
 	Action:       mainIDPOpenIDInfo,
@@ -367,13 +367,13 @@ EXAMPLES:
 }
 
 func mainIDPOpenIDInfo(ctx *cli.Context) error {
-	if len(ctx.Args()) < 1 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
 	args := ctx.Args()
 	var cfgName string
-	if len(args) == 2 {
+	if args.Len() == 2 {
 		cfgName = args.Get(1)
 	}
 
@@ -470,7 +470,7 @@ func (i idpConfig) String() string {
 	return boxStyle.Render(boxContent)
 }
 
-var idpOpenidEnableCmd = cli.Command{
+var idpOpenidEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable an OpenID IDP server configuration",
 	Action:       mainIDPOpenIDEnable,
@@ -500,13 +500,13 @@ func mainIDPOpenIDEnable(ctx *cli.Context) error {
 }
 
 func idpEnableDisable(ctx *cli.Context, isOpenID, enable bool) error {
-	if len(ctx.Args()) < 1 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() < 1 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 
 	args := ctx.Args()
 	cfgName := madmin.Default
-	if len(args) == 2 {
+	if args.Len() == 2 {
 		cfgName = args.Get(1)
 	}
 	aliasedURL := args.Get(0)
@@ -536,7 +536,7 @@ func idpEnableDisable(ctx *cli.Context, isOpenID, enable bool) error {
 	return nil
 }
 
-var idpOpenidDisableCmd = cli.Command{
+var idpOpenidDisableCmd = &cli.Command{
 	Name:         "disable",
 	Usage:        "Disable an OpenID IDP server configuration",
 	Action:       mainIDPOpenIDDisable,

@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
@@ -34,12 +34,12 @@ import (
 // profile command flags.
 var (
 	profileFlags = append([]cli.Flag{
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "duration",
 			Usage: "profile for the specified duration in seconds",
 			Value: 15,
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "type",
 			Usage: "profiler type, possible values are 'cpu', 'cpuio', 'mem', 'block', 'mutex', 'trace', 'threads', 'goroutines' and 'runtime'",
 			Value: "cpu,mem,goroutines,runtime",
@@ -79,7 +79,7 @@ func (s supportProfileMessage) JSON() string {
 	return toJSON(s)
 }
 
-var supportProfileCmd = cli.Command{
+var supportProfileCmd = &cli.Command{
 	Name:            "profile",
 	Usage:           "upload profile data for debugging",
 	Action:          mainSupportProfile,
@@ -132,7 +132,7 @@ func checkAdminProfileSyntax(ctx *cli.Context) {
 			}
 		}
 	}
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

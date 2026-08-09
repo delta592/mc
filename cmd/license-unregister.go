@@ -22,14 +22,14 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 const licUnregisterMsgTag = "licenseUnregisterMessage"
 
-var licenseUnregisterCmd = cli.Command{
+var licenseUnregisterCmd = &cli.Command{
 	Name:         "unregister",
 	Usage:        "unregister from MinIO Subscription Network",
 	OnUsageError: onUsageError,
@@ -73,7 +73,7 @@ func (li licUnregisterMessage) JSON() string {
 
 // checkLicenseUnregisterSyntax - validate arguments passed by a user
 func checkLicenseUnregisterSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

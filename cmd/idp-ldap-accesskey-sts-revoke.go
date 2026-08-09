@@ -19,11 +19,11 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
-var idpLdapAccesskeySTSRevokeCmd = cli.Command{
+var idpLdapAccesskeySTSRevokeCmd = &cli.Command{
 	Name:         "sts-revoke",
 	Usage:        "revokes all STS accounts or specified types for the specified user",
 	Action:       mainIdpLdapAccesskeySTSRevoke,
@@ -79,7 +79,7 @@ func mainIdpLdapAccesskeySTSRevoke(ctx *cli.Context) error {
 		TokenRevokeType: tokenRevokeType,
 		FullRevoke:      fullRevoke,
 	})
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to revoke tokens for %s", user)
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to revoke tokens for %s", user)
 
 	printMsg(stsRevokeMessage{
 		User:            user,

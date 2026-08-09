@@ -23,22 +23,22 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var supportTopDriveFlags = []cli.Flag{
-	cli.IntFlag{
-		Name:  "count, c",
+	&cli.IntFlag{
+		Name: "count",
+		Aliases: []string{"c"},
 		Usage: "show up to N drives",
 		Value: 10,
 	},
 }
 
-var supportTopDriveCmd = cli.Command{
+var supportTopDriveCmd = &cli.Command{
 	Name:            "drive",
 	Aliases:         []string{"disk"},
-	HiddenAliases:   true,
 	Usage:           "show real-time drive metrics",
 	Action:          mainSupportTopDrive,
 	OnUsageError:    onUsageError,
@@ -62,7 +62,7 @@ EXAMPLES:
 
 // checkSupportTopDriveSyntax - validate all the passed arguments
 func checkSupportTopDriveSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

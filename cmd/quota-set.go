@@ -23,20 +23,20 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var quotaSetFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "size",
 		Usage: "set a hard quota, disallowing writes after quota is reached",
 	},
 }
 
-var quotaSetCmd = cli.Command{
+var quotaSetCmd = &cli.Command{
 	Name:         "set",
 	Usage:        "set bucket quota",
 	Action:       mainQuotaSet,
@@ -102,7 +102,7 @@ func (q quotaMessage) JSON() string {
 
 // checkQuotaSetSyntax - validate all the passed arguments
 func checkQuotaSetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -122,7 +122,7 @@ func mainQuotaSet(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	_, targetURL := url2Alias(args[0])
+	_, targetURL := url2Alias(args.Get(0))
 	if !ctx.IsSet("size") {
 		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 			"--size flag needs to be set.")
@@ -135,7 +135,7 @@ func mainQuotaSet(ctx *cli.Context) error {
 	fatalIf(probe.NewError(client.SetBucketQuota(globalContext, targetURL, &madmin.BucketQuota{
 		Size: quota,
 		Type: qType,
-	})).Trace(args...), "Unable to set bucket quota")
+	})).Trace(args.Slice()...), "Unable to set bucket quota")
 
 	printMsg(quotaMessage{
 		op:        ctx.Command.Name,

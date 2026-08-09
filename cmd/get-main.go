@@ -21,22 +21,23 @@ import (
 	"context"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 // get command flags.
 var (
 	getFlags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "version-id, vid",
+		&cli.StringFlag{
+			Name: "version-id",
+			Aliases: []string{"vid"},
 			Usage: "get a specific version of an object",
 		},
 	}
 )
 
 // Get command.
-var getCmd = cli.Command{
+var getCmd = &cli.Command{
 	Name:         "get",
 	Usage:        "get s3 object to local",
 	Action:       mainGet,
@@ -65,7 +66,7 @@ EXAMPLES:
 // mainGet is the entry point for get command.
 func mainGet(cliCtx *cli.Context) (e error) {
 	args := cliCtx.Args()
-	if len(args) != 2 {
+	if args.Len() != 2 {
 		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
 	}
 
@@ -74,13 +75,14 @@ func mainGet(cliCtx *cli.Context) (e error) {
 
 	encryptionKeys, err := validateAndCreateEncryptionKeys(cliCtx)
 	if err != nil {
-		err.Trace(cliCtx.Args()...)
+		err.Trace(cliCtx.Args().Slice()...)
 	}
 	fatalIf(err, "unable to parse encryption keys")
 
 	// get source and target
-	sourceURLs := args[:len(args)-1]
-	targetURL := args[len(args)-1]
+	argsSlice := args.Slice()
+	sourceURLs := argsSlice[:len(argsSlice)-1]
+	targetURL := argsSlice[len(argsSlice)-1]
 
 	getURLsCh := make(chan URLs, 10000)
 	var totalObjects, totalBytes int64

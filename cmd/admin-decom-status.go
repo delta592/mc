@@ -25,12 +25,12 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminDecommissionStatusCmd = cli.Command{
+var adminDecommissionStatusCmd = &cli.Command{
 	Name:         "status",
 	Usage:        "show current decommissioning status",
 	Action:       mainAdminDecommissionStatus,
@@ -56,7 +56,7 @@ EXAMPLES:
 
 // checkAdminDecommissionStatusSyntax - validate all the passed arguments
 func checkAdminDecommissionStatusSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) > 2 || len(ctx.Args()) == 0 {
+	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -76,7 +76,7 @@ func mainAdminDecommissionStatus(ctx *cli.Context) error {
 
 	if pool := args.Get(1); pool != "" {
 		poolStatus, e := client.StatusPool(globalContext, pool)
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to get status per pool")
+		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get status per pool")
 
 		if globalJSON {
 			statusJSONBytes, e := json.MarshalIndent(poolStatus, "", "    ")
@@ -108,14 +108,14 @@ func mainAdminDecommissionStatus(ctx *cli.Context) error {
 			}
 			msg = color.GreenString(msg)
 		} else {
-			errorIf(errDummy().Trace(args...), "This pool is currently not scheduled for decomissioning")
+			errorIf(errDummy().Trace(args.Slice()...), "This pool is currently not scheduled for decomissioning")
 			return nil
 		}
 		fmt.Println(msg)
 		return nil
 	}
 	poolStatuses, e := client.ListPoolsStatus(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get status for all pools")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get status for all pools")
 
 	if globalJSON {
 		statusJSONBytes, e := json.MarshalIndent(poolStatuses, "", "    ")

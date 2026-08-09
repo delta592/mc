@@ -18,12 +18,12 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminBucketRemoteRmCmd = cli.Command{
+var adminBucketRemoteRmCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "remove configured remote target",
 	Action:       mainAdminBucketRemoteRemove,
 	OnUsageError: onUsageError,

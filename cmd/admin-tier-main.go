@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminTierCmd = cli.Command{
+var adminTierCmd = &cli.Command{
 	Name:            "tier",
 	Usage:           "manage remote tier targets for ILM transition",
 	Action:          mainAdminTier,

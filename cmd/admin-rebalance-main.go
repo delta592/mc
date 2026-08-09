@@ -17,15 +17,15 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminRebalanceSubcommands = []cli.Command{
+var adminRebalanceSubcommands = []*cli.Command{
 	adminRebalanceStartCmd,
 	adminRebalanceStatusCmd,
 	adminRebalanceStopCmd,
 }
 
-var adminRebalanceCmd = cli.Command{
+var adminRebalanceCmd = &cli.Command{
 	Name:            "rebalance",
 	Usage:           "Manage MinIO rebalance",
 	Action:          mainAdminRebalance,

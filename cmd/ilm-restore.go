@@ -24,34 +24,36 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 )
 
 // ilm restore specific flags.
 var (
 	ilmRestoreFlags = []cli.Flag{
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:  "days",
 			Value: 1,
 			Usage: "keep the restored copy for N days",
 		},
-		cli.BoolFlag{
-			Name:  "recursive, r",
+		&cli.BoolFlag{
+			Name: "recursive",
+			Aliases: []string{"r"},
 			Usage: "apply recursively",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "apply on versions",
 		},
-		cli.StringFlag{
-			Name:  "version-id, vid",
+		&cli.StringFlag{
+			Name: "version-id",
+			Aliases: []string{"vid"},
 			Usage: "select a specific version id",
 		},
 	}
 )
 
-var ilmRestoreCmd = cli.Command{
+var ilmRestoreCmd = &cli.Command{
 	Name:         "restore",
 	Usage:        "restore archived objects",
 	Action:       mainILMRestore,
@@ -92,7 +94,7 @@ EXAMPLES:
 
 // checkILMRestoreSyntax - validate arguments passed by user
 func checkILMRestoreSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 

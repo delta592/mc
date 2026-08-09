@@ -23,12 +23,12 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 )
 
-var ilmExportCmd = cli.Command{
+var ilmExportCmd = &cli.Command{
 	Name:         "export",
 	Usage:        "export lifecycle configuration in JSON format",
 	Action:       mainILMExport,
@@ -76,7 +76,7 @@ func (i ilmExportMessage) JSON() string {
 
 // checkILMExportSyntax - validate arguments passed by user
 func checkILMExportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, globalErrorExitStatus)
 	}
 }
@@ -92,10 +92,10 @@ func mainILMExport(cliCtx *cli.Context) error {
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)
-	fatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
+	fatalIf(err.Trace(args.Slice()...), "Unable to initialize client for "+urlStr+".")
 
 	ilmCfg, updatedAt, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(args...), "Unable to get lifecycle configuration")
+	fatalIf(err.Trace(args.Slice()...), "Unable to get lifecycle configuration")
 	if len(ilmCfg.Rules) == 0 {
 		fatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),
 			"Unable to export lifecycle configuration")

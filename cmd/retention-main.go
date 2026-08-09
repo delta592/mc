@@ -18,16 +18,16 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var retentionSubcommands = []cli.Command{
+var retentionSubcommands = []*cli.Command{
 	retentionSetCmd,
 	retentionClearCmd,
 	retentionInfoCmd,
 }
 
-var retentionCmd = cli.Command{
+var retentionCmd = &cli.Command{
 	Name:        "retention",
 	Usage:       "set retention for object(s)",
 	Action:      mainRetention,

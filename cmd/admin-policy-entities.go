@@ -19,26 +19,29 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var adminPolicyEntitiesFlags = []cli.Flag{
-	cli.StringSliceFlag{
-		Name:  "user, u",
+	&cli.StringSliceFlag{
+		Name: "user",
+		Aliases: []string{"u"},
 		Usage: "list policies associated with user(s)",
 	},
-	cli.StringSliceFlag{
-		Name:  "group, g",
+	&cli.StringSliceFlag{
+		Name: "group",
+		Aliases: []string{"g"},
 		Usage: "list policies associated with group(s)",
 	},
-	cli.StringSliceFlag{
-		Name:  "policy, p",
+	&cli.StringSliceFlag{
+		Name: "policy",
+		Aliases: []string{"p"},
 		Usage: "list users or groups associated with policy",
 	},
 }
 
-var adminPolicyEntitiesCmd = cli.Command{
+var adminPolicyEntitiesCmd = &cli.Command{
 	Name:         "entities",
 	Usage:        "list policy association entities",
 	Action:       mainAdminPolicyEntities,
@@ -71,7 +74,7 @@ EXAMPLES:
 
 // mainAdminPolicyEntities is the handler for "mc admin policy entities" command.
 func mainAdminPolicyEntities(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 

@@ -17,10 +17,10 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
 var (
-	idpOpenidSubcommands = []cli.Command{
+	idpOpenidSubcommands = []*cli.Command{
 		idpOpenidAddCmd,
 		idpOpenidUpdateCmd,
 		idpOpenidRemoveCmd,
@@ -31,7 +31,7 @@ var (
 		idpOpenIDAccesskeyCmd,
 		// TODO: idpOpenidPolicyCmd,
 	}
-	idpOpenidCmd = cli.Command{
+	idpOpenidCmd = &cli.Command{
 		Name:            "openid",
 		Usage:           "manage OpenID IDP server configuration",
 		Action:          mainIDPOpenID,

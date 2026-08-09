@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var idpOpenidAccesskeySubcommands = []cli.Command{
+var idpOpenidAccesskeySubcommands = []*cli.Command{
 	idpOpenidAccesskeyListCmd,
 	idpOpenidAccesskeyRemoveCmd,
 	idpOpenidAccesskeyInfoCmd,
@@ -28,7 +28,7 @@ var idpOpenidAccesskeySubcommands = []cli.Command{
 	idpOpenidAccesskeyDisableCmd,
 }
 
-var idpOpenIDAccesskeyCmd = cli.Command{
+var idpOpenIDAccesskeyCmd = &cli.Command{
 	Name:            "accesskey",
 	Usage:           "manage OpenID access key pairs",
 	Action:          mainIDPOpenIDAccesskey,

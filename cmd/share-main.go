@@ -22,20 +22,20 @@ import (
 	"path/filepath"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
 var shareFlags = []cli.Flag{}
 
-var shareSubcommands = []cli.Command{
+var shareSubcommands = []*cli.Command{
 	shareDownload,
 	shareUpload,
 	shareList,
 }
 
 // Share documents via URL.
-var shareCmd = cli.Command{
+var shareCmd = &cli.Command{
 	Name:            "share",
 	Usage:           "generate URL for temporary access to an object",
 	Action:          mainShare,

@@ -25,48 +25,48 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/policy"
 )
 
 var idpLdapAccesskeyCreateFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "access-key",
 		Usage: "set an access key for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Usage: "set a secret key for the  account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "path to a JSON policy file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "friendly name for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "description",
 		Usage: "description for the account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry-duration",
 		Usage: "duration before the access key expires",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry",
 		Usage: "expiry date for the access key",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "login",
 		Usage:  "log in using ldap credentials to generate access key pair for future use",
 		Hidden: true,
 	},
 }
 
-var idpLdapAccesskeyCreateCmd = cli.Command{
+var idpLdapAccesskeyCreateCmd = &cli.Command{
 	Name:         "create",
 	Usage:        "create access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyCreate,
@@ -102,7 +102,7 @@ func mainIDPLdapAccesskeyCreate(ctx *cli.Context) error {
 }
 
 func commonAccesskeyCreate(ctx *cli.Context, ldap bool) error {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 2 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

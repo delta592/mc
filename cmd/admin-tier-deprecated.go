@@ -17,9 +17,9 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminTierDepCmds = []cli.Command{
+var adminTierDepCmds = []*cli.Command{
 	adminTierDepInfoCmd,
 	adminTierDepListCmd,
 	adminTierDepAddCmd,
@@ -29,7 +29,7 @@ var adminTierDepCmds = []cli.Command{
 }
 
 var (
-	adminTierDepInfoCmd = cli.Command{
+	adminTierDepInfoCmd = &cli.Command{
 		Name:         "info",
 		Usage:        "display tier statistics",
 		Action:       mainAdminTierInfo,
@@ -56,7 +56,7 @@ EXAMPLES:
 `,
 	}
 
-	adminTierDepListCmd = cli.Command{
+	adminTierDepListCmd = &cli.Command{
 		Name:         "ls",
 		Usage:        "lists configured remote tier targets",
 		Action:       mainAdminTierList,
@@ -80,7 +80,7 @@ EXAMPLES:
 `,
 	}
 
-	adminTierDepAddCmd = cli.Command{
+	adminTierDepAddCmd = &cli.Command{
 		Name:         "add",
 		Usage:        "add a new remote tier target",
 		Action:       mainAdminTierAdd,
@@ -122,7 +122,7 @@ EXAMPLES:
         --bucket mygcsbucket  --prefix mygcsprefix/
 `,
 	}
-	adminTierDepEditCmd = cli.Command{
+	adminTierDepEditCmd = &cli.Command{
 		Name:         "edit",
 		Usage:        "update an existing remote tier configuration",
 		Action:       mainAdminTierEdit,
@@ -154,7 +154,7 @@ EXAMPLES:
 `,
 	}
 
-	adminTierDepVerifyCmd = cli.Command{
+	adminTierDepVerifyCmd = &cli.Command{
 		Name:         "verify",
 		Usage:        "verifies if remote tier configuration is valid",
 		Action:       mainAdminTierVerify,
@@ -180,7 +180,7 @@ EXAMPLES:
 `,
 	}
 
-	adminTierDepRmCmd = cli.Command{
+	adminTierDepRmCmd = &cli.Command{
 		Name:         "rm",
 		Usage:        "removes an empty remote tier",
 		Action:       mainAdminTierRm,

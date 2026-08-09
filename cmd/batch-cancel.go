@@ -23,19 +23,19 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var batchCancelFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "id",
 		Usage: "job id",
 	},
 }
 
-var batchCancelCmd = cli.Command{
+var batchCancelCmd = &cli.Command{
 	Name:         "cancel",
 	Usage:        "cancel ongoing batch job",
 	Action:       mainBatchCancel,
@@ -79,7 +79,7 @@ func (c batchCancelMessage) JSON() string {
 
 // checkBatchCancelSyntax - validate all the passed arguments
 func checkBatchCancelSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

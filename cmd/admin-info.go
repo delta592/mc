@@ -29,7 +29,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/dustin/go-humanize/english"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
@@ -37,13 +37,13 @@ import (
 )
 
 var adminInfoFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "offline",
 		Usage: "show only offline nodes/drives",
 	},
 }
 
-var adminInfoCmd = cli.Command{
+var adminInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display MinIO server information",
 	Action:       mainAdminInfo,
@@ -371,7 +371,7 @@ func (u clusterStruct) JSON() string {
 
 // checkAdminInfoSyntax - validate arguments passed by a user
 func checkAdminInfoSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

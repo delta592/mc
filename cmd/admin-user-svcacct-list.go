@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminUserSvcAcctListCmd = cli.Command{
+var adminUserSvcAcctListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list services accounts",
 	Action:       mainAdminUserSvcAcctList,
 	OnUsageError: onUsageError,
@@ -52,7 +52,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctListSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctListSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -77,7 +77,7 @@ func mainAdminUserSvcAcctList(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	svcList, e := client.ListServiceAccounts(globalContext, user)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to list service accounts")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to list service accounts")
 
 	if len(svcList.Accounts) > 0 {
 		if !globalJSON {

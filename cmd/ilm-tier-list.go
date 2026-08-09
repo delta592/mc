@@ -25,15 +25,15 @@ import (
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/table"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	madmin "github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminTierListCmd = cli.Command{
+var adminTierListCmd = &cli.Command{
 	Name:         "list",
-	ShortName:    "ls",
+	Aliases: []string{"ls"},
 	Usage:        "list configured remote tier targets",
 	Action:       mainAdminTierList,
 	OnUsageError: onUsageError,
@@ -57,7 +57,7 @@ EXAMPLES:
 
 // checkAdminTierListSyntax - validate all the passed arguments
 func checkAdminTierListSyntax(ctx *cli.Context) {
-	argsNr := len(ctx.Args())
+	argsNr := ctx.Args().Len()
 	if argsNr < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
@@ -108,7 +108,7 @@ func mainAdminTierList(ctx *cli.Context) error {
 	fatalIf(cerr, "Unable to initialize admin connection.")
 
 	tiers, e := client.ListTiers(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to list configured remote tier targets")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to list configured remote tier targets")
 
 	if len(tiers) == 0 {
 		console.Infoln("No remote tier targets found for alias '" + aliasedURL + "'. Use `mc ilm tier add` to configure one.")

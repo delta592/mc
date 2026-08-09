@@ -17,14 +17,14 @@
 
 package cmd
 
-import "github.com/minio/cli"
+import "github.com/urfave/cli/v2"
 
-var adminPrometheusSubcommands = []cli.Command{
+var adminPrometheusSubcommands = []*cli.Command{
 	adminPrometheusGenerateCmd,
 	adminPrometheusMetricsCmd,
 }
 
-var adminPrometheusCmd = cli.Command{
+var adminPrometheusCmd = &cli.Command{
 	Name:            "prometheus",
 	Usage:           "manages prometheus config",
 	Action:          mainAdminPrometheus,

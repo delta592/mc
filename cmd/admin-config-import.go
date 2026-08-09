@@ -23,12 +23,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminConfigImportCmd = cli.Command{
+var adminConfigImportCmd = &cli.Command{
 	Name:         "import",
 	Usage:        "import multiple config keys from STDIN",
 	Before:       setGlobalsFromContext,
@@ -77,7 +77,7 @@ func (u configImportMessage) JSON() string {
 
 // checkAdminConfigImportSyntax - validate all the passed arguments
 func checkAdminConfigImportSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || len(ctx.Args()) > 1 {
+	if !ctx.Args().Present() || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

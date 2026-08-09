@@ -19,12 +19,12 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var idpLdapAccesskeyRemoveCmd = cli.Command{
+var idpLdapAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	ShortName:    "rm",
+	Aliases: []string{"rm"},
 	Usage:        "delete access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyRemove,
 	Before:       setGlobalsFromContext,
@@ -51,7 +51,7 @@ func mainIDPLdapAccesskeyRemove(ctx *cli.Context) error {
 
 // No difference between ldap and builtin accesskey remove for now
 func commonAccesskeyRemove(ctx *cli.Context) error {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

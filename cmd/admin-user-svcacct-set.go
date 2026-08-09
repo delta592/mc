@@ -24,35 +24,35 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
 var adminUserSvcAcctSetFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "secret-key",
 		Usage: "set a secret key for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "policy",
 		Usage: "path to a JSON policy file",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "name",
 		Usage: "name for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "description",
 		Usage: "description for the service account",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "expiry",
 		Usage: "time of expiration for the service account",
 	},
 }
 
-var adminUserSvcAcctSetCmd = cli.Command{
+var adminUserSvcAcctSetCmd = &cli.Command{
 	Name:         "edit",
 	Aliases:      []string{"set"},
 	Usage:        "edit an existing service account",
@@ -80,7 +80,7 @@ EXAMPLES:
 
 // checkAdminUserSvcAcctSetSyntax - validate all the passed arguments
 func checkAdminUserSvcAcctSetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 2 {
+	if ctx.Args().Len() != 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
 }
@@ -147,7 +147,7 @@ func mainAdminUserSvcAcctSet(ctx *cli.Context) error {
 	}
 
 	e := client.UpdateServiceAccount(globalContext, svcAccount, opts)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to edit the specified service account")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to edit the specified service account")
 
 	printMsg(acctMessage{
 		op:        svcAccOpSet,

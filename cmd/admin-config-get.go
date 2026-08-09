@@ -26,13 +26,13 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 )
 
-var adminConfigGetCmd = cli.Command{
+var adminConfigGetCmd = &cli.Command{
 	Name:         "get",
 	Usage:        "interactively retrieve a config key parameters",
 	Before:       setGlobalsFromContext,
@@ -110,7 +110,7 @@ func (u configGetMessage) JSON() string {
 
 // checkAdminConfigGetSyntax - validate all the passed arguments
 func checkAdminConfigGetSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || len(ctx.Args()) < 1 {
+	if !ctx.Args().Present() || ctx.Args().Len() < 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
@@ -126,7 +126,7 @@ func mainAdminConfigGet(ctx *cli.Context) error {
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	if len(ctx.Args()) == 1 {
+	if ctx.Args().Len() == 1 {
 		// Call get config API
 		hr, e := client.HelpConfigKV(globalContext, "", "", false)
 		fatalIf(probe.NewError(e), "Unable to get help for the sub-system")

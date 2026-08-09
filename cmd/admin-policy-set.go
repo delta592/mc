@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminPolicySetCmd = cli.Command{
+var adminPolicySetCmd = &cli.Command{
 	Name:               "set",
 	Usage:              "set IAM policy on a user or group",
 	Action:             mainAdminPolicySet,

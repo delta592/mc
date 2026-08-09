@@ -26,12 +26,12 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
-var licenseInfoCmd = cli.Command{
+var licenseInfoCmd = &cli.Command{
 	Name:         "info",
 	Usage:        "display license information",
 	OnUsageError: onUsageError,
@@ -172,7 +172,7 @@ func initLicInfoColors() {
 }
 
 func mainLicenseInfo(ctx *cli.Context) error {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 

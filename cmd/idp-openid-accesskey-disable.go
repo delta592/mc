@@ -18,10 +18,10 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var idpOpenidAccesskeyDisableCmd = cli.Command{
+var idpOpenidAccesskeyDisableCmd = &cli.Command{
 	Name:         "disable",
 	Usage:        "disable an access key",
 	Action:       mainIDPOpenIDAccesskeyDisable,

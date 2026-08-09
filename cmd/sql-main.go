@@ -32,49 +32,51 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/mimedb"
 )
 
 var sqlFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "query, e",
+	&cli.StringFlag{
+		Name: "query",
+		Aliases: []string{"e"},
 		Usage: "sql query expression",
 		Value: "select * from s3object",
 	},
-	cli.BoolFlag{
-		Name:  "recursive, r",
+	&cli.BoolFlag{
+		Name: "recursive",
+		Aliases: []string{"r"},
 		Usage: "sql query recursively",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "csv-input",
 		Usage: "csv input serialization option",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "json-input",
 		Usage: "json input serialization option",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "compression",
 		Usage: "input compression type",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "csv-output",
 		Usage: "csv output serialization option",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "csv-output-header",
 		Usage: "optional csv output header ",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "json-output",
 		Usage: "json output serialization option",
 	},
 }
 
 // Display contents of a file.
-var sqlCmd = cli.Command{
+var sqlCmd = &cli.Command{
 	Name:         "sql",
 	Usage:        "run sql queries on objects",
 	Action:       mainSQL,
@@ -427,7 +429,7 @@ func getAndValidateArgs(ctx *cli.Context, encKeyDB map[string][]prefixSSEPair, u
 
 // check sql input arguments.
 func checkSQLSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
 	}
 }
@@ -449,7 +451,7 @@ func mainSQL(cliCtx *cli.Context) error {
 	// validate sql input arguments.
 	checkSQLSyntax(cliCtx)
 	// extract URLs.
-	URLs := cliCtx.Args()
+	URLs := cliCtx.Args().Slice()
 	writeHdr := true
 	for _, url := range URLs {
 		if _, targetContent, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false}); err != nil {

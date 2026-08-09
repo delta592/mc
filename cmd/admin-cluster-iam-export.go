@@ -27,7 +27,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -35,14 +35,15 @@ import (
 // iam export specific flags.
 var (
 	iamExportFlags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "output,o",
+		&cli.StringFlag{
+			Name: "output",
+			Aliases: []string{"o"},
 			Usage: "output iam export to a custom file path",
 		},
 	}
 )
 
-var adminClusterIAMExportCmd = cli.Command{
+var adminClusterIAMExportCmd = &cli.Command{
 	Name:            "export",
 	Usage:           "exports IAM info to zipped file",
 	Action:          mainClusterIAMExport,
@@ -69,7 +70,7 @@ EXAMPLES:
 }
 
 func checkIAMExportSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

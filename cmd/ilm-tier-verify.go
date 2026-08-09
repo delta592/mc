@@ -19,10 +19,10 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var adminTierVerifyCmd = cli.Command{
+var adminTierVerifyCmd = &cli.Command{
 	Name:         "verify",
 	Usage:        "verifies if remote tier configuration is valid",
 	Action:       mainAdminTierVerify,
@@ -50,7 +50,7 @@ EXAMPLES:
 
 func mainAdminTierVerify(ctx *cli.Context) error {
 	args := ctx.Args()
-	nArgs := len(args)
+	nArgs := args.Len()
 	if nArgs < 2 {
 		showCommandHelpAndExit(ctx, 1)
 	}
@@ -70,7 +70,7 @@ func mainAdminTierVerify(ctx *cli.Context) error {
 	fatalIf(cerr, "Unable to initialize admin connection.")
 
 	e := client.VerifyTier(globalContext, tierName)
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to verify remote tier target")
+	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to verify remote tier target")
 
 	printMsg(&tierMessage{
 		op:       ctx.Command.Name,

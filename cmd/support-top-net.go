@@ -24,27 +24,26 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 )
 
 var supportTopNetFlags = []cli.Flag{
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "interval",
 		Usage: "interval between requests in seconds",
 		Value: 1,
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "n",
 		Usage: "number of requests to run before exiting. 0 for endless (default)",
 		Value: 0,
 	},
 }
 
-var supportTopNetCmd = cli.Command{
+var supportTopNetCmd = &cli.Command{
 	Name:            "net",
 	Aliases:         []string{"network"},
-	HiddenAliases:   true,
 	Usage:           "show real-time net metrics",
 	Action:          mainSupportTopNet,
 	OnUsageError:    onUsageError,
@@ -68,7 +67,7 @@ EXAMPLES:
 
 // checkSupportTopNetSyntax - validate all the passed arguments
 func checkSupportTopNetSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

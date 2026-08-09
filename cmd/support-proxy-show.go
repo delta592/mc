@@ -18,11 +18,11 @@
 package cmd
 
 import (
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 )
 
-var supportProxyShowCmd = cli.Command{
+var supportProxyShowCmd = &cli.Command{
 	Name:            "show",
 	Usage:           "Show the configured proxy",
 	Action:          mainSupportProxyShow,
@@ -66,7 +66,7 @@ func (s supportProxyShowMessage) JSON() string {
 }
 
 func checkSupportProxyShowSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }

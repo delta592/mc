@@ -24,23 +24,23 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
 
 var versionEnableFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "excluded-prefixes",
 		Usage: "exclude versioning on these prefix patterns",
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "exclude-folders",
 		Usage: "exclude versioning on folder objects",
 	},
 }
 
-var versionEnableCmd = cli.Command{
+var versionEnableCmd = &cli.Command{
 	Name:         "enable",
 	Usage:        "enable bucket versioning",
 	Action:       mainVersionEnable,
@@ -71,7 +71,7 @@ EXAMPLES:
 
 // checkVersionEnableSyntax - validate all the passed arguments
 func checkVersionEnableSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) != 1 {
+	if ctx.Args().Len() != 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 }
