@@ -22,4 +22,5 @@ import (
 )
 
 func TestHTTPTracer(t *testing.T) {
+	t.Helper()
 }

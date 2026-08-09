@@ -18,6 +18,7 @@ import (
 	"unicode/utf8"
 )
 
+// Writer wraps an io.Writer and tracks active ANSI escape sequences.
 type Writer struct {
 	Forward io.Writer
 
@@ -68,10 +69,12 @@ func (w *Writer) writeRune(r rune) (int, error) {
 	return w.Forward.Write(w.runeBuf[:n])
 }
 
+// LastSequence returns the most recent non-reset ANSI sequence written.
 func (w *Writer) LastSequence() string {
 	return w.lastseq.String()
 }
 
+// ResetAnsi writes a reset sequence when the active ANSI styling changed.
 func (w *Writer) ResetAnsi() {
 	if !w.seqchanged {
 		return
