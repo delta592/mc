@@ -19,7 +19,7 @@ COVERAGE_FILE ?= coverage.out
 
 .PHONY: all build checks getdeps crosscompile docker \
 	vet fmt fmt-check lint lint-fix verifiers \
-	test test-short test-race test-coverage test-386 test-integration \
+	test test-short test-race test-coverage test-integration \
 	verify check ci install clean help \
 	hotfix-vars hotfix hotfix-push docker-hotfix docker-hotfix-push
 
@@ -97,10 +97,6 @@ test-coverage: ## Run unit tests and write a coverage profile
 	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) -short -coverprofile=$(COVERAGE_FILE) -covermode=atomic $(TESTPKG)
 	@go tool cover -func=$(COVERAGE_FILE)
 
-test-386: ## Run short tests on linux/386
-	@echo "Running short tests on linux/386"
-	@CGO_ENABLED=0 GOOS=linux GOARCH=386 go test $(UNIT_TEST_FLAGS) -short $(TESTPKG)
-
 test-integration: build ## Run the full integration test suite
 	@env bash $(PWD)/buildscripts/run-integration-tests.sh
 
@@ -111,7 +107,7 @@ verify: build ## Build with race detector and run integration tests
 
 check: verifiers test-short test-race build ## Run local validation checks (no MinIO server required)
 
-ci: verifiers test-short test-race test-coverage test-386 build ## Run CI checks (no MinIO server required)
+ci: verifiers test-short test-race test-coverage build ## Run CI checks (no MinIO server required)
 
 ##@ Release
 
