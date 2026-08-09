@@ -20,14 +20,14 @@ package cmd
 import (
 	"testing"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func TestCLIOnUsageError(t *testing.T) {
 	var checkOnUsageError func(*cli.Command, string)
 	checkOnUsageError = func(cmd *cli.Command, parentCmd string) {
-		if cmd.Subcommands != nil {
-			for _, subCmd := range cmd.Subcommands {
+		if cmd.Commands != nil {
+			for _, subCmd := range cmd.Commands {
 				if cmd.Hidden {
 					continue
 				}
