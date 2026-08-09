@@ -34,7 +34,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/klauspost/compress/gzip"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
@@ -47,26 +47,26 @@ const (
 )
 
 var supportDiagFlags = append([]cli.Flag{
-	HealthDataTypeFlag{
+	&HealthDataTypeFlag{
 		Name:   "test",
 		Usage:  "choose specific diagnostics to run [" + options.String() + "]",
 		Value:  nil,
 		Hidden: true,
 	},
-	cli.DurationFlag{
+	&cli.DurationFlag{
 		Name:   "deadline",
 		Usage:  "maximum duration diagnostics should be allowed to run",
 		Value:  1 * time.Hour,
 		Hidden: true,
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  anonymizeFlag,
 		Usage: "Data anonymization mode (standard|strict)",
 		Value: anonymizeStandard,
 	},
 }, subnetCommonFlags...)
 
-var supportDiagCmd = cli.Command{
+var supportDiagCmd = &cli.Command{
 	Name:         "diag",
 	Aliases:      []string{"diagnostics"},
 	Usage:        "upload health data for diagnostics",
@@ -112,7 +112,7 @@ func (s supportDiagMessage) JSON() string {
 
 // checkSupportDiagSyntax - validate arguments passed by a user
 func checkSupportDiagSyntax(ctx *cli.Context) {
-	if len(ctx.Args()) == 0 || len(ctx.Args()) > 1 {
+	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
 		showCommandHelpAndExit(ctx, 1) // last argument is exit code
 	}
 
@@ -482,13 +482,22 @@ type HealthDataTypeFlag struct {
 }
 
 // String - returns the string to be shown in the help message
-func (f HealthDataTypeFlag) String() string {
+func (f *HealthDataTypeFlag) String() string {
 	return cli.FlagStringer(f)
 }
 
-// GetName - returns the name of the flag
-func (f HealthDataTypeFlag) GetName() string {
-	return f.Name
+// Names - returns the names of the flag
+func (f *HealthDataTypeFlag) Names() []string {
+	names := make([]string, 0)
+	for name := range strings.SplitSeq(f.Name, ",") {
+		names = append(names, strings.TrimSpace(name))
+	}
+	return names
+}
+
+// IsSet - returns true if the flag was set
+func (f *HealthDataTypeFlag) IsSet() bool {
+	return f.Value != nil && len(*f.Value) > 0
 }
 
 // GetHealthDataTypeSlice - returns the list of set health tests
@@ -502,20 +511,11 @@ func GetHealthDataTypeSlice(c *cli.Context, name string) *HealthDataTypeSlice {
 
 // GetGlobalHealthDataTypeSlice - returns the list of set health tests set globally
 func GetGlobalHealthDataTypeSlice(c *cli.Context, name string) *HealthDataTypeSlice {
-	generic := c.GlobalGeneric(name)
-	if generic == nil {
-		return nil
-	}
-	return generic.(*HealthDataTypeSlice)
+	return GetHealthDataTypeSlice(c, name)
 }
 
 // Apply - applies the flag
-func (f HealthDataTypeFlag) Apply(set *flag.FlagSet) {
-	f.ApplyWithError(set)
-}
-
-// ApplyWithError - applies with error
-func (f HealthDataTypeFlag) ApplyWithError(set *flag.FlagSet) error {
+func (f *HealthDataTypeFlag) Apply(set *flag.FlagSet) error {
 	if f.EnvVar != "" {
 		for envVar := range strings.SplitSeq(f.EnvVar, ",") {
 			envVar = strings.TrimSpace(envVar)

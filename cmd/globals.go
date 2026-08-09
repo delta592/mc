@@ -34,7 +34,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/colorprofile"
 	"github.com/dustin/go-humanize"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"golang.org/x/net/http/httpguts"
@@ -124,13 +124,13 @@ func parsePagerDisableFlag(args []string) {
 
 // Set global states. NOTE: It is deliberately kept monolithic to ensure we dont miss out any flags.
 func setGlobalsFromContext(ctx *cli.Context) error {
-	quiet := ctx.Bool("quiet") || ctx.GlobalBool("quiet")
-	debug := ctx.Bool("debug") || ctx.GlobalBool("debug")
-	json := ctx.Bool("json") || ctx.GlobalBool("json")
-	noColor := ctx.Bool("no-color") || ctx.GlobalBool("no-color")
-	insecure := ctx.Bool("insecure") || ctx.GlobalBool("insecure")
-	devMode := ctx.Bool("dev") || ctx.GlobalBool("dev")
-	airgapped := ctx.Bool("airgap") || ctx.GlobalBool("airgap")
+	quiet := ctx.Bool("quiet") || ctx.Bool("quiet")
+	debug := ctx.Bool("debug") || ctx.Bool("debug")
+	json := ctx.Bool("json") || ctx.Bool("json")
+	noColor := ctx.Bool("no-color") || ctx.Bool("no-color")
+	insecure := ctx.Bool("insecure") || ctx.Bool("insecure")
+	devMode := ctx.Bool("dev") || ctx.Bool("dev")
+	airgapped := ctx.Bool("airgap") || ctx.Bool("airgap")
 
 	globalQuiet = globalQuiet || quiet
 	globalDebug = globalDebug || debug
@@ -149,17 +149,17 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 
 	globalConnReadDeadline = ctx.Duration("conn-read-deadline")
 	if globalConnReadDeadline <= 0 {
-		globalConnReadDeadline = ctx.GlobalDuration("conn-read-deadline")
+		globalConnReadDeadline = ctx.Duration("conn-read-deadline")
 	}
 
 	globalConnWriteDeadline = ctx.Duration("conn-write-deadline")
 	if globalConnWriteDeadline <= 0 {
-		globalConnWriteDeadline = ctx.GlobalDuration("conn-write-deadline")
+		globalConnWriteDeadline = ctx.Duration("conn-write-deadline")
 	}
 
 	limitUploadStr := ctx.String("limit-upload")
 	if limitUploadStr == "" {
-		limitUploadStr = ctx.GlobalString("limit-upload")
+		limitUploadStr = ctx.String("limit-upload")
 	}
 	if limitUploadStr != "" {
 		var e error
@@ -171,7 +171,7 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 
 	limitDownloadStr := ctx.String("limit-download")
 	if limitDownloadStr == "" {
-		limitDownloadStr = ctx.GlobalString("limit-download")
+		limitDownloadStr = ctx.String("limit-download")
 	}
 
 	if limitDownloadStr != "" {

@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/posener/complete/v2"
 	"github.com/posener/complete/v2/predict"
 )
@@ -631,7 +631,7 @@ var completeCmds = map[string]complete.Predictor{
 func flagsToCompleteFlags(flags []cli.Flag) map[string]complete.Predictor {
 	complFlags := make(map[string]complete.Predictor)
 	for _, f := range flags {
-		for s := range strings.SplitSeq(f.GetName(), ",") {
+		for _, s := range f.Names() {
 			s = strings.TrimSpace(s)
 			complFlags[s] = predict.Nothing
 		}
@@ -641,7 +641,7 @@ func flagsToCompleteFlags(flags []cli.Flag) map[string]complete.Predictor {
 
 // This function recursively transforms cli.Command to complete.Command
 // understood by posener/complete library.
-func cmdToCompleteCmd(cmd cli.Command, parentPath string) *complete.Command {
+func cmdToCompleteCmd(cmd *cli.Command, parentPath string) *complete.Command {
 	complCmd := &complete.Command{
 		Sub: make(map[string]*complete.Command),
 	}

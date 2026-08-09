@@ -34,7 +34,7 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
@@ -48,7 +48,7 @@ import (
 
 // global flags for mc.
 var mcFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "autocompletion",
 		Usage: "install auto-completion for your shell",
 	},
@@ -199,7 +199,7 @@ func onUsageError(ctx *cli.Context, err error, _ bool) error {
 }
 
 // Function invoked when invalid command is passed.
-func commandNotFound(ctx *cli.Context, cmds []cli.Command) {
+func commandNotFound(ctx *cli.Context, cmds []*cli.Command) {
 	command := ctx.Args().First()
 	if command == "" {
 		cli.ShowCommandHelp(ctx, command)
@@ -358,9 +358,9 @@ func registerBefore(ctx *cli.Context) error {
 	if ctx.IsSet("config-dir") {
 		// Set the config directory.
 		setMcConfigDir(ctx.String("config-dir"))
-	} else if ctx.GlobalIsSet("config-dir") {
+	} else if ctx.IsSet("config-dir") {
 		// Set the config directory.
-		setMcConfigDir(ctx.GlobalString("config-dir"))
+		setMcConfigDir(ctx.String("config-dir"))
 	}
 
 	// Set global flags.
@@ -398,7 +398,7 @@ func findClosestCommands(commandsTree *trie.Trie, command string) []string {
 // Check for updates and print a notification message
 func checkUpdate(ctx *cli.Context) {
 	// Do not print update messages, if quiet flag is set.
-	if !ctx.Bool("quiet") && !ctx.GlobalBool("quiet") {
+	if !ctx.Bool("quiet") && !ctx.Bool("quiet") {
 		// Its OK to ignore any errors during doUpdate() here.
 		if updateMsg, _, currentReleaseTime, latestReleaseTime, _, err := getUpdateInfo("", 2*time.Second); err == nil {
 			printMsg(updateMessage{
@@ -414,7 +414,7 @@ func checkUpdate(ctx *cli.Context) {
 	}
 }
 
-var appCmds = []cli.Command{
+var appCmds = []*cli.Command{
 	aliasCmd,
 	adminCmd,
 	anonymousCmd,
@@ -468,8 +468,9 @@ func printMCVersion(c *cli.Context) {
 }
 
 func registerApp(name string) *cli.App {
-	cli.HelpFlag = cli.BoolFlag{
-		Name:  "help, h",
+	cli.HelpFlag = &cli.BoolFlag{
+		Name: "help",
+		Aliases: []string{"h"},
 		Usage: "show help",
 	}
 
@@ -487,7 +488,7 @@ func registerApp(name string) *cli.App {
 			checkUpdate(ctx)
 		}
 
-		if ctx.Bool("autocompletion") || ctx.GlobalBool("autocompletion") {
+		if ctx.Bool("autocompletion") || ctx.Bool("autocompletion") {
 			// Install shell completions
 			installAutoCompletion()
 			return nil
@@ -505,7 +506,7 @@ func registerApp(name string) *cli.App {
 	app.HideHelpCommand = true
 	app.Usage = "MinIO Client for object storage and filesystems."
 	app.Commands = appCmds
-	app.Author = "MinIO, Inc."
+	app.Authors = []*cli.Author{{Name: "MinIO, Inc."}}
 	app.Version = ReleaseTag
 	app.Flags = append(mcFlags, globalFlags...)
 	app.CustomAppHelpTemplate = mcHelpTemplate
@@ -524,9 +525,9 @@ func registerApp(name string) *cli.App {
 	}
 
 	if isTerminal() && !globalPagerDisabled {
-		app.HelpWriter = globalHelpPager
+		app.Writer = globalHelpPager
 	} else {
-		app.HelpWriter = os.Stdout
+		app.Writer = os.Stdout
 	}
 
 	return app

@@ -25,7 +25,7 @@ import (
 	"unicode"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 )
@@ -186,7 +186,7 @@ func deprecatedFlagError(oldFlag, newFlag string) {
 }
 
 func deprecatedFlagsWarning(cliCtx *cli.Context) {
-	for _, v := range cliCtx.Args() {
+	for _, v := range cliCtx.Args().Slice() {
 		switch v {
 		case "--encrypt", "-encrypt":
 			deprecatedFlagError("--encrypt", "--enc-s3 or --enc-kms")

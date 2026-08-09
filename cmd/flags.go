@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -32,72 +32,76 @@ const envPrefix = "MC_"
 
 // Collection of mc flags currently supported
 var globalFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:   "config-dir, C",
+	&cli.StringFlag{
+		Name: "config-dir",
+		Aliases: []string{"C"},
 		Value:  mustGetMcConfigDir(),
 		Usage:  "path to configuration folder",
-		EnvVar: envPrefix + "CONFIG_DIR",
+		EnvVars: []string{envPrefix + "CONFIG_DIR"},
 	},
-	cli.BoolFlag{
-		Name:   "quiet, q",
+	&cli.BoolFlag{
+		Name: "quiet",
+		Aliases: []string{"q"},
 		Usage:  "disable progress bar display",
-		EnvVar: envPrefix + "QUIET",
+		EnvVars: []string{envPrefix + "QUIET"},
 	},
-	cli.BoolFlag{
-		Name:   "disable-pager, dp",
+	&cli.BoolFlag{
+		Name: "disable-pager",
+		Aliases: []string{"dp"},
 		Usage:  "disable mc internal pager and print to raw stdout",
-		EnvVar: envPrefix + globalDisablePagerEnv,
+		EnvVars: []string{envPrefix + globalDisablePagerEnv},
 		Hidden: false,
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "no-color",
 		Usage:  "disable color theme",
-		EnvVar: envPrefix + "NO_COLOR",
+		EnvVars: []string{envPrefix + "NO_COLOR"},
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "json",
 		Usage:  "enable JSON lines formatted output",
-		EnvVar: envPrefix + "JSON",
+		EnvVars: []string{envPrefix + "JSON"},
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "debug",
 		Usage:  "enable debug output",
-		EnvVar: envPrefix + "DEBUG",
+		EnvVars: []string{envPrefix + "DEBUG"},
 	},
-	cli.StringSliceFlag{
+	&cli.StringSliceFlag{
 		Name:   "resolve",
 		Usage:  "resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1",
-		EnvVar: envPrefix + "RESOLVE",
+		EnvVars: []string{envPrefix + "RESOLVE"},
 	},
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:   "insecure",
 		Usage:  "disable SSL certificate verification",
-		EnvVar: envPrefix + "INSECURE",
+		EnvVars: []string{envPrefix + "INSECURE"},
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "limit-upload",
 		Usage:  "limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
-		EnvVar: envPrefix + "LIMIT_UPLOAD",
+		EnvVars: []string{envPrefix + "LIMIT_UPLOAD"},
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:   "limit-download",
 		Usage:  "limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
-		EnvVar: envPrefix + "LIMIT_DOWNLOAD",
+		EnvVars: []string{envPrefix + "LIMIT_DOWNLOAD"},
 	},
-	cli.DurationFlag{
+	&cli.DurationFlag{
 		Name:   "conn-read-deadline",
 		Usage:  "custom connection READ deadline",
 		Hidden: true,
 		Value:  10 * time.Minute,
 	},
-	cli.DurationFlag{
+	&cli.DurationFlag{
 		Name:   "conn-write-deadline",
 		Usage:  "custom connection WRITE deadline",
 		Hidden: true,
 		Value:  10 * time.Minute,
 	},
-	cli.StringSliceFlag{
-		Name:  "custom-header,H",
+	&cli.StringSliceFlag{
+		Name: "custom-header",
+		Aliases: []string{"H"},
 		Usage: "add custom HTTP header to the request. 'key:value' format.",
 	},
 }
@@ -109,24 +113,24 @@ var encFlags = []cli.Flag{
 	encS3Flag,
 }
 
-var encCFlag = cli.StringSliceFlag{
+var encCFlag = &cli.StringSliceFlag{
 	Name:  "enc-c",
 	Usage: "encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.",
 }
 
-var encKSMFlag = cli.StringSliceFlag{
+var encKSMFlag = &cli.StringSliceFlag{
 	Name:   "enc-kms",
 	Usage:  "encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided)",
-	EnvVar: envPrefix + "ENC_KMS",
+	EnvVars: []string{envPrefix + "ENC_KMS"},
 }
 
-var encS3Flag = cli.StringSliceFlag{
+var encS3Flag = &cli.StringSliceFlag{
 	Name:   "enc-s3",
 	Usage:  "encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided).",
-	EnvVar: envPrefix + "ENC_S3",
+	EnvVars: []string{envPrefix + "ENC_S3"},
 }
 
-var checksumFlag = cli.StringFlag{
+var checksumFlag = &cli.StringFlag{
 	Name:  "checksum",
 	Usage: "Add checksum to uploaded object. Values: CRC64NVME, CRC32, CRC32C, SHA1 or SHA256. Requires server trailing headers (AWS, MinIO)",
 	Value: "",
