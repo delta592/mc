@@ -21,14 +21,8 @@ import (
 	"bytes"
 	"testing"
 
-	check "gopkg.in/check.v1"
+	"github.com/stretchr/testify/require"
 )
-
-func Test(t *testing.T) { check.TestingT(t) }
-
-type MySuite struct{}
-
-var _ = check.Suite(&MySuite{})
 
 // customReader - implements custom progress reader.
 type customReader struct {
@@ -41,16 +35,16 @@ func (c *customReader) Read(b []byte) (n int, err error) {
 }
 
 // Tests hook reader implementation.
-func (s *MySuite) TestHookReader(c *check.C) {
+func TestHookReader(t *testing.T) {
 	var buffer bytes.Buffer
 	writer := &buffer
 	_, err := writer.Write([]byte("Hello"))
-	c.Assert(err, check.IsNil)
+	require.NoError(t, err)
 	progress := &customReader{}
 	reader := NewHook(&buffer, progress)
 	b := make([]byte, 3)
 	n, err := reader.Read(b)
-	c.Assert(err, check.IsNil)
-	c.Assert(n, check.Equals, 3)
-	c.Assert(progress.readBytes, check.Equals, 3)
+	require.NoError(t, err)
+	require.Equal(t, 3, n)
+	require.Equal(t, 3, progress.readBytes)
 }

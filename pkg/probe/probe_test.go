@@ -21,15 +21,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/delta592/mc/pkg/probe"
-	check "gopkg.in/check.v1"
 )
-
-func Test(t *testing.T) { check.TestingT(t) }
-
-type MySuite struct{}
-
-var _ = check.Suite(&MySuite{})
 
 func testDummy0() *probe.Error {
 	_, e := os.Stat("this-file-cannot-exit")
@@ -44,22 +39,22 @@ func testDummy2() *probe.Error {
 	return testDummy1().Trace("DummyTag2")
 }
 
-func (s *MySuite) TestProbe(c *check.C) {
+func TestProbe(t *testing.T) {
 	probe.Init() // Set project's root source path.
 	probe.SetAppInfo("Commit-ID", "7390cc957239")
 	es := testDummy2().Trace("TopOfStack")
 	// Uncomment the following Println to visually test probe call trace.
 	// fmt.Println("Expecting a simulated error here.", es)
-	c.Assert(es, check.Not(check.Equals), nil)
+	require.NotNil(t, es)
 
 	newES := es.Trace()
-	c.Assert(newES, check.Not(check.Equals), nil)
+	require.NotNil(t, newES)
 }
 
-func (s *MySuite) TestWrappedError(c *check.C) {
+func TestWrappedError(t *testing.T) {
 	_, e := os.Stat("this-file-cannot-exit")
 	es := probe.NewError(e) // *probe.Error
 	e = probe.WrapError(es) // *probe.WrappedError
 	_, ok := probe.UnwrapError(e)
-	c.Assert(ok, check.Equals, true)
+	require.Equal(t, true, ok)
 }
