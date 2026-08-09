@@ -18,6 +18,7 @@
 package probe_test
 
 import (
+	"errors"
 	"os"
 	"testing"
 
@@ -57,4 +58,40 @@ func TestWrappedError(t *testing.T) {
 	e = probe.WrapError(es) // *probe.WrappedError
 	_, ok := probe.UnwrapError(e)
 	require.Equal(t, true, ok)
+	require.Contains(t, e.Error(), "this-file-cannot-exit")
+}
+
+func TestNewErrorNil(t *testing.T) {
+	require.Nil(t, probe.NewError(nil))
+}
+
+func TestErrorMethods(t *testing.T) {
+	probe.Init()
+	probe.SetAppInfo("Version", "test")
+
+	base := errors.New("base error")
+	err := probe.NewError(base).Trace("tag1").Trace("tag2")
+	require.NotNil(t, err)
+	require.Equal(t, base, err.ToGoError())
+	require.Contains(t, err.String(), "base error")
+	require.Contains(t, err.String(), "tag1")
+
+	untraced := err.Untrace()
+	require.NotNil(t, untraced)
+	require.Nil(t, (*probe.Error)(nil).Trace())
+	require.Nil(t, (*probe.Error)(nil).Untrace())
+	require.Nil(t, (*probe.Error)(nil).ToGoError())
+	require.Equal(t, "<nil>", (*probe.Error)(nil).String())
+}
+
+func TestGetSysInfo(t *testing.T) {
+	info := probe.GetSysInfo()
+	require.NotEmpty(t, info["host.os"])
+	require.NotEmpty(t, info["host.arch"])
+	require.NotEmpty(t, info["mem.used"])
+}
+
+func TestUnwrapErrorDefault(t *testing.T) {
+	_, ok := probe.UnwrapError(errors.New("plain"))
+	require.False(t, ok)
 }

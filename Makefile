@@ -110,6 +110,7 @@ test-coverage: ## Run unit tests and write a coverage profile
 	@echo "Running tests with coverage"
 	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) -short -coverprofile=$(COVERAGE_FILE) -covermode=atomic $(TESTPKG)
 	@go tool cover -func=$(COVERAGE_FILE)
+	@env bash $(PWD)/buildscripts/check-coverage.sh 80
 
 .PHONY: test-integration
 test-integration: build ## Run the full integration test suite
