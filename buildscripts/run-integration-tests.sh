@@ -13,11 +13,27 @@ TESTPKG="${TESTPKG:-./...}"
 TEST_TIMEOUT="${TEST_TIMEOUT:-20m}"
 RACE_TEST_FLAGS="-race -tags ${BUILD_TAGS} -count=1 -timeout ${TEST_TIMEOUT}"
 
-SERVER_ENDPOINT="${MC_TEST_SERVER_ENDPOINT:-127.0.0.1:9000}"
-ACCESS_KEY="${MC_TEST_ACCESS_KEY:-minioadmin}"
-SECRET_KEY="${MC_TEST_SECRET_KEY:-minioadmin}"
-ENABLE_HTTPS="${MC_TEST_ENABLE_HTTPS:-false}"
+normalize_https() {
+	local val
+	val="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+	case "$val" in
+	1 | true | yes) echo "true" ;;
+	*) echo "false" ;;
+	esac
+}
+
+# Accept CI-style env vars as aliases for MC_TEST_* settings.
+SERVER_ENDPOINT="${MC_TEST_SERVER_ENDPOINT:-${SERVER_ENDPOINT:-127.0.0.1:9000}}"
+MC_TEST_SERVER_ENDPOINT="$SERVER_ENDPOINT"
+ACCESS_KEY="${MC_TEST_ACCESS_KEY:-${ACCESS_KEY:-minioadmin}}"
+MC_TEST_ACCESS_KEY="$ACCESS_KEY"
+SECRET_KEY="${MC_TEST_SECRET_KEY:-${SECRET_KEY:-minioadmin}}"
+MC_TEST_SECRET_KEY="$SECRET_KEY"
+ENABLE_HTTPS="$(normalize_https "${MC_TEST_ENABLE_HTTPS:-${ENABLE_HTTPS:-false}}")"
+MC_TEST_ENABLE_HTTPS="$ENABLE_HTTPS"
 SKIP_INSECURE="${MC_TEST_SKIP_INSECURE:-true}"
+RUN_FUNCTIONAL="${MC_TEST_RUN_FUNCTIONAL:-false}"
+INSTALL_CA="${MC_TEST_INSTALL_CA:-false}"
 
 if [ "$ENABLE_HTTPS" = "true" ]; then
 	PROTOCOL="https"
@@ -84,6 +100,23 @@ ensure_minio_binary() {
 	chmod +x "$MINIO_BIN"
 }
 
+install_system_ca() {
+	if [ "$INSTALL_CA" != "true" ] || [ "$ENABLE_HTTPS" != "true" ]; then
+		return 0
+	fi
+	if [ "$(uname -s)" != "Linux" ]; then
+		return 0
+	fi
+	if ! command -v sudo >/dev/null 2>&1; then
+		echo "sudo is required to install the MinIO CA certificate" >&2
+		return 1
+	fi
+
+	echo "Installing MinIO TLS certificate into system trust store..."
+	sudo cp "${ROOT_DIR}/testdata/localhost.crt" /usr/local/share/ca-certificates/localhost.crt
+	sudo update-ca-certificates
+}
+
 configure_minio_tls() {
 	if [ "$ENABLE_HTTPS" != "true" ]; then
 		return 0
@@ -92,6 +125,23 @@ configure_minio_tls() {
 	mkdir -p "${HOME}/.minio/certs"
 	cp "${ROOT_DIR}/testdata/localhost.crt" "${HOME}/.minio/certs/public.crt"
 	cp "${ROOT_DIR}/testdata/localhost.key" "${HOME}/.minio/certs/private.key"
+}
+
+run_functional_tests() {
+	if [ "$RUN_FUNCTIONAL" != "true" ]; then
+		return 0
+	fi
+
+	echo "Running functional tests"
+	export SERVER_ENDPOINT="$MC_TEST_SERVER_ENDPOINT"
+	export ACCESS_KEY="$MC_TEST_ACCESS_KEY"
+	export SECRET_KEY="$MC_TEST_SECRET_KEY"
+	if [ "$ENABLE_HTTPS" = "true" ]; then
+		export ENABLE_HTTPS=1
+	else
+		export ENABLE_HTTPS=0
+	fi
+	env bash "${ROOT_DIR}/functional-tests.sh"
 }
 
 start_minio() {
@@ -143,6 +193,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
+install_system_ca
 ensure_minio
 
 echo "Running integration tests"
@@ -150,3 +201,5 @@ MC_TEST_RUN_FULL_SUITE=true \
 MC_TEST_SKIP_BUILD=true \
 CGO_ENABLED=1 \
 go test ${RACE_TEST_FLAGS} -v "${TESTPKG}" -run Test_FullSuite
+
+run_functional_tests
