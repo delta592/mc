@@ -14,10 +14,10 @@ This document plans how to address the 18 dependencies flagged as **abandoned** 
 | **Trivial / stdlib swap** | 3 | **Done** | `go-homedir`, `rs/xid`, `gopkg.in/yaml.v3` |
 | **Small inline or local copy** | 3 | **Done** | `google/shlex`, `mousetrap`, `muesli/reflow` |
 | **New dep + localized refactor** | 4 | **Done** | `juju/ratelimit`, `minio/selfupdate`, `rjeczalik/notify`, `pkg/xattr` |
-| **Large / cross-cutting refactor** | 3 | Partial | `minio/cli` **Done**, `minio/colorjson` open, `posener/complete/v2` **Done** |
+| **Large / cross-cutting refactor** | 3 | **Done** | `minio/cli`, `minio/colorjson`, `posener/complete/v2` |
 | **Test-only migration** | 1 | **Done** | `gopkg.in/check.v1` |
 
-**Progress:** 13 of 18 dependencies addressed on `replace_deps` (removed from direct `go.mod` or vendored in-tree). 5 remain as direct dependencies.
+**Progress:** 14 of 18 dependencies addressed on `replace_deps` (removed from direct `go.mod` or vendored in-tree). 4 remain as direct dependencies.
 
 ---
 
@@ -43,10 +43,10 @@ This document plans how to address the 18 dependencies flagged as **abandoned** 
 
 - [x] `gopkg.in/check.v1` → stdlib `testing` + `github.com/stretchr/testify` (7 test files)
 
-### Phase 4 — CLI stack (partial)
+### Phase 4 — CLI stack ✅ complete
 
 - [x] `minio/cli` → `urfave/cli/v2` (~294 cmd files)
-- [ ] `minio/colorjson` → internal `pkg/colorjson` or stdlib `encoding/json` + coloring (~120 files)
+- [x] `minio/colorjson` → `pkg/colorjson` (vendored in-tree; ~130 cmd files)
 - [x] `posener/complete/v2` → `urfave/cli/v2` shell completion APIs
 
 ### Phase 5 — Accept-and-document
@@ -58,7 +58,7 @@ This document plans how to address the 18 dependencies flagged as **abandoned** 
 
 ## Per-Dependency Plan
 
-Checklist grouped by recommended action. **13 of 18 done** on `replace_deps`; remaining items are either intentional keeps or Phase 4 work.
+Checklist grouped by recommended action. **14 of 18 done** on `replace_deps`; remaining items are intentional keeps.
 
 Legend: ✅ removed/replaced (no longer a direct `go.mod` dep) · ⏳ still a direct dep · 📦 vendored in-tree
 
@@ -90,10 +90,10 @@ Intentionally retain; review annually or revisit only if a security issue emerge
 - [x] 📦 `github.com/rjeczalik/notify` → `pkg/fswatch` (vendored for mirror/watch parity)
 - [x] 📦 `github.com/pkg/xattr` → `pkg/xattr` (Darwin/Linux/BSD extended attributes)
 
-### Large / cross-cutting refactor — 1 done, 2 open
+### Large / cross-cutting refactor — 3 done
 
 - [x] ✅ `github.com/minio/cli` → `urfave/cli/v2` (~294 cmd files)
-- [ ] ⏳ `github.com/minio/colorjson` → internal `pkg/colorjson` or stdlib + coloring (~120 files)
+- [x] 📦 `github.com/minio/colorjson` → `pkg/colorjson` (~130 cmd files)
 - [x] ✅ `github.com/posener/complete/v2` → `urfave/cli/v2` shell completion (`cmd/auto-complete.go`)
 
 ### Test-only migration — 1 done
@@ -134,9 +134,9 @@ flowchart TD
         xattr[pkg/xattr → pkg/xattr]
     end
 
-    subgraph phase4 [Phase 4 Major]
+    subgraph phase4 [Phase 4 Major - Done]
         cli[minio/cli → urfave/cli/v2 Done]
-        colorjson[minio/colorjson → internal/pkg]
+        colorjson[minio/colorjson → pkg/colorjson Done]
         complete[posener/complete → urfave/cli/v2 completions Done]
     end
 
@@ -151,7 +151,7 @@ flowchart TD
 | Dependency | User impact if broken | Migration risk | Status |
 |------------|----------------------|----------------|--------|
 | `minio/cli` | Total CLI failure | High | **Done** → `urfave/cli/v2` |
-| `minio/colorjson` | `--json` colors wrong | Medium | Open (Phase 4) |
+| `minio/colorjson` | `--json` colors wrong | Medium | **Done** → `pkg/colorjson` |
 | `posener/complete` | tab completion broken | Medium | **Done** → `urfave/cli/v2` |
 | `go-humanize` | formatted output wrong | Low | Keep |
 | `google/uuid` | ID generation fails | Low | Keep |
@@ -173,9 +173,8 @@ When a dependency is addressed, update this file:
 - [x] Phase 1 complete
 - [x] Phase 2 complete
 - [x] Phase 3 complete
+- [x] Phase 4 complete
 - [x] Phase 5 documented (keep decisions in checklist above)
-- [x] Phase 4 `minio/cli` → `urfave/cli/v2`
-- [ ] Phase 4 remaining (`minio/colorjson`)
 - [ ] "Keep" decisions reviewed annually
 
 Consider adding a `gomodguard` or Renovate rule to block **new** imports of these abandoned packages while allowing existing ones until migrated.
