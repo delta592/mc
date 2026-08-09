@@ -28,7 +28,7 @@ function _init() {
     export CGO_ENABLED=0
 
     ## List of architectures and OS to test coss compilation.
-    SUPPORTED_OSARCH="linux/amd64 windows/amd64 darwin/amd64 darwin/arm64"
+    SUPPORTED_OSARCH="linux/amd64 windows/amd64 darwin/amd64 darwin/arm64 freebsd/amd64"
 }
 
 function _build() {
