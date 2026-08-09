@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -41,11 +40,8 @@ func PrepareAndCheckBinary(update io.Reader, opts Options) error {
 		if newBytes, err = opts.applyPatch(update, targetPath); err != nil {
 			return err
 		}
-
-		// no patch to apply, go on through
-		if newBytes, err = ioutil.ReadAll(update); err != nil {
-			return err
-		}
+	} else if newBytes, err = io.ReadAll(update); err != nil {
+		return err
 	}
 
 	// verify checksum if requested
