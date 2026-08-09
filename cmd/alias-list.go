@@ -22,17 +22,17 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/env"
+	"github.com/urfave/cli/v2"
 
 	"github.com/fatih/color"
 )
 
 var aliasListCmd = &cli.Command{
-	Name:      "list",
+	Name:    "list",
 	Aliases: []string{"ls"},
-	Usage:     "list aliases in configuration file",
+	Usage:   "list aliases in configuration file",
 	Action: func(ctx *cli.Context) error {
 		return mainAliasList(ctx, false)
 	},

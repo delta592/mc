@@ -23,7 +23,7 @@ import (
 
 var adminAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "delete access key pairs for builtin users",
 	Action:       mainAdminAccesskeyRemove,
 	Before:       setGlobalsFromContext,

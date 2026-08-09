@@ -23,9 +23,9 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
+	"github.com/urfave/cli/v2"
 )
 
 var ilmExportCmd = &cli.Command{

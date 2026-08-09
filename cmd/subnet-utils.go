@@ -35,11 +35,11 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/google/uuid"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/licverifier"
 	"github.com/minio/pkg/v3/subnet"
 	"github.com/tidwall/gjson"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/term"
 )
 
@@ -51,8 +51,8 @@ const (
 )
 
 var subnetCommonFlags = append(supportGlobalFlags, &cli.StringFlag{
-	Name:   "api-key",
-	Usage:  "API Key of the account on SUBNET",
+	Name:    "api-key",
+	Usage:   "API Key of the account on SUBNET",
 	EnvVars: []string{"_MC_SUBNET_API_KEY"},
 })
 

@@ -19,8 +19,8 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var adminTierRmFlags = []cli.Flag{
@@ -38,7 +38,7 @@ var adminTierRmFlags = []cli.Flag{
 
 var adminTierRmCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove an empty remote tier",
 	Action:       mainAdminTierRm,
 	OnUsageError: onUsageError,

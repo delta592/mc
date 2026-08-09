@@ -24,8 +24,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 func mainAdminSpeedTestClientPerf(ctx *cli.Context, aliasedURL string, outCh chan<- PerfTestResult) error {

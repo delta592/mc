@@ -29,10 +29,10 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var serviceRestartFlag = []cli.Flag{
@@ -41,9 +41,9 @@ var serviceRestartFlag = []cli.Flag{
 		Usage: "do not attempt a restart, however verify the peer status",
 	},
 	&cli.BoolFlag{
-		Name: "wait",
+		Name:    "wait",
 		Aliases: []string{"w"},
-		Usage: "wait for background initializations to complete",
+		Usage:   "wait for background initializations to complete",
 	},
 }
 

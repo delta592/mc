@@ -19,8 +19,8 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var idpLdapAccesskeySTSRevokeCmd = &cli.Command{

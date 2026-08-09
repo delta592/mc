@@ -33,38 +33,38 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var pingFlags = []cli.Flag{
 	&cli.IntFlag{
-		Name: "count",
+		Name:    "count",
 		Aliases: []string{"c"},
-		Usage: "perform liveliness check for count number of times",
+		Usage:   "perform liveliness check for count number of times",
 	},
 	&cli.IntFlag{
-		Name: "error-count",
+		Name:    "error-count",
 		Aliases: []string{"e"},
-		Usage: "exit after N consecutive ping errors",
+		Usage:   "exit after N consecutive ping errors",
 	},
 	&cli.BoolFlag{
-		Name: "exit",
+		Name:    "exit",
 		Aliases: []string{"x"},
-		Usage: "exit when server(s) responds and reports being online",
+		Usage:   "exit when server(s) responds and reports being online",
 	},
 	&cli.IntFlag{
-		Name: "interval",
+		Name:    "interval",
 		Aliases: []string{"i"},
-		Usage: "wait interval between each request in seconds",
-		Value: 1,
+		Usage:   "wait interval between each request in seconds",
+		Value:   1,
 	},
 	&cli.BoolFlag{
-		Name: "distributed",
+		Name:    "distributed",
 		Aliases: []string{"a"},
-		Usage: "ping all the servers in the cluster, use it when you have direct access to nodes/pods",
+		Usage:   "ping all the servers in the cluster, use it when you have direct access to nodes/pods",
 	},
 	&cli.StringFlag{
 		Name:  "node",

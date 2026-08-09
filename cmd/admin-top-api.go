@@ -35,9 +35,9 @@ var adminTopAPIFlags = []cli.Flag{
 		Usage: "summarize current API calls only on matching servers",
 	},
 	&cli.BoolFlag{
-		Name: "errors",
+		Name:    "errors",
 		Aliases: []string{"e"},
-		Usage: "summarize current API calls throwing only errors",
+		Usage:   "summarize current API calls throwing only errors",
 	},
 }
 

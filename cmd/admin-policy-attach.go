@@ -19,8 +19,8 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -29,14 +29,14 @@ const (
 
 var adminAttachPolicyFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "user",
+		Name:    "user",
 		Aliases: []string{"u"},
-		Usage: "attach policy to user",
+		Usage:   "attach policy to user",
 	},
 	&cli.StringFlag{
-		Name: "group",
+		Name:    "group",
 		Aliases: []string{"g"},
-		Usage: "attach policy to group",
+		Usage:   "attach policy to group",
 	},
 }
 

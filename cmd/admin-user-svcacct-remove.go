@@ -20,13 +20,13 @@ package cmd
 import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var adminUserSvcAcctRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove a service account",
 	Action:       mainAdminUserSvcAcctRemove,
 	OnUsageError: onUsageError,

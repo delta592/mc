@@ -34,8 +34,8 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/delta592/mc/pkg/shlex"
 	"github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/text/unicode/norm"
 
 	// golang does not support flat keys for path matching, find does

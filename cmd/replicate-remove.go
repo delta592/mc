@@ -22,10 +22,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var replicateRemoveFlags = []cli.Flag{
@@ -45,7 +45,7 @@ var replicateRemoveFlags = []cli.Flag{
 
 var replicateRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove a server side replication configuration rule",
 	Action:       mainReplicateRemove,
 	OnUsageError: onUsageError,

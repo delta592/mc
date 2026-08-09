@@ -24,8 +24,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7/pkg/set"
+	"github.com/urfave/cli/v2"
 )
 
 var (

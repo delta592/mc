@@ -20,8 +20,8 @@
 package cmd
 
 import (
-	"github.com/delta592/mc/pkg/xattr"
 	"github.com/delta592/mc/pkg/fswatch"
+	"github.com/delta592/mc/pkg/xattr"
 )
 
 var (

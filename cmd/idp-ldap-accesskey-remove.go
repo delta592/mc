@@ -24,7 +24,7 @@ import (
 
 var idpLdapAccesskeyRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "delete access key pairs for LDAP",
 	Action:       mainIDPLdapAccesskeyRemove,
 	Before:       setGlobalsFromContext,

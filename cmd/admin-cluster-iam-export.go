@@ -27,18 +27,18 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // iam export specific flags.
 var (
 	iamExportFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name: "output",
+			Name:    "output",
 			Aliases: []string{"o"},
-			Usage: "output iam export to a custom file path",
+			Usage:   "output iam export to a custom file path",
 		},
 	}
 )

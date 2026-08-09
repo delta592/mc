@@ -22,8 +22,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var supportTopAPIFlags = []cli.Flag{
@@ -40,9 +40,9 @@ var supportTopAPIFlags = []cli.Flag{
 		Usage: "summarize current API calls only on matching servers",
 	},
 	&cli.BoolFlag{
-		Name: "errors",
+		Name:    "errors",
 		Aliases: []string{"e"},
-		Usage: "summarize current API calls throwing only errors",
+		Usage:   "summarize current API calls throwing only errors",
 	},
 }
 

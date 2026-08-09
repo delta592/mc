@@ -23,9 +23,9 @@ import (
 
 	"charm.land/lipgloss/v2"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var idpOpenidAddCmd = &cli.Command{
@@ -136,7 +136,7 @@ func mainIDPOpenIDUpdate(ctx *cli.Context) error {
 
 var idpOpenidRemoveCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove OpenID IDP server configuration",
 	Action:       mainIDPOpenIDRemove,
 	Before:       setGlobalsFromContext,
@@ -199,7 +199,7 @@ func idpRemove(ctx *cli.Context, isOpenID bool, cfgName string) error {
 
 var idpOpenidListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list OpenID IDP server configuration(s)",
 	Action:       mainIDPOpenIDList,
 	Before:       setGlobalsFromContext,

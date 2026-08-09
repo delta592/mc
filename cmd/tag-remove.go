@@ -24,16 +24,16 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var tagRemoveFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "remove tags on a specific object version",
+		Usage:   "remove tags on a specific object version",
 	},
 	&cli.StringFlag{
 		Name:  "rewind",
@@ -44,9 +44,9 @@ var tagRemoveFlags = []cli.Flag{
 		Usage: "remove tags on multiple versions of an object",
 	},
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "recursivley remove tags for all objects",
+		Usage:   "recursivley remove tags for all objects",
 	},
 }
 

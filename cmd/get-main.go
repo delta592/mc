@@ -21,17 +21,17 @@ import (
 	"context"
 	"strings"
 
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // get command flags.
 var (
 	getFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name: "version-id",
+			Name:    "version-id",
 			Aliases: []string{"vid"},
-			Usage: "get a specific version of an object",
+			Usage:   "get a specific version of an object",
 		},
 	}
 )

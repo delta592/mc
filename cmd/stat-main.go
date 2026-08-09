@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // stat specific flags.
@@ -40,19 +40,19 @@ var (
 			Usage: "stat all versions",
 		},
 		&cli.StringFlag{
-			Name: "version-id",
+			Name:    "version-id",
 			Aliases: []string{"vid"},
-			Usage: "stat a specific object version",
+			Usage:   "stat a specific object version",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "stat all objects recursively",
+			Usage:   "stat all objects recursively",
 		},
 		&cli.BoolFlag{
-			Name: "verbose",
+			Name:    "verbose",
 			Aliases: []string{"v"},
-			Usage: "show extended bucket(s) stat",
+			Usage:   "show extended bucket(s) stat",
 		},
 		&cli.BoolFlag{
 			Name:  "no-list",

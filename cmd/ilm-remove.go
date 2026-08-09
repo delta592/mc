@@ -22,9 +22,9 @@ import (
 
 	"github.com/delta592/mc/cmd/ilm"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var ilmRemoveFlags = []cli.Flag{
@@ -44,7 +44,7 @@ var ilmRemoveFlags = []cli.Flag{
 
 var ilmRmCmd = &cli.Command{
 	Name:         "remove",
-	Aliases: []string{"rm"},
+	Aliases:      []string{"rm"},
 	Usage:        "remove (if any) existing lifecycle configuration rule",
 	Action:       mainILMRemove,
 	OnUsageError: onUsageError,

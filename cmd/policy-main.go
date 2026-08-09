@@ -18,15 +18,15 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var policyFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "list recursively",
+		Usage:   "list recursively",
 	},
 }
 

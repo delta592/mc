@@ -19,8 +19,8 @@ package cmd
 
 import (
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var ilmSubcommands = []*cli.Command{

@@ -31,9 +31,9 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/term"
 )
 
@@ -52,9 +52,9 @@ var aliasSetFlags = []cli.Flag{
 }
 
 var aliasSetCmd = &cli.Command{
-	Name:      "set",
+	Name:    "set",
 	Aliases: []string{"s"},
-	Usage:     "set a new alias to configuration file",
+	Usage:   "set a new alias to configuration file",
 	Action: func(cli *cli.Context) error {
 		return mainAliasSet(cli, false)
 	},

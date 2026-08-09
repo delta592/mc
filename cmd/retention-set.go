@@ -24,25 +24,25 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var retentionSetFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "apply retention recursively",
+		Usage:   "apply retention recursively",
 	},
 	&cli.BoolFlag{
 		Name:  "bypass",
 		Usage: "bypass governance",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "apply retention to a specific object version",
+		Usage:   "apply retention to a specific object version",
 	},
 	&cli.StringFlag{
 		Name:  "rewind",

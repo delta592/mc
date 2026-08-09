@@ -31,10 +31,10 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -60,28 +60,28 @@ var adminHealFlags = []cli.Flag{
 		Hidden: true,
 	},
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage:  "heal recursively",
-		Hidden: true,
+		Usage:   "heal recursively",
+		Hidden:  true,
 	},
 	&cli.BoolFlag{
-		Name: "dry-run",
+		Name:    "dry-run",
 		Aliases: []string{"n"},
-		Usage:  "only inspect data, but do not mutate",
-		Hidden: true,
+		Usage:   "only inspect data, but do not mutate",
+		Hidden:  true,
 	},
 	&cli.BoolFlag{
-		Name: "force-start",
+		Name:    "force-start",
 		Aliases: []string{"f"},
-		Usage:  "force start a new heal sequence",
-		Hidden: true,
+		Usage:   "force start a new heal sequence",
+		Hidden:  true,
 	},
 	&cli.BoolFlag{
-		Name: "force-stop",
+		Name:    "force-stop",
 		Aliases: []string{"s"},
-		Usage:  "force stop a running heal sequence",
-		Hidden: true,
+		Usage:   "force stop a running heal sequence",
+		Hidden:  true,
 	},
 	&cli.BoolFlag{
 		Name:  "force",
@@ -103,14 +103,14 @@ var adminHealFlags = []cli.Flag{
 		Hidden: true,
 	},
 	&cli.BoolFlag{
-		Name: "verbose",
+		Name:    "verbose",
 		Aliases: []string{"v"},
-		Usage: "show verbose information",
+		Usage:   "show verbose information",
 	},
 	&cli.BoolFlag{
-		Name: "all-drives",
+		Name:    "all-drives",
 		Aliases: []string{"a"},
-		Usage: "select all drives for verbose printing",
+		Usage:   "select all drives for verbose printing",
 	},
 }
 

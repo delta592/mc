@@ -25,10 +25,10 @@ import (
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var legalHoldSubcommands = []*cli.Command{

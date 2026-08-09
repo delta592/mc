@@ -25,8 +25,8 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // ls specific flags.
@@ -41,23 +41,23 @@ var (
 			Usage: "list all versions",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "list recursively",
+			Usage:   "list recursively",
 		},
 		&cli.BoolFlag{
-			Name: "incomplete",
+			Name:    "incomplete",
 			Aliases: []string{"I"},
-			Usage: "list incomplete uploads",
+			Usage:   "list incomplete uploads",
 		},
 		&cli.BoolFlag{
 			Name:  "summarize",
 			Usage: "display summary information (number of objects, total size)",
 		},
 		&cli.StringFlag{
-			Name: "storage-class",
+			Name:    "storage-class",
 			Aliases: []string{"sc"},
-			Usage: "filter to specified storage class",
+			Usage:   "filter to specified storage class",
 		},
 		&cli.BoolFlag{
 			Name:  "zip",

@@ -30,10 +30,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // rm specific flags.
@@ -44,9 +44,9 @@ var (
 			Usage: "remove object(s) and all its versions",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "remove recursively",
+			Usage:   "remove recursively",
 		},
 		&cli.BoolFlag{
 			Name:  "force",
@@ -61,14 +61,14 @@ var (
 			Usage: "roll back object(s) to current version at specified time",
 		},
 		&cli.StringFlag{
-			Name: "version-id",
+			Name:    "version-id",
 			Aliases: []string{"vid"},
-			Usage: "delete a specific version of an object",
+			Usage:   "delete a specific version of an object",
 		},
 		&cli.BoolFlag{
-			Name: "incomplete",
+			Name:    "incomplete",
 			Aliases: []string{"I"},
-			Usage: "remove incomplete uploads",
+			Usage:   "remove incomplete uploads",
 		},
 		&cli.BoolFlag{
 			Name:  "dry-run",

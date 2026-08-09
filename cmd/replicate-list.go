@@ -25,11 +25,11 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var replicateListFlags = []cli.Flag{
@@ -41,7 +41,7 @@ var replicateListFlags = []cli.Flag{
 
 var replicateListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list server side replication configuration rules",
 	Action:       mainReplicateList,
 	OnUsageError: onUsageError,

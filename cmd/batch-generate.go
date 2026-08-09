@@ -21,9 +21,9 @@ import (
 	"fmt"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var batchGenerateCmd = &cli.Command{

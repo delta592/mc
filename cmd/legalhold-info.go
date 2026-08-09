@@ -26,22 +26,22 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var lhInfoFlags = []cli.Flag{
 	&cli.BoolFlag{
-		Name: "recursive",
+		Name:    "recursive",
 		Aliases: []string{"r"},
-		Usage: "show legal hold status recursively",
+		Usage:   "show legal hold status recursively",
 	},
 	&cli.StringFlag{
-		Name: "version-id",
+		Name:    "version-id",
 		Aliases: []string{"vid"},
-		Usage: "show legal hold status of a specific object version",
+		Usage:   "show legal hold status of a specific object version",
 	},
 	&cli.StringFlag{
 		Name:  "rewind",

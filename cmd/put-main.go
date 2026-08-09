@@ -24,8 +24,8 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // put command flags.
@@ -33,16 +33,16 @@ var (
 	putFlags = []cli.Flag{
 		checksumFlag,
 		&cli.IntFlag{
-			Name: "parallel",
+			Name:    "parallel",
 			Aliases: []string{"P"},
-			Usage: "upload number of parts in parallel",
-			Value: 4,
+			Usage:   "upload number of parts in parallel",
+			Value:   4,
 		},
 		&cli.StringFlag{
-			Name: "part-size",
+			Name:    "part-size",
 			Aliases: []string{"s"},
-			Usage: "each part size",
-			Value: "16MiB",
+			Usage:   "each part size",
+			Value:   "16MiB",
 		},
 		&cli.BoolFlag{
 			Name:   "if-not-exists",
@@ -54,9 +54,9 @@ var (
 			Usage: "disable multipart upload feature",
 		},
 		&cli.StringFlag{
-			Name: "storage-class",
+			Name:    "storage-class",
 			Aliases: []string{"sc"},
-			Usage: "set storage class for new object on target",
+			Usage:   "set storage class for new object on target",
 		},
 	}
 )

@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
+	"github.com/urfave/cli/v2"
 )
 
 // ilm restore specific flags.
@@ -37,18 +37,18 @@ var (
 			Usage: "keep the restored copy for N days",
 		},
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "apply recursively",
+			Usage:   "apply recursively",
 		},
 		&cli.BoolFlag{
 			Name:  "versions",
 			Usage: "apply on versions",
 		},
 		&cli.StringFlag{
-			Name: "version-id",
+			Name:    "version-id",
 			Aliases: []string{"vid"},
-			Usage: "select a specific version id",
+			Usage:   "select a specific version id",
 		},
 	}
 )

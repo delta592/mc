@@ -24,16 +24,16 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var eventListFlags = []cli.Flag{}
 
 var eventListCmd = &cli.Command{
 	Name:         "list",
-	Aliases: []string{"ls"},
+	Aliases:      []string{"ls"},
 	Usage:        "list bucket notifications",
 	Action:       mainEventList,
 	OnUsageError: onUsageError,

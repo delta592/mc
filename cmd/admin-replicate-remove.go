@@ -22,10 +22,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var adminReplicateRemoveFlags = []cli.Flag{
@@ -40,13 +40,13 @@ var adminReplicateRemoveFlags = []cli.Flag{
 }
 
 var adminReplicateRemoveCmd = &cli.Command{
-	Name:          "remove",
-	Aliases: []string{"rm"},
-	Usage:         "remove one or more sites from site replication",
-	Action:        mainAdminReplicationRemoveStatus,
-	OnUsageError:  onUsageError,
-	Before:        setGlobalsFromContext,
-	Flags:         append(globalFlags, adminReplicateRemoveFlags...),
+	Name:         "remove",
+	Aliases:      []string{"rm"},
+	Usage:        "remove one or more sites from site replication",
+	Action:       mainAdminReplicationRemoveStatus,
+	OnUsageError: onUsageError,
+	Before:       setGlobalsFromContext,
+	Flags:        append(globalFlags, adminReplicateRemoveFlags...),
 	CustomHelpTemplate: `NAME:
   {{.HelpName}} - {{.Usage}}
 

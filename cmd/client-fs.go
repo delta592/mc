@@ -35,8 +35,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/delta592/mc/pkg/xattr"
 	"github.com/delta592/mc/pkg/fswatch"
+	"github.com/delta592/mc/pkg/xattr"
 
 	"github.com/delta592/mc/pkg/disk"
 	"github.com/delta592/mc/pkg/hookreader"

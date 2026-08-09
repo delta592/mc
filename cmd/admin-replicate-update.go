@@ -23,10 +23,10 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var adminReplicateUpdateFlags = []cli.Flag{
@@ -64,13 +64,13 @@ var adminReplicateUpdateFlags = []cli.Flag{
 }
 
 var adminReplicateUpdateCmd = &cli.Command{
-	Name:          "update",
-	Aliases:       []string{"edit"},
-	Usage:         "modify endpoint of site participating in site replication",
-	Action:        mainAdminReplicateUpdate,
-	OnUsageError:  onUsageError,
-	Before:        setGlobalsFromContext,
-	Flags:         append(globalFlags, adminReplicateUpdateFlags...),
+	Name:         "update",
+	Aliases:      []string{"edit"},
+	Usage:        "modify endpoint of site participating in site replication",
+	Action:       mainAdminReplicateUpdate,
+	OnUsageError: onUsageError,
+	Before:       setGlobalsFromContext,
+	Flags:        append(globalFlags, adminReplicateUpdateFlags...),
 	CustomHelpTemplate: `NAME:
   {{.HelpName}} - {{.Usage}}
 

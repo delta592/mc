@@ -24,17 +24,17 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 // mv command flags.
 var (
 	mvFlags = []cli.Flag{
 		&cli.BoolFlag{
-			Name: "recursive",
+			Name:    "recursive",
 			Aliases: []string{"r"},
-			Usage: "move recursively",
+			Usage:   "move recursively",
 		},
 		&cli.StringFlag{
 			Name:  "older-than",
@@ -45,18 +45,18 @@ var (
 			Usage: "move objects newer than value in duration string (e.g. 7d10h31s)",
 		},
 		&cli.StringFlag{
-			Name: "storage-class",
+			Name:    "storage-class",
 			Aliases: []string{"sc"},
-			Usage: "set storage class for new object(s) on target",
+			Usage:   "set storage class for new object(s) on target",
 		},
 		&cli.StringFlag{
 			Name:  "attr",
 			Usage: "add custom metadata for the object",
 		},
 		&cli.BoolFlag{
-			Name: "preserve",
+			Name:    "preserve",
 			Aliases: []string{"a"},
-			Usage: "preserve filesystem attributes (mode, ownership, timestamps)",
+			Usage:   "preserve filesystem attributes (mode, ownership, timestamps)",
 		},
 		&cli.BoolFlag{
 			Name:  "disable-multipart",

@@ -27,12 +27,12 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
 	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/minio-go/v7/pkg/s3utils"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 )
 
 var replicateUpdateFlags = []cli.Flag{
@@ -91,13 +91,13 @@ var replicateUpdateFlags = []cli.Flag{
 }
 
 var replicateUpdateCmd = &cli.Command{
-	Name:          "update",
-	Aliases:       []string{"edit"},
-	Usage:         "modify an existing server side replication configuration rule",
-	Action:        mainReplicateUpdate,
-	OnUsageError:  onUsageError,
-	Before:        setGlobalsFromContext,
-	Flags:         append(globalFlags, replicateUpdateFlags...),
+	Name:         "update",
+	Aliases:      []string{"edit"},
+	Usage:        "modify an existing server side replication configuration rule",
+	Action:       mainReplicateUpdate,
+	OnUsageError: onUsageError,
+	Before:       setGlobalsFromContext,
+	Flags:        append(globalFlags, replicateUpdateFlags...),
 	CustomHelpTemplate: `NAME:
   {{.HelpName}} - {{.Usage}}
 

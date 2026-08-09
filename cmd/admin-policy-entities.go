@@ -19,25 +19,25 @@ package cmd
 
 import (
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
+	"github.com/urfave/cli/v2"
 )
 
 var adminPolicyEntitiesFlags = []cli.Flag{
 	&cli.StringSliceFlag{
-		Name: "user",
+		Name:    "user",
 		Aliases: []string{"u"},
-		Usage: "list policies associated with user(s)",
+		Usage:   "list policies associated with user(s)",
 	},
 	&cli.StringSliceFlag{
-		Name: "group",
+		Name:    "group",
 		Aliases: []string{"g"},
-		Usage: "list policies associated with group(s)",
+		Usage:   "list policies associated with group(s)",
 	},
 	&cli.StringSliceFlag{
-		Name: "policy",
+		Name:    "policy",
 		Aliases: []string{"p"},
-		Usage: "list users or groups associated with policy",
+		Usage:   "list users or groups associated with policy",
 	},
 }
 
