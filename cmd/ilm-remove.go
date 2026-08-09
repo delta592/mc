@@ -21,8 +21,8 @@ import (
 	"context"
 
 	"github.com/delta592/mc/cmd/ilm"
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
-	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 	"github.com/urfave/cli/v2"
 )

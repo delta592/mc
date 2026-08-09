@@ -21,8 +21,8 @@ import (
 	"context"
 
 	"github.com/delta592/mc/cmd/ilm"
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
-	json "github.com/minio/colorjson"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"

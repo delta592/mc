@@ -26,7 +26,7 @@ import (
 	"github.com/minio/pkg/v3/console"
 	"github.com/urfave/cli/v2"
 
-	json "github.com/minio/colorjson"
+	json "github.com/delta592/mc/pkg/colorjson"
 	yaml "go.yaml.in/yaml/v3"
 )
 

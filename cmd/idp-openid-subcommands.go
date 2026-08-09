@@ -22,8 +22,8 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
-	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/urfave/cli/v2"
 )

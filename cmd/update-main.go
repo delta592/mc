@@ -36,11 +36,11 @@ import (
 
 	_ "crypto/sha256" // needed for selfupdate hashers
 
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/delta592/mc/pkg/selfupdate"
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
-	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/env"
 	"github.com/urfave/cli/v2"
 )

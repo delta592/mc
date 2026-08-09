@@ -25,9 +25,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/klauspost/compress/zip"
-	json "github.com/minio/colorjson"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/urfave/cli/v2"

@@ -22,9 +22,9 @@ import (
 	"os"
 	"strings"
 
+	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
-	json "github.com/minio/colorjson"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
 	"github.com/urfave/cli/v2"
