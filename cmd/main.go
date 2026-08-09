@@ -34,7 +34,6 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/inconshreveable/mousetrap"
 	"github.com/minio/cli"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
@@ -84,7 +83,7 @@ func init() {
 		fatalIf(readAliasesFromFile(configFile).Trace(configFile), "Unable to parse "+configFile)
 	}
 	if runtime.GOOS == "windows" {
-		if mousetrap.StartedByExplorer() {
+		if startedByExplorer() {
 			fmt.Printf("Don't double-click %s\n", os.Args[0])
 			fmt.Println("You need to open cmd.exe/PowerShell and run it from the command line")
 			fmt.Println("Press the Enter Key to Exit")
