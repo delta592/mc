@@ -48,10 +48,7 @@ jobs:
 
       - name: Build and run tests
         shell: bash
-        run: |
-          make build
-          make test-short
-          make test-race
+        run: make test-platform
 
   coverage:
     name: Coverage
@@ -80,15 +77,6 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-latest
     needs: [lint, test]
-    env:
-      ACCESS_KEY: minioadmin
-      SECRET_KEY: minioadmin
-      ENABLE_HTTPS: 1
-      MINIO_CI_CD: 1
-      SERVER_ENDPOINT: localhost:9000
-      MC_TEST_ENABLE_HTTPS: true
-      MC_TEST_SKIP_INSECURE: true
-      MC_TEST_SKIP_BUILD: true
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -99,19 +87,5 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Start MinIO
-        run: |
-          wget -q https://dl.min.io/server/minio/release/linux-amd64/minio
-          chmod +x minio
-          mkdir -p ~/.minio/certs/
-          cp testdata/localhost.crt ~/.minio/certs/public.crt
-          cp testdata/localhost.key ~/.minio/certs/private.key
-          sudo cp testdata/localhost.crt /usr/local/share/ca-certificates/
-          sudo update-ca-certificates
-          ./minio server /tmp/test-xl/{1...4}/ &
-          sleep 10
-
       - name: Run integration tests
-        run: |
-          make verify
-          ./functional-tests.sh
+        run: make ci-integration
