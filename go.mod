@@ -37,6 +37,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/procfs v0.21.1
 	github.com/shirou/gopsutil/v4 v4.26.7
+	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/gjson v1.19.0
 	github.com/vbauerster/mpb/v8 v8.15.1
 	go.yaml.in/yaml/v3 v3.0.5
@@ -45,7 +46,6 @@ require (
 	golang.org/x/term v0.45.0
 	golang.org/x/text v0.40.0
 	golang.org/x/time v0.15.0
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 )
 
 require (
@@ -168,8 +168,6 @@ require (
 	github.com/kkHAIKE/contextcheck v1.1.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/kulti/thelper v0.7.1 // indirect
 	github.com/kunwardeep/paralleltest v1.0.15 // indirect
 	github.com/lasiar/canonicalheader v1.1.2 // indirect
@@ -259,7 +257,6 @@ require (
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.3.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tetafro/godot v1.5.6 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
