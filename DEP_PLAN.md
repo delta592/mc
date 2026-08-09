@@ -8,325 +8,102 @@ This document plans how to address the 18 dependencies flagged as **abandoned** 
 
 ## Summary by Action
 
-| Action | Count | Dependencies |
-|--------|------:|--------------|
-| **Keep (accept risk)** | 5 | `go-humanize`, `google/uuid`, `go-ieproxy`, `minio/filepath`, `minio/cli` (short term) |
-| **Trivial / stdlib swap** | 3 | `go-homedir`, `rs/xid`, `gopkg.in/yaml.v3` |
-| **Small inline or local copy** | 3 | `google/shlex`, `mousetrap`, `muesli/reflow` |
-| **New dep + localized refactor** | 4 | `juju/ratelimit`, `minio/selfupdate`, `rjeczalik/notify`, `pkg/xattr` |
-| **Large / cross-cutting refactor** | 3 | `minio/cli`, `minio/colorjson`, `posener/complete/v2` |
-| **Test-only migration** | 1 | `gopkg.in/check.v1` |
+| Action | Count | Status | Dependencies |
+|--------|------:|--------|--------------|
+| **Keep (accept risk)** | 4 | Open | `go-humanize`, `google/uuid`, `go-ieproxy`, `minio/filepath` |
+| **Trivial / stdlib swap** | 3 | **Done** | `go-homedir`, `rs/xid`, `gopkg.in/yaml.v3` |
+| **Small inline or local copy** | 3 | **Done** | `google/shlex`, `mousetrap`, `muesli/reflow` |
+| **New dep + localized refactor** | 4 | **Done** | `juju/ratelimit`, `minio/selfupdate`, `rjeczalik/notify`, `pkg/xattr` |
+| **Large / cross-cutting refactor** | 3 | Partial | `minio/cli` **Done**, `minio/colorjson`, `posener/complete/v2` open |
+| **Test-only migration** | 1 | **Done** | `gopkg.in/check.v1` |
+
+**Progress:** 12 of 18 dependencies addressed on `replace_deps` (removed from direct `go.mod` or vendored in-tree). 6 remain as direct dependencies.
 
 ---
 
 ## Recommended Phases
 
-### Phase 1 — Quick wins (1–2 days, low risk)
+### Phase 1 — Quick wins ✅ complete
 
-Low blast radius; can land independently.
+- [x] `go-homedir` → `os.UserHomeDir()` in `cmd/config.go`
+- [x] `rs/xid` → `google/uuid` in `cmd/ilm/options.go`
+- [x] `gopkg.in/yaml.v3` → `go.yaml.in/yaml/v3` in `cmd/admin-prometheus-generate.go`
+- [x] `google/shlex` → `pkg/shlex`
+- [x] `mousetrap` → inline Windows guard in `cmd/explorer_*.go`
+- [x] `muesli/reflow` → `pkg/textutil`
 
-1. Replace `mitchellh/go-homedir` with `os.UserHomeDir()` in `cmd/config.go`.
-2. Replace `rs/xid` with `google/uuid` (or stdlib) in `cmd/ilm/options.go` — one call site.
-3. Switch `gopkg.in/yaml.v3` → `go.yaml.in/yaml/v3` in `cmd/admin-prometheus-generate.go` (already an indirect dep in `go.mod`).
-4. Inline or vendor `google/shlex` (~single use in `cmd/find.go`).
-5. Inline `inconshreveable/mousetrap` Windows guard (~15 lines in `cmd/main.go`).
-6. Replace `muesli/reflow` wordwrap/truncate in `cmd/term-pager.go` and `cmd/trace-stats-ui.go` with small helpers or `lipgloss` width utilities already in use.
+### Phase 2 — Localized refactors ✅ complete
 
-### Phase 2 — Localized refactors (1–2 weeks)
+- [x] `juju/ratelimit` → `golang.org/x/time/rate` in `pkg/limiter/limiter.go`
+- [x] `minio/selfupdate` → `pkg/selfupdate` (vendored in-tree)
+- [x] `rjeczalik/notify` → `pkg/fswatch` (vendored in-tree; not `fsnotify`, for behavioral parity)
+- [x] `pkg/xattr` → `pkg/xattr` (vendored in-tree)
 
-Contained changes; moderate test coverage needed.
+### Phase 3 — Test infrastructure ✅ complete
 
-7. Replace `juju/ratelimit` with `golang.org/x/time/rate` in `pkg/limiter/limiter.go`.
-8. Replace `minio/selfupdate` with a maintained alternative (see below) in `cmd/update-main.go`.
-9. Migrate `rjeczalik/notify` → `github.com/fsnotify/fsnotify` across `cmd/client-fs*.go` and `cmd/pipechan*.go` (fsnotify is already indirect).
-10. Evaluate `pkg/xattr` replacement or internal syscall wrapper for Darwin/Linux/BSD xattr paths.
+- [x] `gopkg.in/check.v1` → stdlib `testing` + `github.com/stretchr/testify` (7 test files)
 
-### Phase 3 — Test infrastructure (parallel track)
+### Phase 4 — CLI stack (partial)
 
-11. Migrate `gopkg.in/check.v1` suites in 6 test files to `testing` + `testify` (already a project dependency).
-
-### Phase 4 — CLI stack (major project; defer unless committed)
-
-12. Plan migration off `github.com/minio/cli` (~280 files) — likely to `spf13/cobra` or `urfave/cli/v2`.
-13. Replace `github.com/minio/colorjson` (~120 files) — either as part of CLI migration or via a thin internal `pkg/colorjson` wrapper around `encoding/json` + terminal coloring.
-14. Rebuild shell completion (`posener/complete/v2` in `cmd/auto-complete.go`) on top of the new CLI framework's completion APIs.
+- [x] `minio/cli` → `urfave/cli/v2` (~294 cmd files)
+- [ ] `minio/colorjson` → internal `pkg/colorjson` or stdlib `encoding/json` + coloring (~120 files)
+- [ ] `posener/complete/v2` → `urfave/cli/v2` shell completion APIs
 
 ### Phase 5 — Accept-and-document
 
-15. Document intentional retention of stable, low-risk packages (see "Keep" section below).
+- [x] Document intentional retention of stable, low-risk packages (see checklist below)
+- [ ] Review "Keep" decisions annually
 
 ---
 
 ## Per-Dependency Plan
 
-### 1. `github.com/dustin/go-humanize` — **Keep**
+Checklist grouped by recommended action. **12 of 18 done** on `replace_deps`; remaining items are either intentional keeps or Phase 4 work.
 
-| | |
-|---|---|
-| **Last release** | 2023-01-10 |
-| **Usage** | ~40+ files: `IBytes`, `Comma`, `RelTime`, `ParseBytes`, `Bytes`, `Time`, `MiByte`, etc. |
-| **Recommendation** | **Keep** |
+Legend: ✅ removed/replaced (no longer a direct `go.mod` dep) · ⏳ still a direct dep · 📦 vendored in-tree
 
-**Rationale:** Feature-complete formatting library with no known CVEs. Replacing it would touch a large portion of CLI output for negligible benefit. The project already wraps some duration formatting in `cmd/humanized-duration.go`; extending that pattern for bytes/counts would be a large, low-value rewrite.
+### Keep (accept risk) — 4 open
 
-**If forced to replace later:** Introduce a small internal `pkg/humanize` with only the ~8 functions actually used, backed by `golang.org/x/text` where applicable.
+Intentionally retain; review annually or revisit only if a security issue emerges.
 
----
+- [ ] ⏳ `github.com/dustin/go-humanize` — formatting helpers in ~40+ files; feature-complete
+- [ ] ⏳ `github.com/google/uuid` — ID generation/parsing; de-facto standard, no stdlib alternative
+- [ ] ⏳ `github.com/mattn/go-ieproxy` — Windows IE/Edge proxy auto-detection
+- [ ] ⏳ `github.com/minio/filepath` — wildcard-aware `Walk` / `ErrSkipDir` for FS find and mirror
 
-### 2. `github.com/google/shlex` — **Replace (easy)**
+### Trivial / stdlib swap — 3 done
 
-| | |
-|---|---|
-| **Last release** | 2019-12-02 |
-| **Usage** | Single call: `shlex.Split(args)` in `cmd/find.go` |
-| **Recommendation** | Copy into `internal/shlex` or use a maintained fork |
+- [x] ✅ `github.com/mitchellh/go-homedir` → `os.UserHomeDir()` (`cmd/config.go`)
+- [x] ✅ `github.com/rs/xid` → `google/uuid` (`cmd/ilm/options.go`)
+- [x] ✅ `gopkg.in/yaml.v3` → `go.yaml.in/yaml/v3` (`cmd/admin-prometheus-generate.go`)
 
-**Options (best first):**
+### Small inline or local copy — 3 done
 
-1. **Vendor/copy** the ~120-line package into `internal/shlex` (Apache-2.0). Zero new deps.
-2. Use `github.com/anmitsu/go-shlex` if a maintained external dep is preferred.
+- [x] 📦 `github.com/google/shlex` → `pkg/shlex`
+- [x] ✅ `github.com/inconshreveable/mousetrap` → `cmd/explorer_windows.go` / `cmd/explorer_other.go`
+- [x] 📦 `github.com/muesli/reflow` → `pkg/textutil`
 
-**Effort:** ~1 hour. **Risk:** Low — unit test the find `--exec` parsing path.
+### New dep + localized refactor — 4 done
 
----
+- [x] ✅ `github.com/juju/ratelimit` → `golang.org/x/time/rate` (`pkg/limiter/limiter.go`)
+- [x] 📦 `github.com/minio/selfupdate` → `pkg/selfupdate` (minisign verification preserved)
+- [x] 📦 `github.com/rjeczalik/notify` → `pkg/fswatch` (vendored for mirror/watch parity)
+- [x] 📦 `github.com/pkg/xattr` → `pkg/xattr` (Darwin/Linux/BSD extended attributes)
 
-### 3. `github.com/google/uuid` — **Keep (short term)**
+### Large / cross-cutting refactor — 1 done, 2 open
 
-| | |
-|---|---|
-| **Last release** | 2024-01-23 |
-| **Usage** | `cmd/client-fs.go` (`NewString`), `cmd/subnet-utils.go` (`Parse`, `Nil`), `cmd/suite_test.go` |
-| **Recommendation** | **Keep** for now |
+- [x] ✅ `github.com/minio/cli` → `urfave/cli/v2` (~294 cmd files)
+- [ ] ⏳ `github.com/minio/colorjson` → internal `pkg/colorjson` or stdlib + coloring (~120 files)
+- [ ] ⏳ `github.com/posener/complete/v2` → `urfave/cli/v2` shell completion (`cmd/auto-complete.go`)
 
-**Rationale:** De-facto standard UUID library; last release is recent. Go has no stdlib UUID package. Uses are straightforward v4 generation and parsing.
+### Test-only migration — 1 done
 
-**Optional consolidation:** When removing `rs/xid`, standardize all ID generation on `google/uuid` rather than adding another ID library.
+- [x] ✅ `gopkg.in/check.v1` → stdlib `testing` + `github.com/stretchr/testify` (7 test files)
 
----
+**Notes:**
 
-### 4. `github.com/inconshreveable/mousetrap` — **Replace (easy)**
-
-| | |
-|---|---|
-| **Last release** | 2022-11-27 |
-| **Usage** | Windows-only guard in `cmd/main.go`: `mousetrap.StartedByExplorer()` |
-| **Recommendation** | Inline ~15 lines using `golang.org/x/sys/windows` or copy the single-file package |
-
-**Effort:** ~30 minutes. **Risk:** Low — Windows-only UX path.
-
----
-
-### 5. `github.com/juju/ratelimit` — **Replace (moderate)**
-
-| | |
-|---|---|
-| **Last release** | 2019-10-02 |
-| **Usage** | `pkg/limiter/limiter.go` — token-bucket upload/download throttling via `http.RoundTripper` |
-| **Recommendation** | Migrate to `golang.org/x/time/rate` |
-
-**Refactor sketch:**
-
-```go
-// Before: ratelimit.NewBucketWithRate + ratelimit.Reader
-// After:  rate.NewLimiter(rate.Limit(n), burst) wrapping io.Reader per read
-```
-
-**Effort:** ~4 hours + integration tests for `--limit-upload` / `--limit-download` flags. **Risk:** Medium — verify byte-accurate throttling behavior.
-
----
-
-### 6. `github.com/mattn/go-ieproxy` — **Keep**
-
-| | |
-|---|---|
-| **Last release** | 2024-05-22 |
-| **Usage** | `ieproxy.GetProxyFunc()` in `cmd/client-admin.go`, `cmd/utils.go` |
-| **Recommendation** | **Keep** |
-
-**Rationale:** Only reads Windows IE/Edge proxy registry settings. `golang.org/x/net/http/httpproxy` and stdlib `http.ProxyFromEnvironment` do **not** cover this. Last release is recent. Removing it breaks proxy auto-detection for many corporate Windows users.
-
----
-
-### 7. `github.com/minio/cli` — **Keep short term; plan major migration**
-
-| | |
-|---|---|
-| **Last release** | 2022-12-03 |
-| **Usage** | Entire command tree (~280 files): `cli.Command`, `cli.Context`, `cli.Flag`, help templates |
-| **Recommendation** | **Keep** until a dedicated CLI migration project; then move to `spf13/cobra` or `urfave/cli/v2` |
-
-**Rationale:** This is architectural, not a dependency bump. The MinIO fork carries mc-specific behavior (`OnUsageError`, global flags, help templates). Replacing it touches every command file.
-
-**Migration notes:**
-
-- Map `cli.Command` → cobra.Command or urfave/cli/v2 Command.
-- Preserve `--json` output paths and `OnUsageError` behavior.
-- Expect 2–4 weeks of focused work with full integration test pass.
-- Blocks/complicates `posener/complete` and `colorjson` migrations — do planning together.
-
-**Effort:** **Large.** **Risk:** High if rushed.
-
----
-
-### 8. `github.com/minio/colorjson` — **Replace (medium–large)**
-
-| | |
-|---|---|
-| **Last release** | 2024-05-28 |
-| **Usage** | ~120 files; imported as `json "github.com/minio/colorjson"` for colored `MarshalIndent` |
-| **Recommendation** | Create internal `pkg/colorjson` or migrate to stdlib `encoding/json` + post-process coloring |
-
-**Options:**
-
-1. **Internal wrapper (preferred):** Copy/adapt minio/colorjson into `pkg/colorjson` under this repo's maintenance. API-compatible; mechanical import path change.
-2. **Stdlib + coloring:** Use `encoding/json` and apply `fatih/color` / `console` colorization to output bytes. More invasive.
-
-**Effort:** 1–3 days for option 1; longer for option 2. **Risk:** Medium — visual output regression in `--json` mode. Best done alongside or after CLI migration.
-
----
-
-### 9. `github.com/minio/filepath` — **Keep**
-
-| | |
-|---|---|
-| **Last release** | 2021-05-12 |
-| **Usage** | `cmd/client-fs.go`: `xfilepath.Walk`, `xfilepath.ErrSkipDir` for wildcard-aware directory walks |
-| **Recommendation** | **Keep**, or copy into `internal/filepath` if import hygiene matters |
-
-**Rationale:** MinIO's fork extends stdlib `filepath` for flat-key / wildcard path matching used by `mc find` and FS mirror. Stdlib `filepath.WalkDir` does not provide equivalent semantics. The package is small and stable.
-
-**If replacing:** Must reimplement `Walk` + `ErrSkipDir` with wildcard support — not worth it unless vendoring locally.
-
----
-
-### 10. `github.com/minio/selfupdate` — **Replace (moderate)**
-
-| | |
-|---|---|
-| **Last release** | 2022-10-19 |
-| **Usage** | `cmd/update-main.go`: binary swap with SHA-256 checksum + optional minisign verification |
-| **Recommendation** | Switch to `github.com/creativeprojects/go-selfupdate` or maintain a vendored fork |
-
-**Migration checklist:**
-
-- Map `selfupdate.Apply`, `selfupdate.Options`, `selfupdate.NewVerifier` to new API.
-- Preserve minisign pubkey verification (`aead.dev/minisign` is already indirect).
-- Preserve rollback behavior on failed update.
-- Test on Linux, macOS, Windows with `--dry-run` where available.
-
-**Effort:** ~1 day. **Risk:** Medium — binary update path must be tested on all release platforms.
-
----
-
-### 11. `github.com/mitchellh/go-homedir` — **Replace (trivial)**
-
-| | |
-|---|---|
-| **Last release** | 2019-01-27 |
-| **Usage** | `homedir.Dir()` in `cmd/config.go` |
-| **Recommendation** | Use `os.UserHomeDir()` (Go stdlib since 1.12) |
-
-**Effort:** ~15 minutes. **Risk:** Very low. HashiCorp deprecated this package in favor of stdlib.
-
----
-
-### 12. `github.com/muesli/reflow` — **Replace (easy)**
-
-| | |
-|---|---|
-| **Last release** | 2021-05-17 |
-| **Usage** | `wordwrap.String` in `cmd/term-pager.go`; `truncate.StringWithTail` in `cmd/trace-stats-ui.go` |
-| **Recommendation** | Inline small helpers or use `github.com/muesli/termenv` / lipgloss width (already imported) |
-
-**Effort:** ~2 hours. **Risk:** Low — UI wrapping only.
-
----
-
-### 13. `github.com/pkg/xattr` — **Replace or keep (moderate)**
-
-| | |
-|---|---|
-| **Last release** | 2020-06-30 |
-| **Usage** | Extended attributes on FS client: `xattr.Get`, `xattr.List`, `xattr.Error` in `cmd/client-fs_{linux,darwin,freebsd,netbsd}.go` |
-| **Recommendation** | Keep short term; migrate to `golang.org/x/sys/unix` xattr wrappers or `github.com/nightlyone/xattr` |
-
-**Rationale:** xattr is inherently platform-specific; the current code already splits by OS build tags. A thin internal `pkg/xattr` using syscalls reduces external dependency without changing call sites much.
-
-**Effort:** ~1–2 days including platform testing. **Risk:** Medium on Darwin/Linux/BSD only (Windows FS client doesn't use xattr).
-
----
-
-### 14. `github.com/posener/complete/v2` — **Replace with CLI migration**
-
-| | |
-|---|---|
-| **Last release** | 2023-07-19 |
-| **Usage** | `cmd/auto-complete.go` (~686 lines), `cmd/main.go` (`completeinstall`) |
-| **Recommendation** | Reimplement completions when migrating off `minio/cli` |
-
-**Options after CLI migration:**
-
-- **Cobra:** native `ValidArgsFunction` / `RegisterFlagCompletionFunc` + `cobra.GenBashCompletionV2`.
-- **urfave/cli/v2:** built-in bash completion support.
-- Keep generated completion scripts in `contrib/completions/` if shell-specific logic is needed.
-
-**Effort:** **Large** (tied to Phase 4). **Risk:** Medium — completion regressions are user-visible but not data-loss risks.
-
----
-
-### 15. `github.com/rjeczalik/notify` — **Replace (moderate)**
-
-| | |
-|---|---|
-| **Last release** | 2023-01-12 |
-| **Usage** | FS event watching for mirror/watch: `notify.Watch`, `notify.Stop`, event constants across `cmd/client-fs*.go`, `cmd/pipechan*.go` |
-| **Recommendation** | Migrate to `github.com/fsnotify/fsnotify` |
-
-**Refactor notes:**
-
-- `notify.Event` bitmask constants differ from fsnotify; map per-OS event types in existing `client-fs_{linux,windows,darwin,...}.go` files.
-- `notify.Watch(recursivePath, ch, events...)` → fsnotify watcher with recursive directory registration (may need helper; fsnotify is not recursive by default on all platforms).
-- `pipechan_test.go` uses `notify.EventInfo` — update test types.
-
-**Effort:** ~3–5 days. **Risk:** Medium–high — mirror/watch are core FS features; needs integration tests on Linux and macOS at minimum.
-
----
-
-### 16. `github.com/rs/xid` — **Replace (trivial)**
-
-| | |
-|---|---|
-| **Last release** | 2024-08-23 |
-| **Usage** | Default ILM rule ID in `cmd/ilm/options.go`: `xid.New().String()` |
-| **Recommendation** | Use `uuid.NewString()` (already a project dep) or `crypto/rand`-based ID |
-
-**Effort:** ~15 minutes. **Risk:** Very low — only affects auto-generated ILM rule IDs (format changes from xid to UUID; acceptable).
-
----
-
-### 17. `gopkg.in/check.v1` — **Replace (test-only, moderate)**
-
-| | |
-|---|---|
-| **Last release** | 2020-11-30 |
-| **Usage** | 6 test files: `cmd/client-fs_test.go`, `cmd/client-url_test.go`, `cmd/mc_test.go`, `cmd/client-s3_test.go`, `pkg/probe/probe_test.go`, `pkg/hookreader/hookreader_test.go`, `pkg/httptracer/httptracer_test.go` |
-| **Recommendation** | Migrate to stdlib `testing` + `github.com/stretchr/testify` |
-
-**Effort:** ~2–3 days. **Risk:** Low — test-only; no production impact.
-
----
-
-### 18. `gopkg.in/yaml.v3` — **Replace (easy)**
-
-| | |
-|---|---|
-| **Last release** | 2022-05-27 |
-| **Usage** | `yaml.Marshal` in `cmd/admin-prometheus-generate.go` (2 call sites) |
-| **Recommendation** | Switch import to `go.yaml.in/yaml/v3` |
-
-**Rationale:** `go.yaml.in/yaml/v3` is the actively maintained continuation; already present as an indirect dependency. Drop-in API for `Marshal`.
-
-**Effort:** ~30 minutes. **Risk:** Very low — verify `mc admin prometheus generate` output.
+- Some replaced packages may still appear in `go.sum` as **indirect** transitive dependencies (e.g. `gopkg.in/check.v1` via `madmin-go`).
+- New direct dependencies added during migration: `go.yaml.in/yaml/v3`, `golang.org/x/time`, `aead.dev/minisign`, `github.com/stretchr/testify`, `github.com/mattn/go-runewidth`, `github.com/urfave/cli/v2`.
 
 ---
 
@@ -350,17 +127,17 @@ flowchart TD
         reflow[muesli/reflow → inline]
     end
 
-    subgraph phase2 [Phase 2 Localized]
+    subgraph phase2 [Phase 2 Localized - Done]
         ratelimit[juju/ratelimit → x/time/rate]
-        selfupdate[minio/selfupdate → go-selfupdate]
-        notify[rjeczalik/notify → fsnotify]
-        xattr[pkg/xattr → internal/syscall]
+        selfupdate[minio/selfupdate → pkg/selfupdate]
+        notify[rjeczalik/notify → pkg/fswatch]
+        xattr[pkg/xattr → pkg/xattr]
     end
 
     subgraph phase4 [Phase 4 Major]
-        cli[minio/cli → cobra/cli/v2]
+        cli[minio/cli → urfave/cli/v2 Done]
         colorjson[minio/colorjson → internal/pkg]
-        complete[posener/complete → cobra completions]
+        complete[posener/complete → urfave/cli/v2 completions]
     end
 
     cli --> colorjson
@@ -371,17 +148,21 @@ flowchart TD
 
 ## Risk Matrix
 
-| Dependency | User impact if broken | Migration risk | Priority |
-|------------|----------------------|----------------|----------|
-| `minio/cli` | Total CLI failure | High | Defer (plan only) |
-| `rjeczalik/notify` | mirror/watch broken | Medium–High | Phase 2 |
-| `minio/selfupdate` | `mc update` broken | Medium | Phase 2 |
-| `juju/ratelimit` | bandwidth limits wrong | Medium | Phase 2 |
-| `minio/colorjson` | `--json` colors wrong | Medium | Phase 4 |
-| `posener/complete` | tab completion broken | Medium | Phase 4 |
-| `pkg/xattr` | FS metadata on Unix | Medium | Phase 2 |
-| `gopkg.in/check.v1` | tests fail | Low | Phase 3 |
-| All Phase 1 items | Minimal | Low | **Do first** |
+| Dependency | User impact if broken | Migration risk | Status |
+|------------|----------------------|----------------|--------|
+| `minio/cli` | Total CLI failure | High | **Done** → `urfave/cli/v2` |
+| `minio/colorjson` | `--json` colors wrong | Medium | Open (Phase 4) |
+| `posener/complete` | tab completion broken | Medium | Open (Phase 4) |
+| `go-humanize` | formatted output wrong | Low | Keep |
+| `google/uuid` | ID generation fails | Low | Keep |
+| `go-ieproxy` | Windows proxy detection | Low | Keep |
+| `minio/filepath` | FS find/mirror walks | Low | Keep |
+| `rjeczalik/notify` | mirror/watch broken | Medium–High | **Done** → `pkg/fswatch` |
+| `minio/selfupdate` | `mc update` broken | Medium | **Done** → `pkg/selfupdate` |
+| `juju/ratelimit` | bandwidth limits wrong | Medium | **Done** → `x/time/rate` |
+| `pkg/xattr` | FS metadata on Unix | Medium | **Done** → `pkg/xattr` |
+| `gopkg.in/check.v1` | tests fail | Low | **Done** → testify |
+| All Phase 1 items | Minimal | Low | **Done** |
 
 ---
 
@@ -392,7 +173,9 @@ When a dependency is addressed, update this file:
 - [x] Phase 1 complete
 - [x] Phase 2 complete
 - [x] Phase 3 complete
-- [ ] Phase 4 scoped / scheduled
+- [x] Phase 5 documented (keep decisions in checklist above)
+- [x] Phase 4 `minio/cli` → `urfave/cli/v2`
+- [ ] Phase 4 remaining (`minio/colorjson`, `posener/complete/v2`)
 - [ ] "Keep" decisions reviewed annually
 
 Consider adding a `gomodguard` or Renovate rule to block **new** imports of these abandoned packages while allowing existing ones until migrated.
