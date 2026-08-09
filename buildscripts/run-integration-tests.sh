@@ -9,7 +9,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 BUILD_TAGS="${BUILD_TAGS:-kqueue}"
-TESTPKG="${TESTPKG:-./...}"
+INTEGRATION_TESTPKG="${INTEGRATION_TESTPKG:-./cmd}"
 TEST_TIMEOUT="${TEST_TIMEOUT:-20m}"
 RACE_TEST_FLAGS="-race -tags ${BUILD_TAGS} -count=1 -timeout ${TEST_TIMEOUT}"
 
@@ -196,10 +196,12 @@ trap cleanup EXIT INT TERM
 install_system_ca
 ensure_minio
 
-echo "Running integration tests"
+echo "Running integration tests in ${INTEGRATION_TESTPKG}"
+echo "Compiling race-enabled test binary (first run can take several minutes with no output)..."
 MC_TEST_RUN_FULL_SUITE=true \
 MC_TEST_SKIP_BUILD=true \
+MC_TEST_BINARY_PATH="${ROOT_DIR}/mc" \
 CGO_ENABLED=1 \
-go test ${RACE_TEST_FLAGS} -v "${TESTPKG}" -run Test_FullSuite
+go test ${RACE_TEST_FLAGS} -v "${INTEGRATION_TESTPKG}" -run Test_FullSuite
 
 run_functional_tests

@@ -95,7 +95,7 @@ test: verifiers build ## Run unit tests and integration suite
 	@echo "Running unit tests"
 	@CGO_ENABLED=0 go test $(UNIT_TEST_FLAGS) $(TESTPKG)
 	@echo "Running integration tests"
-	@MC_TEST_RUN_FULL_SUITE=true CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v $(TESTPKG) -run Test_FullSuite
+	@MC_TEST_RUN_FULL_SUITE=true CGO_ENABLED=1 go test $(RACE_TEST_FLAGS) -v ./cmd -run Test_FullSuite
 
 .PHONY: test-race
 test-race: build ## Run unit tests with the race detector
