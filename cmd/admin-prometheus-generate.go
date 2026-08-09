@@ -27,7 +27,7 @@ import (
 	"github.com/minio/pkg/v3/console"
 
 	json "github.com/minio/colorjson"
-	yaml "gopkg.in/yaml.v3"
+	yaml "go.yaml.in/yaml/v3"
 )
 
 const (

@@ -26,9 +26,9 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
+	"github.com/google/uuid"
 	"github.com/minio/cli"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
-	"github.com/rs/xid"
 )
 
 const defaultILMDateFormat string = "2006-01-02"
@@ -243,7 +243,7 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 
 	id = ctx.String("id")
 	if id == "" {
-		id = xid.New().String()
+		id = uuid.NewString()
 	}
 
 	switch {

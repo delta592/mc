@@ -29,8 +29,6 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/env"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 // mcCustomConfigDir contains the whole path to config dir. Only access via get/set functions.
@@ -46,7 +44,7 @@ func getMcConfigDir() (string, *probe.Error) {
 	if mcCustomConfigDir != "" {
 		return mcCustomConfigDir, nil
 	}
-	homeDir, e := homedir.Dir()
+	homeDir, e := os.UserHomeDir()
 	if e != nil {
 		return "", probe.NewError(e)
 	}
