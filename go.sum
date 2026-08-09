@@ -100,8 +100,8 @@ github.com/charithe/durationcheck v0.0.11 h1:g1/EX1eIiKS57NTWsYtHDZ/APfeXKhye1Di
 github.com/charithe/durationcheck v0.0.11/go.mod h1:x5iZaixRNl8ctbM+3B2RrPG5t856TxRyVQEnbIEM2X4=
 github.com/charmbracelet/colorprofile v0.4.3 h1:QPa1IWkYI+AOB+fE+mg/5/4HRMZcaXex9t5KX76i20Q=
 github.com/charmbracelet/colorprofile v0.4.3/go.mod h1:/zT4BhpD5aGFpqQQqw7a+VtHCzu+zrQtt1zhMt9mR4Q=
-github.com/charmbracelet/ultraviolet v0.0.0-20260703014108-f5a850f9c2b7 h1:3FmWoGNWK4STvqg0O0Aeav2T7rodWJAPeF0QpH+8gFw=
-github.com/charmbracelet/ultraviolet v0.0.0-20260703014108-f5a850f9c2b7/go.mod h1:f/jRa757WUmaOZrbPspXymbg/GnbF+rwe4OLsG7aXYo=
+github.com/charmbracelet/ultraviolet v0.0.0-20260808192814-d38ea0f8aa5c h1:7zoqmMr4PQBfEuJWUdnsqGBG8LFlTM38PPXXDJJh0Ac=
+github.com/charmbracelet/ultraviolet v0.0.0-20260808192814-d38ea0f8aa5c/go.mod h1:psnCZIfwwxVs6v6DhUc6NJ8AQ3ejvs2ejKwoOMeVmUk=
 github.com/charmbracelet/x/ansi v0.11.7 h1:kzv1kJvjg2S3r9KHo8hDdHFQLEqn4RBCb39dAYC84jI=
 github.com/charmbracelet/x/ansi v0.11.7/go.mod h1:9qGpnAVYz+8ACONkZBUWPtL7lulP9No6p1epAihUZwQ=
 github.com/charmbracelet/x/exp/golden v0.0.0-20250806222409-83e3a29d542f h1:pk6gmGpCE7F3FcjaOEKYriCvpmIN4+6OS/RD0vm4uIA=
@@ -416,10 +416,10 @@ github.com/nunnatsa/ginkgolinter v0.23.0 h1:x3o4DGYOWbBMP/VdNQKgSj+25aJKx2Pe6lHr
 github.com/nunnatsa/ginkgolinter v0.23.0/go.mod h1:9qN1+0akwXEccwV1CAcCDfcoBlWXHB+ML9884pL4SZ4=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 h1:zrbMGy9YXpIeTnGj4EljqMiZsIcE09mmF8XsD5AYOJc=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6/go.mod h1:rEKTHC9roVVicUIfZK7DYrdIoM0EOr8mK1Hj5s3JjH0=
-github.com/olekukonko/errors v1.2.0 h1:10Zcn4GeV59t/EGqJc8fUjtFT/FuUh5bTMzZ1XwmCRo=
-github.com/olekukonko/errors v1.2.0/go.mod h1:ppzxA5jBKcO1vIpCXQ9ZqgDh8iwODz6OXIGKU8r5m4Y=
-github.com/olekukonko/ll v0.1.6 h1:lGVTHO+Qc4Qm+fce/2h2m5y9LvqaW+DCN7xW9hsU3uA=
-github.com/olekukonko/ll v0.1.6/go.mod h1:NVUmjBb/aCtUpjKk75BhWrOlARz3dqsM+OtszpY4o88=
+github.com/olekukonko/errors v1.3.0 h1:teJvgLGUEqMzBUms+Dj3/3szNqCG/Jdw9iDbum8fR6U=
+github.com/olekukonko/errors v1.3.0/go.mod h1:ppzxA5jBKcO1vIpCXQ9ZqgDh8iwODz6OXIGKU8r5m4Y=
+github.com/olekukonko/ll v0.1.8 h1:ysHCJRGHYKzmBSdz9w5AySztx7lG8SQY+naTGYUbsz8=
+github.com/olekukonko/ll v0.1.8/go.mod h1:RPRC6UcscfFZgjo1nulkfMH5IM0QAYim0LfnMvUuozw=
 github.com/olekukonko/tablewriter v1.1.4 h1:ORUMI3dXbMnRlRggJX3+q7OzQFDdvgbN9nVWj1drm6I=
 github.com/olekukonko/tablewriter v1.1.4/go.mod h1:+kedxuyTtgoZLwif3P1Em4hARJs+mVnzKxmsCL/C5RY=
 github.com/onsi/ginkgo/v2 v2.28.2 h1:DTrMfpqxiNUyQ3Y0zhn1n3cOO2euFgQPYIpkWwxVFps=
