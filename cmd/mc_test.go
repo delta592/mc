@@ -23,90 +23,79 @@ import (
 	"testing"
 	"time"
 
-	checkv1 "gopkg.in/check.v1"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func Test(t *testing.T) { checkv1.TestingT(t) }
-
-type TestSuite struct{}
-
-var _ = checkv1.Suite(&TestSuite{})
-
-func (s *TestSuite) SetUpSuite(_ *checkv1.C) {
-}
-
-func (s *TestSuite) TearDownSuite(_ *checkv1.C) {
-}
-
-func (s *TestSuite) TestValidPERMS(c *checkv1.C) {
+func TestValidPERMS(t *testing.T) {
 	perms := accessPerms("none")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, true)
-	c.Assert(string(perms), checkv1.Equals, "none")
+	require.Equal(t, true, perms.isValidAccessPERM())
+	require.Equal(t, "none", string(perms))
 	perms = accessPerms("public")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, true)
-	c.Assert(string(perms), checkv1.Equals, "public")
+	require.Equal(t, true, perms.isValidAccessPERM())
+	require.Equal(t, "public", string(perms))
 	perms = accessPerms("private")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, true)
-	c.Assert(string(perms), checkv1.Equals, "private")
+	require.Equal(t, true, perms.isValidAccessPERM())
+	require.Equal(t, "private", string(perms))
 	perms = accessPerms("download")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, true)
-	c.Assert(string(perms), checkv1.Equals, "download")
+	require.Equal(t, true, perms.isValidAccessPERM())
+	require.Equal(t, "download", string(perms))
 	perms = accessPerms("upload")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, true)
-	c.Assert(string(perms), checkv1.Equals, "upload")
+	require.Equal(t, true, perms.isValidAccessPERM())
+	require.Equal(t, "upload", string(perms))
 }
 
-func (s *TestSuite) TestInvalidPERMS(c *checkv1.C) {
+func TestInvalidPERMS(t *testing.T) {
 	perms := accessPerms("invalid")
-	c.Assert(perms.isValidAccessPERM(), checkv1.Equals, false)
+	require.Equal(t, false, perms.isValidAccessPERM())
 }
 
-func (s *TestSuite) TestGetMcConfigDir(c *checkv1.C) {
+func TestGetMcConfigDir(t *testing.T) {
 	dir, err := getMcConfigDir()
-	c.Assert(err, checkv1.IsNil)
-	c.Assert(dir, checkv1.Not(checkv1.Equals), "")
-	c.Assert(mustGetMcConfigDir(), checkv1.Equals, dir)
+	require.Nil(t, err)
+	require.NotEqual(t, "", dir)
+	require.Equal(t, dir, mustGetMcConfigDir())
 }
 
-func (s *TestSuite) TestGetMcConfigPath(c *checkv1.C) {
+func TestGetMcConfigPath(t *testing.T) {
 	dir, err := getMcConfigPath()
-	c.Assert(err, checkv1.IsNil)
+	require.Nil(t, err)
 	switch runtime.GOOS {
 	case "linux", "freebsd", "darwin", "solaris":
-		c.Assert(dir, checkv1.Equals, filepath.Join(mustGetMcConfigDir(), "config.json"))
+		require.Equal(t, filepath.Join(mustGetMcConfigDir(), "config.json"), dir)
 	case "windows":
-		c.Assert(dir, checkv1.Equals, filepath.Join(mustGetMcConfigDir(), "config.json"))
+		require.Equal(t, filepath.Join(mustGetMcConfigDir(), "config.json"), dir)
 	default:
-		c.Fail()
+		t.Fatalf("unsupported platform")
 	}
-	c.Assert(mustGetMcConfigPath(), checkv1.Equals, dir)
+	require.Equal(t, dir, mustGetMcConfigPath())
 }
 
-func (s *TestSuite) TestIsvalidAliasName(c *checkv1.C) {
-	c.Check(isValidAlias("helloWorld0"), checkv1.Equals, true)
-	c.Check(isValidAlias("hello_World0"), checkv1.Equals, true)
-	c.Check(isValidAlias("h0SFD2k24Fdsa"), checkv1.Equals, true)
-	c.Check(isValidAlias("fdslka-4"), checkv1.Equals, true)
-	c.Check(isValidAlias("fdslka-"), checkv1.Equals, true)
-	c.Check(isValidAlias("helloWorld$"), checkv1.Equals, false)
-	c.Check(isValidAlias("h0SFD2k2#Fdsa"), checkv1.Equals, false)
-	c.Check(isValidAlias("0dslka-4"), checkv1.Equals, false)
-	c.Check(isValidAlias("-fdslka"), checkv1.Equals, false)
+func TestIsvalidAliasName(t *testing.T) {
+	assert.Equal(t, true, isValidAlias("helloWorld0"))
+	assert.Equal(t, true, isValidAlias("hello_World0"))
+	assert.Equal(t, true, isValidAlias("h0SFD2k24Fdsa"))
+	assert.Equal(t, true, isValidAlias("fdslka-4"))
+	assert.Equal(t, true, isValidAlias("fdslka-"))
+	assert.Equal(t, false, isValidAlias("helloWorld$"))
+	assert.Equal(t, false, isValidAlias("h0SFD2k2#Fdsa"))
+	assert.Equal(t, false, isValidAlias("0dslka-4"))
+	assert.Equal(t, false, isValidAlias("-fdslka"))
 }
 
-func (s *TestSuite) TestHumanizedTime(c *checkv1.C) {
+func TestHumanizedTime(t *testing.T) {
 	hTime := timeDurationToHumanizedDuration(time.Duration(10) * time.Second)
-	c.Assert(hTime.Minutes, checkv1.Equals, int64(0))
-	c.Assert(hTime.Hours, checkv1.Equals, int64(0))
-	c.Assert(hTime.Days, checkv1.Equals, int64(0))
+	require.Equal(t, int64(0), hTime.Minutes)
+	require.Equal(t, int64(0), hTime.Hours)
+	require.Equal(t, int64(0), hTime.Days)
 
 	hTime = timeDurationToHumanizedDuration(time.Duration(10) * time.Minute)
-	c.Assert(hTime.Hours, checkv1.Equals, int64(0))
-	c.Assert(hTime.Days, checkv1.Equals, int64(0))
+	require.Equal(t, int64(0), hTime.Hours)
+	require.Equal(t, int64(0), hTime.Days)
 
 	hTime = timeDurationToHumanizedDuration(time.Duration(10) * time.Hour)
-	c.Assert(hTime.Days, checkv1.Equals, int64(0))
+	require.Equal(t, int64(0), hTime.Days)
 
 	hTime = timeDurationToHumanizedDuration(time.Duration(24) * time.Hour)
-	c.Assert(hTime.Days, checkv1.Not(checkv1.Equals), int64(0))
+	require.NotEqual(t, int64(0), hTime.Days)
 }
