@@ -39,6 +39,10 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - pkg/fswatch/
+      - pkg/selfupdate/
+      - pkg/shlex/
+      - pkg/xattr/
 formatters:
   enable:
     - gofmt
