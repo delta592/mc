@@ -21,13 +21,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/minio/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func TestAutoCompletionCompletness(t *testing.T) {
-	var checkCompletion func(cmd cli.Command, cmdPath string) error
+	var checkCompletion func(*cli.Command, string) error
 
-	checkCompletion = func(cmd cli.Command, cmdPath string) error {
+	checkCompletion = func(cmd *cli.Command, cmdPath string) error {
 		if cmd.Subcommands != nil {
 			for _, subCmd := range cmd.Subcommands {
 				if cmd.Hidden {
