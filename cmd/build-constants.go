@@ -20,7 +20,7 @@ package cmd
 var (
 	// Version - version time.RFC3339.
 	Version = "DEVELOPMENT.GOGET"
-	// ReleaseTag - release tag in TAG.%Y-%m-%dT%H-%M-%SZ.
+	// ReleaseTag - semver release tag, e.g. v2.0.3 or v2.0.3+14 for dev builds.
 	ReleaseTag = "DEVELOPMENT.GOGET"
 	// CommitID - latest commit id.
 	CommitID = "DEVELOPMENT.GOGET"
