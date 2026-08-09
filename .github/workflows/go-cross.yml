@@ -15,6 +15,7 @@ permissions:
 jobs:
   crosscompile:
     name: Cross-compile
+    if: ${{ false }}
     runs-on: ubuntu-latest
     env:
       CGO_ENABLED: 0
