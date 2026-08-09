@@ -122,11 +122,6 @@ func Main(args []string) error {
 	// Monitor OS exit signals and cancel the global context in such case
 	go trapSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
 
-	globalHelpPager = newTermPager()
-	// Wait until the user quits the pager
-	defer globalHelpPager.WaitForExit()
-
-	parsePagerDisableFlag(args)
 	// Run the app
 	return registerApp(appName).Run(args)
 }
@@ -502,11 +497,7 @@ func registerApp(name string) *cli.App {
 		return nil
 	}
 
-	if isTerminal() && !globalPagerDisabled {
-		app.Writer = globalHelpPager
-	} else {
-		app.Writer = os.Stdout
-	}
+	app.Writer = os.Stdout
 
 	return app
 }
@@ -518,14 +509,10 @@ func mustGetProfileDir() string {
 
 func showCommandHelpAndExit(cliCtx *cli.Context, code int) {
 	cli.ShowCommandHelp(cliCtx, cliCtx.Command.Name)
-	// Wait until the user quits the pager
-	globalHelpPager.WaitForExit()
 	os.Exit(code)
 }
 
 func showAppHelpAndExit(cliCtx *cli.Context) {
 	cli.ShowAppHelp(cliCtx)
-	// Wait until the user quits the pager
-	globalHelpPager.WaitForExit()
 	os.Exit(globalErrorExitStatus)
 }

@@ -26,8 +26,6 @@ import (
 	"net/http"
 	"net/netip"
 	"net/url"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -103,24 +101,9 @@ var (
 	// Terminal height/width, zero if not found
 	globalTermWidth, globalTermHeight int
 
-	globalDisablePagerEnv       = "DISABLE_PAGER"
-	globalDisablePagerFlag      = "--disable-pager"
-	globalDisablePagerFlagShort = "--dp"
-	globalPagerDisabled         = false
-	globalHelpPager             *termPager
-
 	// CA root certificates, a nil value means system certs pool will be used
 	globalRootCAs *x509.CertPool
 )
-
-func parsePagerDisableFlag(args []string) {
-	globalPagerDisabled, _ = strconv.ParseBool(os.Getenv(envPrefix + globalDisablePagerEnv))
-	for _, arg := range args {
-		if arg == globalDisablePagerFlag || arg == globalDisablePagerFlagShort {
-			globalPagerDisabled = true
-		}
-	}
-}
 
 // Set global states. NOTE: It is deliberately kept monolithic to ensure we dont miss out any flags.
 func setGlobalsFromContext(ctx *cli.Context) error {
