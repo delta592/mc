@@ -11,6 +11,7 @@ tool (
 )
 
 require (
+	aead.dev/minisign v0.3.0
 	charm.land/bubbles/v2 v2.1.1
 	charm.land/bubbletea/v2 v2.0.8
 	charm.land/lipgloss/v2 v2.0.5
@@ -21,7 +22,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.8.3
-	github.com/juju/ratelimit v1.0.2
 	github.com/klauspost/compress v1.19.2
 	github.com/mattn/go-ieproxy v0.0.12
 	github.com/mattn/go-isatty v0.0.24
@@ -32,13 +32,10 @@ require (
 	github.com/minio/madmin-go/v4 v4.10.1
 	github.com/minio/minio-go/v7 v7.2.1
 	github.com/minio/pkg/v3 v3.11.0
-	github.com/minio/selfupdate v0.6.0
 	github.com/olekukonko/tablewriter v1.1.4
-	github.com/pkg/xattr v0.4.12
 	github.com/posener/complete/v2 v2.1.0
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/procfs v0.21.1
-	github.com/rjeczalik/notify v0.9.3
 	github.com/shirou/gopsutil/v4 v4.26.7
 	github.com/tidwall/gjson v1.19.0
 	github.com/vbauerster/mpb/v8 v8.15.1
@@ -47,13 +44,13 @@ require (
 	golang.org/x/sys v0.47.0
 	golang.org/x/term v0.45.0
 	golang.org/x/text v0.40.0
+	golang.org/x/time v0.15.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 )
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.3.0 // indirect
 	4d63.com/gochecknoglobals v0.2.2 // indirect
-	aead.dev/minisign v0.3.0 // indirect
 	codeberg.org/chavacava/garif v0.2.0 // indirect
 	codeberg.org/polyfloyd/go-errorlint v1.9.0 // indirect
 	dev.gaijin.team/go/exhaustruct/v4 v4.0.0 // indirect
@@ -235,6 +232,7 @@ require (
 	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/raeperd/recvcheck v0.2.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rjeczalik/notify v0.9.3 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/ryancurrah/gomodguard v1.4.1 // indirect
