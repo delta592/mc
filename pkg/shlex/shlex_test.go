@@ -81,3 +81,57 @@ func TestTokenizer(t *testing.T) {
 		}
 	}
 }
+
+func TestLexer(t *testing.T) {
+	lexer := NewLexer(strings.NewReader("one two"))
+	first, err := lexer.Next()
+	if err != nil || first != "one" {
+		t.Fatalf("Lexer.Next() first = (%q, %v)", first, err)
+	}
+	second, err := lexer.Next()
+	if err != nil || second != "two" {
+		t.Fatalf("Lexer.Next() second = (%q, %v)", second, err)
+	}
+}
+
+func TestSplitEmpty(t *testing.T) {
+	got, err := Split("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("Split(\"\") = %v, want empty", got)
+	}
+}
+
+func TestTokenEqualNil(t *testing.T) {
+	a := &Token{tokenType: WordToken, value: "x"}
+	if a.Equal(nil) || (*Token)(nil).Equal(a) {
+		t.Fatal("Equal() with nil should be false")
+	}
+	if !a.Equal(&Token{tokenType: WordToken, value: "x"}) {
+		t.Fatal("Equal() should match same token")
+	}
+}
+
+func TestLexerComments(t *testing.T) {
+	lexer := NewLexer(strings.NewReader("hello # comment\nworld"))
+	first, err := lexer.Next()
+	if err != nil || first != "hello" {
+		t.Fatalf("first token = (%q, %v)", first, err)
+	}
+	second, err := lexer.Next()
+	if err != nil || second != "world" {
+		t.Fatalf("second token = (%q, %v)", second, err)
+	}
+}
+
+func TestSplitSingleQuotes(t *testing.T) {
+	got, err := Split(`'quoted value' plain`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || got[0] != "quoted value" {
+		t.Fatalf("Split() = %v", got)
+	}
+}
