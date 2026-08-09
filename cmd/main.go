@@ -34,13 +34,13 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/env"
 	"github.com/minio/pkg/v3/trie"
 	"github.com/minio/pkg/v3/words"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/term"
 
 	completeinstall "github.com/posener/complete/v2/install"
@@ -398,7 +398,7 @@ func findClosestCommands(commandsTree *trie.Trie, command string) []string {
 // Check for updates and print a notification message
 func checkUpdate(ctx *cli.Context) {
 	// Do not print update messages, if quiet flag is set.
-	if !ctx.Bool("quiet") && !ctx.Bool("quiet") {
+	if !ctx.Bool("quiet") {
 		// Its OK to ignore any errors during doUpdate() here.
 		if updateMsg, _, currentReleaseTime, latestReleaseTime, _, err := getUpdateInfo("", 2*time.Second); err == nil {
 			printMsg(updateMessage{
@@ -469,9 +469,9 @@ func printMCVersion(c *cli.Context) {
 
 func registerApp(name string) *cli.App {
 	cli.HelpFlag = &cli.BoolFlag{
-		Name: "help",
+		Name:    "help",
 		Aliases: []string{"h"},
-		Usage: "show help",
+		Usage:   "show help",
 	}
 
 	// Override default cli version printer
@@ -488,7 +488,7 @@ func registerApp(name string) *cli.App {
 			checkUpdate(ctx)
 		}
 
-		if ctx.Bool("autocompletion") || ctx.Bool("autocompletion") {
+		if ctx.Bool("autocompletion") {
 			// Install shell completions
 			installAutoCompletion()
 			return nil

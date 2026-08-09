@@ -34,9 +34,9 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/colorprofile"
 	"github.com/dustin/go-humanize"
-	"github.com/urfave/cli/v2"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/net/http/httpguts"
 )
 
@@ -124,13 +124,13 @@ func parsePagerDisableFlag(args []string) {
 
 // Set global states. NOTE: It is deliberately kept monolithic to ensure we dont miss out any flags.
 func setGlobalsFromContext(ctx *cli.Context) error {
-	quiet := ctx.Bool("quiet") || ctx.Bool("quiet")
-	debug := ctx.Bool("debug") || ctx.Bool("debug")
-	json := ctx.Bool("json") || ctx.Bool("json")
-	noColor := ctx.Bool("no-color") || ctx.Bool("no-color")
-	insecure := ctx.Bool("insecure") || ctx.Bool("insecure")
-	devMode := ctx.Bool("dev") || ctx.Bool("dev")
-	airgapped := ctx.Bool("airgap") || ctx.Bool("airgap")
+	quiet := ctx.Bool("quiet")
+	debug := ctx.Bool("debug")
+	json := ctx.Bool("json")
+	noColor := ctx.Bool("no-color")
+	insecure := ctx.Bool("insecure")
+	devMode := ctx.Bool("dev")
+	airgapped := ctx.Bool("airgap")
 
 	globalQuiet = globalQuiet || quiet
 	globalDebug = globalDebug || debug
