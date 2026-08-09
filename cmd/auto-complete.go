@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -25,7 +26,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Completer predicts shell completion candidates for a typed prefix.
@@ -719,35 +720,35 @@ var completeCmds = map[string]Completer{
 	"/cors/remove": s3Complete{deepLevel: 2},
 }
 
-// wireShellCompletions attaches urfave/cli BashComplete handlers to leaf commands.
+// wireShellCompletions attaches urfave/cli ShellComplete handlers to leaf commands.
 func wireShellCompletions(cmds []*cli.Command, parentPath string) {
 	for _, cmd := range cmds {
 		if cmd.Hidden {
 			continue
 		}
 		path := parentPath + "/" + cmd.Name
-		if len(cmd.Subcommands) > 0 {
-			wireShellCompletions(cmd.Subcommands, path)
+		if len(cmd.Commands) > 0 {
+			wireShellCompletions(cmd.Commands, path)
 			continue
 		}
 		predictor := completeCmds[path]
-		cmd.BashComplete = bashCompleteWithPredictor(cmd, predictor)
+		cmd.ShellComplete = bashCompleteWithPredictor(cmd, predictor)
 	}
 }
 
-func bashCompleteWithPredictor(cmd *cli.Command, predictor Completer) cli.BashCompleteFunc {
-	return func(ctx *cli.Context) {
+func bashCompleteWithPredictor(cmd *cli.Command, predictor Completer) cli.ShellCompleteFunc {
+	return func(ctx context.Context, _ *cli.Command) {
 		args := os.Args
 		if len(args) >= 2 {
 			lastArg := args[len(args)-2]
 			if strings.HasPrefix(lastArg, "-") {
-				cli.DefaultCompleteWithFlags(cmd)(ctx)
+				cli.DefaultCompleteWithFlags(ctx, cmd)
 				return
 			}
 		}
 
 		if predictor == nil {
-			cli.DefaultCompleteWithFlags(cmd)(ctx)
+			cli.DefaultCompleteWithFlags(ctx, cmd)
 			return
 		}
 
@@ -756,7 +757,7 @@ func bashCompleteWithPredictor(cmd *cli.Command, predictor Completer) cli.BashCo
 			prefix = args[len(args)-2]
 		}
 		for _, prediction := range predictor.Predict(prefix) {
-			fmt.Fprintln(ctx.App.Writer, prediction)
+			fmt.Fprintln(cmd.Root().Writer, prediction)
 		}
 	}
 }
