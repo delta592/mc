@@ -25,7 +25,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -42,8 +41,6 @@ import (
 	"github.com/minio/pkg/v3/words"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/term"
-
-	completeinstall "github.com/posener/complete/v2/install"
 )
 
 // global flags for mc.
@@ -95,14 +92,6 @@ func init() {
 
 // Main starts mc application
 func Main(args []string) error {
-	if len(args) > 1 {
-		switch args[1] {
-		case "mc", filepath.Base(args[0]):
-			mainComplete()
-			return nil
-		}
-	}
-
 	// ``MC_PROFILER`` supported options are [cpu, mem, block, goroutine].
 	if p := os.Getenv("MC_PROFILER"); p != "" {
 		profilers := strings.Split(p, ",")
@@ -329,27 +318,15 @@ func installAutoCompletion() {
 				"Supported shells are: bash, zsh, fish")
 	}
 
-	e := completeinstall.Install(filepath.Base(os.Args[0]))
-	var printMsg string
-	if e != nil && strings.Contains(e.Error(), "* already installed") {
-		errStr := e.Error()[strings.Index(e.Error(), "\n")+1:]
-		re := regexp.MustCompile(`[::space::]*\*.*` + shellName + `.*`)
-		relatedMsg := re.FindStringSubmatch(errStr)
-		if len(relatedMsg) > 0 {
-			printMsg = "\n" + relatedMsg[0]
-		} else {
-			printMsg = ""
+	if err := installShellCompletion(filepath.Base(os.Args[0])); err != nil {
+		if isShellCompletionInstalled(filepath.Base(os.Args[0])) || isShellCompletionInstalled("mc") {
+			console.Infoln("autocompletion is enabled.")
+			return
 		}
+		fatalIf(probe.NewError(err), "Unable to install auto-completion.")
+		return
 	}
-	if printMsg != "" {
-		if completeinstall.IsInstalled(filepath.Base(os.Args[0])) || completeinstall.IsInstalled("mc") {
-			console.Infoln("autocompletion is enabled.", printMsg)
-		} else {
-			fatalIf(probe.NewError(e), "Unable to install auto-completion.")
-		}
-	} else {
-		console.Infoln("enabled autocompletion in your '" + shellName + "' rc file. Please restart your shell.")
-	}
+	console.Infoln("enabled autocompletion in your '" + shellName + "' rc file. Please restart your shell.")
 }
 
 func registerBefore(ctx *cli.Context) error {
@@ -511,6 +488,7 @@ func registerApp(name string) *cli.App {
 	app.Flags = append(mcFlags, globalFlags...)
 	app.CustomAppHelpTemplate = mcHelpTemplate
 	app.EnableBashCompletion = true
+	wireShellCompletions(app.Commands, "")
 	app.OnUsageError = onUsageError
 	app.After = func(*cli.Context) error {
 		globalExpiringCerts.Range(func(k, v any) bool {

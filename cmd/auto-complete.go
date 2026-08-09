@@ -18,16 +18,39 @@
 package cmd
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/posener/complete/v2"
-	"github.com/posener/complete/v2/predict"
 	"github.com/urfave/cli/v2"
 )
+
+// Completer predicts shell completion candidates for a typed prefix.
+type Completer interface {
+	Predict(prefix string) []string
+}
+
+type orCompleter struct {
+	predictors []Completer
+}
+
+func orComplete(ps ...Completer) Completer {
+	return orCompleter{predictors: ps}
+}
+
+func (o orCompleter) Predict(prefix string) []string {
+	var options []string
+	for _, p := range o.predictors {
+		if p == nil {
+			continue
+		}
+		options = append(options, p.Predict(prefix)...)
+	}
+	return options
+}
 
 // completionArgs holds parsed command-line context for bash completion.
 type completionArgs struct {
@@ -37,56 +60,24 @@ type completionArgs struct {
 }
 
 func completionArgsFromEnv(prefix string) completionArgs {
-	line := os.Getenv("COMP_LINE")
-	pointStr := os.Getenv("COMP_POINT")
-	if line == "" {
-		return completionArgs{Last: prefix}
-	}
-	point, err := strconv.Atoi(pointStr)
-	if err != nil {
-		point = len(line)
-	}
-	if point > len(line) {
-		point = len(line)
+	args := os.Args[1:]
+	if len(args) > 0 && args[len(args)-1] == "--generate-bash-completion" {
+		args = args[:len(args)-1]
 	}
 
-	parts := splitCompletionFields(line[:point])
-	var all, completed []string
-	if len(parts) > 0 {
-		all = parts[1:]
-		completed = removeLastCompletionField(all)
+	var completed []string
+	last := prefix
+	if len(args) > 0 && last == "" {
+		last = args[len(args)-1]
 	}
-	last := lastCompletionField(parts)
-	if prefix != "" {
-		last = prefix
+	if len(args) > 1 {
+		completed = args[:len(args)-1]
 	}
 	return completionArgs{
 		Completed:     completed,
 		Last:          last,
 		LastCompleted: lastCompletionField(completed),
 	}
-}
-
-func splitCompletionFields(line string) []string {
-	parts := strings.Fields(line)
-	if len(line) > 0 && line[len(line)-1] == ' ' {
-		parts = append(parts, "")
-	}
-	if len(parts) == 0 {
-		return parts
-	}
-	last := parts[len(parts)-1]
-	if before, after, ok := strings.Cut(last, "="); ok {
-		parts = append(parts[:len(parts)-1], before, after)
-	}
-	return parts
-}
-
-func removeLastCompletionField(fields []string) []string {
-	if len(fields) > 0 {
-		return fields[:len(fields)-1]
-	}
-	return fields
 }
 
 func lastCompletionField(fields []string) string {
@@ -111,7 +102,7 @@ func (fs fsComplete) predictPathWithTilde(prefix string) []string {
 
 	// Replace the first occurrence of ~ with the real path and complete
 	a.Last = strings.Replace(a.Last, "~", homeDir, 1)
-	predictions := predict.Files("*").Predict(a.Last)
+	predictions := predictFiles(a.Last)
 
 	// Restore ~ to avoid disturbing the completion user experience
 	for i := range predictions {
@@ -125,7 +116,110 @@ func (fs fsComplete) Predict(prefix string) []string {
 	if strings.HasPrefix(prefix, "~/") {
 		return fs.predictPathWithTilde(prefix)
 	}
-	return predict.Files("*").Predict(prefix)
+	return predictFiles(prefix)
+}
+
+func predictFiles(prefix string) []string {
+	options := listMatchingFiles(prefix)
+	if len(options) != 1 {
+		return options
+	}
+	if stat, err := os.Stat(options[0]); err != nil || !stat.IsDir() {
+		return options
+	}
+	return listMatchingFiles(options[0])
+}
+
+func listMatchingFiles(prefix string) []string {
+	if strings.HasSuffix(prefix, "/..") {
+		return nil
+	}
+
+	dir := completionDirectory(prefix)
+	files := map[string]struct{}{}
+
+	if matches, err := filepath.Glob(filepath.Join(dir, "*")); err == nil {
+		for _, file := range matches {
+			if _, err := os.Stat(file); err == nil {
+				files[file] = struct{}{}
+			}
+		}
+	}
+	if entries, err := ioutil.ReadDir(dir); err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				files[filepath.Join(dir, entry.Name())] = struct{}{}
+			}
+		}
+	}
+	files[dir] = struct{}{}
+
+	predictions := make([]string, 0, len(files))
+	for file := range files {
+		file = fixCompletionPath(prefix, file)
+		if matchCompletionFile(file, prefix) {
+			predictions = append(predictions, file)
+		}
+	}
+	if len(predictions) == 0 {
+		for file := range files {
+			predictions = append(predictions, fixCompletionPath(prefix, file))
+		}
+	}
+	return predictions
+}
+
+func completionDirectory(path string) string {
+	if info, err := os.Stat(path); err == nil && info.IsDir() {
+		return fixCompletionDirPath(path)
+	}
+	dir := filepath.Dir(path)
+	if info, err := os.Stat(dir); err == nil && info.IsDir() {
+		return fixCompletionDirPath(dir)
+	}
+	return "./"
+}
+
+func matchCompletionFile(file, prefix string) bool {
+	if file == "./" && (prefix == "." || prefix == "") {
+		return true
+	}
+	if prefix == "." && strings.HasPrefix(file, ".") {
+		return true
+	}
+	file = strings.TrimPrefix(file, "./")
+	prefix = strings.TrimPrefix(prefix, "./")
+	return strings.HasPrefix(file, prefix)
+}
+
+func fixCompletionPath(last, file string) string {
+	workDir, err := os.Getwd()
+	if err != nil {
+		return file
+	}
+	abs, err := filepath.Abs(file)
+	if err != nil {
+		return file
+	}
+	if filepath.IsAbs(last) {
+		return fixCompletionDirPath(abs)
+	}
+	rel, err := filepath.Rel(workDir, abs)
+	if err != nil {
+		return file
+	}
+	if rel != "." && strings.HasPrefix(last, ".") {
+		rel = "./" + rel
+	}
+	return fixCompletionDirPath(rel)
+}
+
+func fixCompletionDirPath(path string) string {
+	info, err := os.Stat(path)
+	if err == nil && info.IsDir() && !strings.HasSuffix(path, "/") {
+		path += "/"
+	}
+	return path
 }
 
 func completeAdminConfigKeys(aliasPath, keyPrefix string) (prediction []string) {
@@ -151,8 +245,7 @@ func completeAdminConfigKeys(aliasPath, keyPrefix string) (prediction []string) 
 }
 
 // Complete S3 path. If the prediction result is only one directory,
-// then recursively scans it. This is needed to satisfy posener/complete
-// (look at posener/complete.PredictFiles)
+// then recursively scans it.
 func completeS3Path(s3Path string) (prediction []string) {
 	// Convert alias/bucket/incompl to alias/bucket/ to list its contents
 	parentDirPath := filepath.Dir(s3Path) + "/"
@@ -312,24 +405,24 @@ var (
 
 // The list of all commands supported by mc with their mapping
 // with their bash completer function
-var completeCmds = map[string]complete.Predictor{
+var completeCmds = map[string]Completer{
 	// S3 API level commands
-	"/ls":        predict.Or(s3Completer, fsCompleter),
-	"/cp":        predict.Or(s3Completer, fsCompleter),
-	"/mv":        predict.Or(s3Completer, fsCompleter),
-	"/rm":        predict.Or(s3Completer, fsCompleter),
-	"/rb":        predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
-	"/cat":       predict.Or(s3Completer, fsCompleter),
-	"/head":      predict.Or(s3Completer, fsCompleter),
-	"/diff":      predict.Or(s3Completer, fsCompleter),
-	"/find":      predict.Or(s3Completer, fsCompleter),
-	"/mirror":    predict.Or(s3Completer, fsCompleter),
-	"/pipe":      predict.Or(s3Completer, fsCompleter),
-	"/stat":      predict.Or(s3Completer, fsCompleter),
-	"/watch":     predict.Or(s3Completer, fsCompleter),
-	"/anonymous": predict.Or(s3Completer, fsCompleter),
-	"/tree":      predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
-	"/du":        predict.Or(s3Complete{deepLevel: 2}, fsCompleter),
+	"/ls":        orComplete(s3Completer, fsCompleter),
+	"/cp":        orComplete(s3Completer, fsCompleter),
+	"/mv":        orComplete(s3Completer, fsCompleter),
+	"/rm":        orComplete(s3Completer, fsCompleter),
+	"/rb":        orComplete(s3Complete{deepLevel: 2}, fsCompleter),
+	"/cat":       orComplete(s3Completer, fsCompleter),
+	"/head":      orComplete(s3Completer, fsCompleter),
+	"/diff":      orComplete(s3Completer, fsCompleter),
+	"/find":      orComplete(s3Completer, fsCompleter),
+	"/mirror":    orComplete(s3Completer, fsCompleter),
+	"/pipe":      orComplete(s3Completer, fsCompleter),
+	"/stat":      orComplete(s3Completer, fsCompleter),
+	"/watch":     orComplete(s3Completer, fsCompleter),
+	"/anonymous": orComplete(s3Completer, fsCompleter),
+	"/tree":      orComplete(s3Complete{deepLevel: 2}, fsCompleter),
+	"/du":        orComplete(s3Complete{deepLevel: 2}, fsCompleter),
 
 	"/retention/set":   s3Completer,
 	"/retention/clear": s3Completer,
@@ -618,68 +711,52 @@ var completeCmds = map[string]complete.Predictor{
 	"/quota/set":   aliasCompleter,
 	"/quota/info":  aliasCompleter,
 	"/quota/clear": aliasCompleter,
-	"/put":         predict.Or(s3Completer, fsCompleter),
-	"/get":         predict.Or(s3Completer, fsCompleter),
+	"/put":         orComplete(s3Completer, fsCompleter),
+	"/get":         orComplete(s3Completer, fsCompleter),
 
 	"/cors/set":    s3Complete{deepLevel: 2},
 	"/cors/get":    s3Complete{deepLevel: 2},
 	"/cors/remove": s3Complete{deepLevel: 2},
 }
 
-// flagsToCompleteFlags transforms a cli.Flag to flag predictors
-// understood by posener/complete library.
-func flagsToCompleteFlags(flags []cli.Flag) map[string]complete.Predictor {
-	complFlags := make(map[string]complete.Predictor)
-	for _, f := range flags {
-		for _, s := range f.Names() {
-			s = strings.TrimSpace(s)
-			complFlags[s] = predict.Nothing
-		}
-	}
-	return complFlags
-}
-
-// This function recursively transforms cli.Command to complete.Command
-// understood by posener/complete library.
-func cmdToCompleteCmd(cmd *cli.Command, parentPath string) *complete.Command {
-	complCmd := &complete.Command{
-		Sub: make(map[string]*complete.Command),
-	}
-
-	for _, subCmd := range cmd.Subcommands {
-		if subCmd.Hidden {
-			continue
-		}
-		complCmd.Sub[subCmd.Name] = cmdToCompleteCmd(subCmd, parentPath+"/"+cmd.Name)
-		for _, alias := range subCmd.Aliases {
-			complCmd.Sub[alias] = cmdToCompleteCmd(subCmd, parentPath+"/"+cmd.Name)
-		}
-	}
-
-	complCmd.Flags = flagsToCompleteFlags(cmd.Flags)
-	complCmd.Args = completeCmds[parentPath+"/"+cmd.Name]
-	return complCmd
-}
-
-// Main function to answer to bash completion calls
-func mainComplete() error {
-	// Recursively register all commands and subcommands
-	// along with global and local flags
-	complCmds := make(map[string]*complete.Command)
-	for _, cmd := range appCmds {
+// wireShellCompletions attaches urfave/cli BashComplete handlers to leaf commands.
+func wireShellCompletions(cmds []*cli.Command, parentPath string) {
+	for _, cmd := range cmds {
 		if cmd.Hidden {
 			continue
 		}
-		complCmds[cmd.Name] = cmdToCompleteCmd(cmd, "")
-		for _, alias := range cmd.Aliases {
-			complCmds[alias] = cmdToCompleteCmd(cmd, "")
+		path := parentPath + "/" + cmd.Name
+		if len(cmd.Subcommands) > 0 {
+			wireShellCompletions(cmd.Subcommands, path)
+			continue
+		}
+		predictor := completeCmds[path]
+		cmd.BashComplete = bashCompleteWithPredictor(cmd, predictor)
+	}
+}
+
+func bashCompleteWithPredictor(cmd *cli.Command, predictor Completer) cli.BashCompleteFunc {
+	return func(ctx *cli.Context) {
+		args := os.Args
+		if len(args) >= 2 {
+			lastArg := args[len(args)-2]
+			if strings.HasPrefix(lastArg, "-") {
+				cli.DefaultCompleteWithFlags(cmd)(ctx)
+				return
+			}
+		}
+
+		if predictor == nil {
+			cli.DefaultCompleteWithFlags(cmd)(ctx)
+			return
+		}
+
+		prefix := ""
+		if len(args) >= 2 {
+			prefix = args[len(args)-2]
+		}
+		for _, prediction := range predictor.Predict(prefix) {
+			fmt.Fprintln(ctx.App.Writer, prediction)
 		}
 	}
-	mcComplete := &complete.Command{
-		Sub:   complCmds,
-		Flags: flagsToCompleteFlags(globalFlags),
-	}
-	// Answer to bash completion call
-	mcComplete.Complete(filepath.Base(os.Args[0]))
-	return nil
 }
