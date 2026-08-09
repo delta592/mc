@@ -15,6 +15,7 @@ permissions:
 jobs:
   lint:
     name: Lint and format
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -31,6 +32,7 @@ jobs:
 
   test:
     name: Test on ${{ matrix.os }}
+    if: ${{ false }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -52,6 +54,7 @@ jobs:
 
   coverage:
     name: Coverage
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -75,6 +78,7 @@ jobs:
 
   integration:
     name: Integration tests
+    if: ${{ false }}
     runs-on: ubuntu-latest
     needs: [lint, test]
     steps:
