@@ -26,7 +26,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmAddCmd = &cli.Command{
@@ -205,20 +205,20 @@ func (i ilmAddMessage) JSON() string {
 }
 
 // Validate user given arguments
-func checkILMAddSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMAddSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 }
 
 // Calls SetBucketLifecycle with the XML representation of lifecycleConfiguration type.
-func mainILMAdd(cliCtx *cli.Context) error {
+func mainILMAdd(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelILMAdd := context.WithCancel(globalContext)
 	defer cancelILMAdd()
 
-	checkILMAddSyntax(cliCtx)
+	checkILMAddSyntax(cmd)
 	setILMDisplayColorScheme()
-	args := cliCtx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)
@@ -234,7 +234,7 @@ func mainILMAdd(cliCtx *cli.Context) error {
 		}
 	}
 
-	opts, err := ilm.GetLifecycleOptions(cliCtx)
+	opts, err := ilm.GetLifecycleOptions(ctx, cmd)
 	fatalIf(err.Trace(args.Slice()...), "Unable to generate new lifecycle rules for the input")
 
 	newRule, err := opts.ToILMRule()

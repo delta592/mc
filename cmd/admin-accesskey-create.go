@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminAccesskeyCreateFlags = []cli.Flag{
@@ -89,6 +91,6 @@ EXAMPLES:
 `,
 }
 
-func mainAdminAccesskeyCreate(ctx *cli.Context) error {
-	return commonAccesskeyCreate(ctx, false)
+func mainAdminAccesskeyCreate(ctx context.Context, cmd *cli.Command) error {
+	return commonAccesskeyCreate(ctx, cmd, false)
 }

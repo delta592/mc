@@ -33,7 +33,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // rm specific flags.
@@ -209,17 +209,17 @@ func (r rmMessage) JSON() string {
 }
 
 // Validate command line arguments.
-func checkRmSyntax(ctx context.Context, cliCtx *cli.Context) {
+func checkRmSyntax(cmd *cli.Command) {
 	// Set command flags from context.
-	isForce := cliCtx.Bool("force")
-	isRecursive := cliCtx.Bool("recursive")
-	isStdin := cliCtx.Bool("stdin")
-	isDangerous := cliCtx.Bool("dangerous")
-	isVersions := cliCtx.Bool("versions")
-	isNoncurrentVersion := cliCtx.Bool("non-current")
-	isForceDel := cliCtx.Bool("purge")
-	versionID := cliCtx.String("version-id")
-	rewind := cliCtx.String("rewind")
+	isForce := cmd.Bool("force")
+	isRecursive := cmd.Bool("recursive")
+	isStdin := cmd.Bool("stdin")
+	isDangerous := cmd.Bool("dangerous")
+	isVersions := cmd.Bool("versions")
+	isNoncurrentVersion := cmd.Bool("non-current")
+	isForceDel := cmd.Bool("purge")
+	versionID := cmd.String("version-id")
+	rewind := cmd.String("rewind")
 	isNamespaceRemoval := false
 
 	if versionID != "" && (isRecursive || isVersions || rewind != "") {
@@ -242,18 +242,18 @@ func checkRmSyntax(ctx context.Context, cliCtx *cli.Context) {
 			"You cannot specify --purge with --recursive.")
 	}
 
-	if isForceDel && (isNoncurrentVersion || isVersions || cliCtx.IsSet("older-than") || cliCtx.IsSet("newer-than") || versionID != "") {
+	if isForceDel && (isNoncurrentVersion || isVersions || cmd.IsSet("older-than") || cmd.IsSet("newer-than") || versionID != "") {
 		fatalIf(errDummy().Trace(),
 			"You cannot specify --purge flag with any flag(s) other than --force.")
 	}
 
 	if !isForceDel {
-		for _, url := range cliCtx.Args().Slice() {
+		for _, url := range cmd.Args().Slice() {
 			// clean path for aliases like s3/.
 			// Note: UNC path using / works properly in go 1.9.2 even though it breaks the UNC specification.
 			url = filepath.ToSlash(filepath.Clean(url))
 			// namespace removal applies only for non FS. So filter out if passed url represents a directory
-			dir, _ := isAliasURLDir(ctx, url, nil, time.Time{}, false)
+			dir, _ := isAliasURLDir(globalContext, url, nil, time.Time{}, false)
 			if dir {
 				_, path := url2Alias(url)
 				isNamespaceRemoval = (path == "")
@@ -270,9 +270,9 @@ func checkRmSyntax(ctx context.Context, cliCtx *cli.Context) {
 		}
 	}
 
-	if !cliCtx.Args().Present() && !isStdin {
+	if !cmd.Args().Present() && !isStdin {
 		exitCode := 1
-		showCommandHelpAndExit(cliCtx, exitCode)
+		showCommandHelpAndExit(cmd, exitCode)
 	}
 
 	// For all recursive or versions bulk deletion operations make sure to check for 'force' flag.
@@ -699,25 +699,25 @@ func listAndRemove(url string, opts removeOpts) error {
 }
 
 // main for rm command.
-func mainRm(cliCtx *cli.Context) error {
-	ctx, cancelRm := context.WithCancel(globalContext)
+func mainRm(_ context.Context, cmd *cli.Command) error {
+	_, cancelRm := context.WithCancel(globalContext)
 	defer cancelRm()
 
-	checkRmSyntax(ctx, cliCtx)
+	checkRmSyntax(cmd)
 
-	isIncomplete := cliCtx.Bool("incomplete")
-	isRecursive := cliCtx.Bool("recursive")
-	isFake := cliCtx.Bool("dry-run") || cliCtx.Bool("fake")
-	isStdin := cliCtx.Bool("stdin")
-	isBypass := cliCtx.Bool("bypass")
-	olderThan := cliCtx.String("older-than")
-	newerThan := cliCtx.String("newer-than")
-	isForce := cliCtx.Bool("force")
-	isForceDel := cliCtx.Bool("purge")
-	withNoncurrentVersion := cliCtx.Bool("non-current")
-	withVersions := cliCtx.Bool("versions")
-	versionID := cliCtx.String("version-id")
-	rewind := parseRewindFlag(cliCtx.String("rewind"))
+	isIncomplete := cmd.Bool("incomplete")
+	isRecursive := cmd.Bool("recursive")
+	isFake := cmd.Bool("dry-run") || cmd.Bool("fake")
+	isStdin := cmd.Bool("stdin")
+	isBypass := cmd.Bool("bypass")
+	olderThan := cmd.String("older-than")
+	newerThan := cmd.String("newer-than")
+	isForce := cmd.Bool("force")
+	isForceDel := cmd.Bool("purge")
+	withNoncurrentVersion := cmd.Bool("non-current")
+	withVersions := cmd.Bool("versions")
+	versionID := cmd.String("version-id")
+	rewind := parseRewindFlag(cmd.String("rewind"))
 
 	if withVersions && rewind.IsZero() {
 		rewind = time.Now().UTC()
@@ -729,7 +729,7 @@ func mainRm(cliCtx *cli.Context) error {
 	var rerr error
 	var e error
 	// Support multiple targets.
-	for _, url := range cliCtx.Args().Slice() {
+	for _, url := range cmd.Args().Slice() {
 		if isRecursive || withVersions {
 			e = listAndRemove(url, removeOpts{
 				timeRef:           rewind,

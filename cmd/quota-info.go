@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var quotaInfoCmd = &cli.Command{
@@ -47,21 +49,21 @@ EXAMPLES:
 }
 
 // checkQuotaInfoSyntax - validate all the passed arguments
-func checkQuotaInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkQuotaInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainQuotaInfo is the handler for "mc quota info" command.
-func mainQuotaInfo(ctx *cli.Context) error {
-	checkQuotaInfoSyntax(ctx)
+func mainQuotaInfo(_ context.Context, cmd *cli.Command) error {
+	checkQuotaInfoSyntax(cmd)
 
 	console.SetColor("QuotaMessage", color.New(color.FgGreen))
 	console.SetColor("QuotaInfo", color.New(color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -73,7 +75,7 @@ func mainQuotaInfo(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get bucket quota")
 	sz := qCfg.Size
 	printMsg(quotaMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		Bucket:    targetURL,
 		Quota:     sz,
 		QuotaType: string(qCfg.Type),

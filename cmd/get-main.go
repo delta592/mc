@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // get command flags.
@@ -64,18 +64,18 @@ EXAMPLES:
 }
 
 // mainGet is the entry point for get command.
-func mainGet(cliCtx *cli.Context) (e error) {
-	args := cliCtx.Args()
+func mainGet(_ context.Context, cmd *cli.Command) (e error) {
+	args := cmd.Args()
 	if args.Len() != 2 {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 
 	ctx, cancelGet := context.WithCancel(globalContext)
 	defer cancelGet()
 
-	encryptionKeys, err := validateAndCreateEncryptionKeys(cliCtx)
+	encryptionKeys, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	if err != nil {
-		err.Trace(cliCtx.Args().Slice()...)
+		err.Trace(cmd.Args().Slice()...)
 	}
 	fatalIf(err, "unable to parse encryption keys")
 
@@ -101,7 +101,7 @@ func mainGet(cliCtx *cli.Context) (e error) {
 			targetURL:               targetURL,
 			encKeyDB:                encryptionKeys,
 			ignoreBucketExistsCheck: true,
-			versionID:               cliCtx.String("version-id"),
+			versionID:               cmd.String("version-id"),
 		}
 
 		for getURLs := range prepareGetURLs(ctx, opts) {

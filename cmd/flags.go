@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -25,7 +26,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const envPrefix = "MC_"
@@ -37,48 +38,48 @@ var globalFlags = []cli.Flag{
 		Aliases: []string{"C"},
 		Value:   mustGetMcConfigDir(),
 		Usage:   "path to configuration folder",
-		EnvVars: []string{envPrefix + "CONFIG_DIR"},
+		Sources: cli.EnvVars(envPrefix + "CONFIG_DIR"),
 	},
 	&cli.BoolFlag{
 		Name:    "quiet",
 		Aliases: []string{"q"},
 		Usage:   "disable progress bar display",
-		EnvVars: []string{envPrefix + "QUIET"},
+		Sources: cli.EnvVars(envPrefix + "QUIET"),
 	},
 	&cli.BoolFlag{
 		Name:    "no-color",
 		Usage:   "disable color theme",
-		EnvVars: []string{envPrefix + "NO_COLOR"},
+		Sources: cli.EnvVars(envPrefix + "NO_COLOR"),
 	},
 	&cli.BoolFlag{
 		Name:    "json",
 		Usage:   "enable JSON lines formatted output",
-		EnvVars: []string{envPrefix + "JSON"},
+		Sources: cli.EnvVars(envPrefix + "JSON"),
 	},
 	&cli.BoolFlag{
 		Name:    "debug",
 		Usage:   "enable debug output",
-		EnvVars: []string{envPrefix + "DEBUG"},
+		Sources: cli.EnvVars(envPrefix + "DEBUG"),
 	},
 	&cli.StringSliceFlag{
 		Name:    "resolve",
 		Usage:   "resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1",
-		EnvVars: []string{envPrefix + "RESOLVE"},
+		Sources: cli.EnvVars(envPrefix + "RESOLVE"),
 	},
 	&cli.BoolFlag{
 		Name:    "insecure",
 		Usage:   "disable SSL certificate verification",
-		EnvVars: []string{envPrefix + "INSECURE"},
+		Sources: cli.EnvVars(envPrefix + "INSECURE"),
 	},
 	&cli.StringFlag{
 		Name:    "limit-upload",
 		Usage:   "limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
-		EnvVars: []string{envPrefix + "LIMIT_UPLOAD"},
+		Sources: cli.EnvVars(envPrefix + "LIMIT_UPLOAD"),
 	},
 	&cli.StringFlag{
 		Name:    "limit-download",
 		Usage:   "limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited)",
-		EnvVars: []string{envPrefix + "LIMIT_DOWNLOAD"},
+		Sources: cli.EnvVars(envPrefix + "LIMIT_DOWNLOAD"),
 	},
 	&cli.DurationFlag{
 		Name:   "conn-read-deadline",
@@ -114,13 +115,13 @@ var encCFlag = &cli.StringSliceFlag{
 var encKSMFlag = &cli.StringSliceFlag{
 	Name:    "enc-kms",
 	Usage:   "encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided)",
-	EnvVars: []string{envPrefix + "ENC_KMS"},
+	Sources: cli.EnvVars(envPrefix + "ENC_KMS"),
 }
 
 var encS3Flag = &cli.StringSliceFlag{
 	Name:    "enc-s3",
 	Usage:   "encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided).",
-	EnvVars: []string{envPrefix + "ENC_S3"},
+	Sources: cli.EnvVars(envPrefix + "ENC_S3"),
 }
 
 var checksumFlag = &cli.StringFlag{
@@ -129,9 +130,9 @@ var checksumFlag = &cli.StringFlag{
 	Value: "",
 }
 
-func parseChecksum(ctx *cli.Context) (useMD5 bool, ct minio.ChecksumType) {
-	useMD5 = ctx.Bool("md5")
-	if cs := ctx.String("checksum"); cs != "" {
+func parseChecksum(_ context.Context, cmd *cli.Command) (useMD5 bool, ct minio.ChecksumType) {
+	useMD5 = cmd.Bool("md5")
+	if cs := cmd.String("checksum"); cs != "" {
 		switch strings.ToUpper(cs) {
 		case "CRC32":
 			ct = minio.ChecksumCRC32

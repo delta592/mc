@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -29,7 +30,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -114,9 +115,9 @@ func (li licRegisterMessage) JSON() string {
 }
 
 // checkLicenseRegisterSyntax - validate arguments passed by a user
-func checkLicenseRegisterSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkLicenseRegisterSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -202,16 +203,16 @@ func validateNotPlay(aliasedURL string) {
 	}
 }
 
-func mainLicenseRegister(ctx *cli.Context) error {
+func mainLicenseRegister(ctx context.Context, cmd *cli.Command) error {
 	console.SetColor(licRegisterMsgTag, color.New(color.FgGreen, color.Bold))
 	console.SetColor(licRegisterLinkTag, color.New(color.FgWhite, color.Bold))
-	checkLicenseRegisterSyntax(ctx)
+	checkLicenseRegisterSyntax(cmd)
 
 	// Get the alias parameter from cli
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	validateNotPlay(aliasedURL)
 
-	licFile := ctx.String("license")
+	licFile := cmd.String("license")
 
 	var alias, accAPIKey string
 	if len(licFile) > 0 {
@@ -220,10 +221,10 @@ func mainLicenseRegister(ctx *cli.Context) error {
 		alias, _ = url2Alias(aliasedURL)
 		accAPIKey = validateAndSaveLic(string(licBytes), alias, true)
 	} else {
-		alias, accAPIKey = initSubnetConnectivity(ctx, aliasedURL, false)
+		alias, accAPIKey = initSubnetConnectivity(ctx, cmd, aliasedURL, false)
 	}
 
-	clusterName := ctx.String("name")
+	clusterName := cmd.String("name")
 	if len(clusterName) == 0 {
 		clusterName = alias
 	} else {

@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyListFlags = []cli.Flag{
@@ -90,8 +91,8 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapAccesskeyList(ctx *cli.Context) error {
-	aliasedURL, tentativeAll, users, opts := commonAccesskeyList(ctx)
+func mainIDPLdapAccesskeyList(ctx context.Context, cmd *cli.Command) error {
+	aliasedURL, tentativeAll, users, opts := commonAccesskeyList(ctx, cmd)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
@@ -120,19 +121,19 @@ func mainIDPLdapAccesskeyList(ctx *cli.Context) error {
 	return nil
 }
 
-func commonAccesskeyList(ctx *cli.Context) (aliasedURL string, tentativeAll bool, users []string, opts madmin.ListAccessKeysOpts) {
-	if ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func commonAccesskeyList(_ context.Context, cmd *cli.Command) (aliasedURL string, tentativeAll bool, users []string, opts madmin.ListAccessKeysOpts) {
+	if cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	usersOnly := ctx.Bool("users-only")
-	stsOnly := ctx.Bool("temp-only")
-	svcaccOnly := ctx.Bool("svcacc-only")
-	selfFlag := ctx.Bool("self")
-	opts.All = ctx.Bool("all")
-	opts.AllConfigs = ctx.Bool("all-configs")
+	usersOnly := cmd.Bool("users-only")
+	stsOnly := cmd.Bool("temp-only")
+	svcaccOnly := cmd.Bool("svcacc-only")
+	selfFlag := cmd.Bool("self")
+	opts.All = cmd.Bool("all")
+	opts.AllConfigs = cmd.Bool("all-configs")
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL = args.Get(0)
 	users = args.Tail()
 

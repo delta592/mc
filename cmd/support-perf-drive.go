@@ -25,10 +25,10 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
-func mainAdminSpeedTestDrive(ctx *cli.Context, aliasedURL string, outCh chan<- PerfTestResult) error {
+func mainAdminSpeedTestDrive(_ context.Context, cmd *cli.Command, aliasedURL string, outCh chan<- PerfTestResult) error {
 	client, perr := newAdminClient(aliasedURL)
 	if perr != nil {
 		fatalIf(perr.Trace(aliasedURL), "Unable to initialize admin client.")
@@ -38,7 +38,7 @@ func mainAdminSpeedTestDrive(ctx *cli.Context, aliasedURL string, outCh chan<- P
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
-	blocksize, e := humanize.ParseBytes(ctx.String("blocksize"))
+	blocksize, e := humanize.ParseBytes(cmd.String("blocksize"))
 	if e != nil {
 		fatalIf(probe.NewError(e), "Unable to parse blocksize")
 		return nil
@@ -48,7 +48,7 @@ func mainAdminSpeedTestDrive(ctx *cli.Context, aliasedURL string, outCh chan<- P
 		return nil
 	}
 
-	filesize, e := humanize.ParseBytes(ctx.String("filesize"))
+	filesize, e := humanize.ParseBytes(cmd.String("filesize"))
 	if e != nil {
 		fatalIf(probe.NewError(e), "Unable to parse filesize")
 		return nil
@@ -58,7 +58,7 @@ func mainAdminSpeedTestDrive(ctx *cli.Context, aliasedURL string, outCh chan<- P
 		return nil
 	}
 
-	serial := ctx.Bool("serial")
+	serial := cmd.Bool("serial")
 
 	resultCh, e := client.DriveSpeedtest(ctxt, madmin.DriveSpeedTestOpts{
 		Serial:    serial,

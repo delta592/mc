@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
 	"github.com/minio/pkg/v3/policy"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSTSAcctSubcommands = []*cli.Command{
@@ -39,13 +40,13 @@ var adminUserSTSAcctCmd = &cli.Command{
 	Action:          mainAdminUserSTSAcct,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminUserSTSAcctSubcommands,
+	Commands:        adminUserSTSAcctSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainAdminUserSTSAcct is the handle for "mc admin user sts" command.
-func mainAdminUserSTSAcct(ctx *cli.Context) error {
-	commandNotFound(ctx, adminUserSTSAcctSubcommands)
+func mainAdminUserSTSAcct(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminUserSTSAcctSubcommands)
 	return nil
 }
 
@@ -79,20 +80,20 @@ EXAMPLES:
 }
 
 // checkAdminUserSTSAcctInfoSyntax - validate all the passed arguments
-func checkAdminUserSTSAcctInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSTSAcctInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSTSAcctInfo is the handle for "mc admin user sts info" command.
-func mainAdminUserSTSAcctInfo(ctx *cli.Context) error {
-	checkAdminUserSTSAcctInfoSyntax(ctx)
+func mainAdminUserSTSAcctInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSTSAcctInfoSyntax(cmd)
 
 	console.SetColor("AccountMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	stsAccount := args.Get(1)
 
@@ -103,7 +104,7 @@ func mainAdminUserSTSAcctInfo(ctx *cli.Context) error {
 	stsInfo, e := client.TemporaryAccountInfo(globalContext, stsAccount)
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to get information of the specified service account")
 
-	if ctx.Bool("policy") {
+	if cmd.Bool("policy") {
 		if stsInfo.Policy == "" {
 			fatalIf(errDummy().Trace(args.Slice()...), "No policy found associated to the specified service account. Check the policy of its parent user.")
 		}

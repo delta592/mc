@@ -21,15 +21,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func TestAutoCompletionCompletness(t *testing.T) {
 	var checkCompletion func(*cli.Command, string) error
 
 	checkCompletion = func(cmd *cli.Command, cmdPath string) error {
-		if cmd.Subcommands != nil {
-			for _, subCmd := range cmd.Subcommands {
+		if cmd.Commands != nil {
+			for _, subCmd := range cmd.Commands {
 				if cmd.Hidden {
 					continue
 				}

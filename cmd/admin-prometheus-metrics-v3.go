@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -25,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/minio/minio-go/v7/pkg/set"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var (
@@ -88,8 +89,8 @@ func validateV3Args(subsys string, bucket string) {
 	}
 }
 
-func printPrometheusMetricsV3(ctx *cli.Context, req prometheusMetricsReq) error {
-	bucket := ctx.String("bucket")
+func printPrometheusMetricsV3(_ context.Context, cmd *cli.Command, req prometheusMetricsReq) error {
+	bucket := cmd.String("bucket")
 	validateV3Args(req.subsystem, bucket)
 
 	metricsURL := req.aliasURL + getMetricsV3Path(req.subsystem, bucket)

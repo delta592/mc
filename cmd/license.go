@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var licenseSubcommands = []*cli.Command{
@@ -34,13 +36,13 @@ var licenseCmd = &cli.Command{
 	Action:          mainlicense,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     licenseSubcommands,
+	Commands:        licenseSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainlicense is the handle for "mc license" command.
-func mainlicense(ctx *cli.Context) error {
-	commandNotFound(ctx, licenseSubcommands)
+func mainlicense(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, licenseSubcommands)
 	return nil
 	// Sub-commands like "register", "info" have their own main.
 }

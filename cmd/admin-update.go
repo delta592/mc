@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -30,7 +31,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUpdateFlags = []cli.Flag{
@@ -110,21 +111,21 @@ func (s serverUpdateMessage) JSON() string {
 }
 
 // checkAdminServerUpdateSyntax - validate all the passed arguments
-func checkAdminServerUpdateSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminServerUpdateSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminServerUpdate(ctx *cli.Context) error {
+func mainAdminServerUpdate(_ context.Context, cmd *cli.Command) error {
 	// Validate serivce update syntax.
-	checkAdminServerUpdateSyntax(ctx)
+	checkAdminServerUpdateSyntax(cmd)
 
 	// Set color.
 	console.SetColor("ServerUpdate", color.New(color.FgGreen, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)
@@ -132,7 +133,7 @@ func mainAdminServerUpdate(ctx *cli.Context) error {
 
 	updateURL := args.Get(1)
 
-	autoConfirm := ctx.Bool("yes")
+	autoConfirm := cmd.Bool("yes")
 
 	if isTerminal() && !autoConfirm {
 		fmt.Printf("You are about to upgrade *MinIO Server*, please confirm [y/N]: ")
@@ -148,7 +149,7 @@ func mainAdminServerUpdate(ctx *cli.Context) error {
 	// Update the specified MinIO server, optionally also
 	// with the provided update URL.
 	us, e := client.ServerUpdate(globalContext, madmin.ServerUpdateOpts{
-		DryRun:    ctx.Bool("dry-run"),
+		DryRun:    cmd.Bool("dry-run"),
 		UpdateURL: updateURL,
 	})
 	fatalIf(probe.NewError(e), "Unable to update the server.")

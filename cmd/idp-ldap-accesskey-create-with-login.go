@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -30,7 +31,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -70,9 +71,9 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapAccesskeyCreateWithLogin(ctx *cli.Context) error {
-	if !ctx.Args().Present() {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func mainIDPLdapAccesskeyCreateWithLogin(ctx context.Context, cmd *cli.Command) error {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	isTerminal := term.IsTerminal(int(os.Stdin.Fd()))
@@ -81,7 +82,7 @@ func mainIDPLdapAccesskeyCreateWithLogin(ctx *cli.Context) error {
 		fatalIf(probe.NewError(e), "unable to read from STDIN")
 	}
 
-	client, opts := loginLDAPAccesskey(ctx)
+	client, opts := loginLDAPAccesskey(ctx, cmd)
 
 	res, e := client.AddServiceAccountLDAP(globalContext, opts)
 	fatalIf(probe.NewError(e), "unable to add service account")
@@ -100,8 +101,8 @@ func mainIDPLdapAccesskeyCreateWithLogin(ctx *cli.Context) error {
 	return nil
 }
 
-func loginLDAPAccesskey(ctx *cli.Context) (*madmin.AdminClient, madmin.AddServiceAccountReq) {
-	urlStr := ctx.Args().First()
+func loginLDAPAccesskey(ctx context.Context, cmd *cli.Command) (*madmin.AdminClient, madmin.AddServiceAccountReq) {
+	urlStr := cmd.Args().First()
 
 	u, e := url.Parse(urlStr)
 	fatalIf(probe.NewError(e), "unable to parse server URL")
@@ -109,7 +110,7 @@ func loginLDAPAccesskey(ctx *cli.Context) (*madmin.AdminClient, madmin.AddServic
 	console.SetColor(cred, color.New(color.FgYellow, color.Italic))
 	reader := bufio.NewReader(os.Stdin)
 
-	username := ctx.String("ldap-username")
+	username := cmd.String("ldap-username")
 	if username == "" {
 		fmt.Printf("%s", console.Colorize(cred, "Enter LDAP Username: "))
 		value, _, e := reader.ReadLine()
@@ -117,7 +118,7 @@ func loginLDAPAccesskey(ctx *cli.Context) (*madmin.AdminClient, madmin.AddServic
 		username = string(value)
 	}
 
-	password := ctx.String("ldap-password")
+	password := cmd.String("ldap-password")
 	if password == "" {
 		fmt.Printf("%s", console.Colorize(cred, "Enter LDAP Password: "))
 		bytePassword, e := term.ReadPassword(int(os.Stdin.Fd()))
@@ -140,5 +141,5 @@ func loginLDAPAccesskey(ctx *cli.Context) (*madmin.AdminClient, madmin.AddServic
 	})
 	fatalIf(probe.NewError(e), "unable to initialize admin connection")
 
-	return client, accessKeyCreateOpts(ctx, tempCreds.AccessKeyID)
+	return client, accessKeyCreateOpts(ctx, cmd, tempCreds.AccessKeyID)
 }

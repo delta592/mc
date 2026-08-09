@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctEnableCmd = &cli.Command{
@@ -48,20 +50,20 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctEnableSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctEnableSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctEnableSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSvcAcctEnable is the handle for "mc admin user svcacct enable" command.
-func mainAdminUserSvcAcctEnable(ctx *cli.Context) error {
-	checkAdminUserSvcAcctEnableSyntax(ctx)
+func mainAdminUserSvcAcctEnable(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSvcAcctEnableSyntax(cmd)
 
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	svcAccount := args.Get(1)
 

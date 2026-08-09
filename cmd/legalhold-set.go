@@ -27,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var lhSetFlags = []cli.Flag{
@@ -172,10 +172,10 @@ func setLegalHold(ctx context.Context, urlStr, versionID string, timeRef time.Ti
 }
 
 // Validate command line arguments.
-func parseLegalHoldArgs(cliCtx *cli.Context) (targetURL, versionID string, timeRef time.Time, recursive, withVersions bool) {
-	args := cliCtx.Args()
+func parseLegalHoldArgs(_ context.Context, cmd *cli.Command) (targetURL, versionID string, timeRef time.Time, recursive, withVersions bool) {
+	args := cmd.Args()
 	if args.Len() != 1 {
-		showCommandHelpAndExit(cliCtx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	targetURL = args.Get(0)
@@ -183,10 +183,10 @@ func parseLegalHoldArgs(cliCtx *cli.Context) (targetURL, versionID string, timeR
 		fatalIf(errInvalidArgument(), "You cannot pass an empty target url.")
 	}
 
-	versionID = cliCtx.String("version-id")
-	recursive = cliCtx.Bool("recursive")
-	withVersions = cliCtx.Bool("versions")
-	rewind := cliCtx.String("rewind")
+	versionID = cmd.String("version-id")
+	recursive = cmd.Bool("recursive")
+	withVersions = cmd.Bool("versions")
+	rewind := cmd.String("rewind")
 
 	if versionID != "" && (recursive || withVersions || rewind != "") {
 		fatalIf(errInvalidArgument(), "You cannot pass --version-id with any of --versions, --recursive and --rewind flags.")
@@ -197,13 +197,13 @@ func parseLegalHoldArgs(cliCtx *cli.Context) (targetURL, versionID string, timeR
 }
 
 // main for legalhold set command.
-func mainLegalHoldSet(cliCtx *cli.Context) error {
+func mainLegalHoldSet(ctx context.Context, cmd *cli.Command) error {
 	console.SetColor("LegalHoldSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("LegalHoldFailure", color.New(color.FgRed, color.Bold))
 	console.SetColor("LegalHoldPartialFailure", color.New(color.FgRed, color.Bold))
 	console.SetColor("LegalHoldMessageFailure", color.New(color.FgYellow))
 
-	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(cliCtx)
+	targetURL, versionID, timeRef, recursive, withVersions := parseLegalHoldArgs(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}

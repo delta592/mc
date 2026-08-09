@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserRemoveCmd = &cli.Command{
@@ -48,20 +50,20 @@ EXAMPLES:
 }
 
 // checkAdminUserRemoveSyntax - validate all the passed arguments
-func checkAdminUserRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminUserRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminUserRemove is the handle for "mc admin user remove" command.
-func mainAdminUserRemove(ctx *cli.Context) error {
-	checkAdminUserRemoveSyntax(ctx)
+func mainAdminUserRemove(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserRemoveSyntax(cmd)
 
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -72,7 +74,7 @@ func mainAdminUserRemove(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove %s", args.Get(1))
 
 	printMsg(userMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		AccessKey: args.Get(1),
 	})
 

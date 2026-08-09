@@ -18,11 +18,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/minio/minio-go/v7/pkg/set"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminSubnetHealthCmd = &cli.Command{
@@ -36,13 +37,13 @@ var adminSubnetHealthCmd = &cli.Command{
 	CustomHelpTemplate: "This command is deprecated and will be removed in a future release. Use 'mc support diag' instead.\n",
 }
 
-func mainSubnetHealth(ctx *cli.Context) error {
+func mainSubnetHealth(_ context.Context, cmd *cli.Command) error {
 	boolValSet := set.CreateStringSet("true", "false")
 	newCmd := []string{"mc support diag"}
-	newCmd = append(newCmd, ctx.Args().Slice()...)
-	for _, flg := range ctx.Command.Flags {
+	newCmd = append(newCmd, cmd.Args().Slice()...)
+	for _, flg := range cmd.Flags {
 		for _, flgName := range flg.Names() {
-			if !ctx.IsSet(flgName) {
+			if !cmd.IsSet(flgName) {
 				continue
 			}
 
@@ -52,7 +53,7 @@ func mainSubnetHealth(ctx *cli.Context) error {
 			}
 
 			flgStr := "--" + flgName
-			flgVal := ctx.String(flgName)
+			flgVal := cmd.String(flgName)
 			if !boolValSet.Contains(flgVal) {
 				flgStr = fmt.Sprintf("%s \"%s\"", flgStr, flgVal)
 			}

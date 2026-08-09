@@ -25,7 +25,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // stat specific flags.
@@ -105,26 +105,26 @@ EXAMPLES:
 }
 
 // parseAndCheckStatSyntax - parse and validate all the passed arguments
-func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string, bool, string, time.Time, bool) {
-	if !cliCtx.Args().Present() {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code
+func parseAndCheckStatSyntax(ctx context.Context, cmd *cli.Command) ([]string, bool, string, time.Time, bool) {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	for _, arg := range args.Slice() {
 		if strings.TrimSpace(arg) == "" {
 			fatalIf(errInvalidArgument().Trace(args.Slice()...), "Unable to validate empty argument.")
 		}
 	}
 
-	recursive := cliCtx.Bool("recursive")
-	versionID := cliCtx.String("version-id")
-	withVersions := cliCtx.Bool("versions")
-	headOnly := cliCtx.Bool("no-list")
-	rewind := parseRewindFlag(cliCtx.String("rewind"))
+	recursive := cmd.Bool("recursive")
+	versionID := cmd.String("version-id")
+	withVersions := cmd.Bool("versions")
+	headOnly := cmd.Bool("no-list")
+	rewind := parseRewindFlag(cmd.String("rewind"))
 
 	// extract URLs.
-	URLs := cliCtx.Args().Slice()
+	URLs := cmd.Args().Slice()
 
 	if versionID != "" && args.Len() > 1 {
 		fatalIf(errInvalidArgument().Trace(args.Slice()...), "You cannot specify --version-id with multiple arguments.")
@@ -141,7 +141,7 @@ func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string
 	var targetUrls []string
 	for _, url := range URLs {
 		_, path := url2Alias(url)
-		if path != "" || !cliCtx.Bool("verbose") {
+		if path != "" || !cmd.Bool("verbose") {
 			targetUrls = append(targetUrls, url)
 			continue
 		}
@@ -160,7 +160,7 @@ func parseAndCheckStatSyntax(ctx context.Context, cliCtx *cli.Context) ([]string
 }
 
 // mainStat - is a handler for mc stat command
-func mainStat(cliCtx *cli.Context) error {
+func mainStat(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelStat := context.WithCancel(globalContext)
 	defer cancelStat()
 
@@ -180,17 +180,17 @@ func mainStat(cliCtx *cli.Context) error {
 	console.SetColor("Count", color.New(color.FgGreen))
 
 	// Parse encryption keys per command.
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'stat' cli arguments.
-	args, isRecursive, versionID, rewind, withVersions := parseAndCheckStatSyntax(ctx, cliCtx)
+	args, isRecursive, versionID, rewind, withVersions := parseAndCheckStatSyntax(ctx, cmd)
 	// mimic operating system tool behavior.
 	if len(args) == 0 {
 		args = []string{"."}
 	}
 
-	headOnly := cliCtx.Bool("no-list")
+	headOnly := cmd.Bool("no-list")
 	for _, targetURL := range args {
 		fatalIf(statURL(ctx, targetURL, versionID, rewind, withVersions, false, isRecursive, headOnly, encKeyDB), "Unable to stat `"+targetURL+"`.")
 	}

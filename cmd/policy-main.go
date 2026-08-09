@@ -18,8 +18,10 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var policyFlags = []cli.Flag{
@@ -43,7 +45,7 @@ var policyCmd = &cli.Command{
 `,
 }
 
-func mainPolicy(_ *cli.Context) error {
+func mainPolicy(_ context.Context, _ *cli.Command) error {
 	console.Infoln("Please use 'mc anonymous'")
 	return nil
 }

@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -70,19 +72,19 @@ EXAMPLES:
 }
 
 // mainAdminPolicyAttach is the handler for "mc admin policy attach" command.
-func mainAdminPolicyAttach(ctx *cli.Context) error {
-	return userAttachOrDetachPolicy(ctx, true)
+func mainAdminPolicyAttach(ctx context.Context, cmd *cli.Command) error {
+	return userAttachOrDetachPolicy(ctx, cmd, true)
 }
 
-func userAttachOrDetachPolicy(ctx *cli.Context, attach bool) error {
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func userAttachOrDetachPolicy(_ context.Context, cmd *cli.Command, attach bool) error {
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
-	user := ctx.String("user")
-	group := ctx.String("group")
+	user := cmd.String("user")
+	group := cmd.String("group")
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	policies := args.Tail()

@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminServiceStopCmd = &cli.Command{
@@ -68,21 +70,21 @@ func (s serviceStopMessage) JSON() string {
 }
 
 // checkAdminServiceStopSyntax - validate all the passed arguments
-func checkAdminServiceStopSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminServiceStopSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminServiceStop(ctx *cli.Context) error {
+func mainAdminServiceStop(_ context.Context, cmd *cli.Command) error {
 	// Validate serivce stop syntax.
-	checkAdminServiceStopSyntax(ctx)
+	checkAdminServiceStopSyntax(cmd)
 
 	// Set color.
 	console.SetColor("ServiceStop", color.New(color.FgGreen, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)

@@ -24,7 +24,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminServiceUnfreezeCmd = &cli.Command{
@@ -69,22 +69,22 @@ func (s serviceUnfreezeCommand) JSON() string {
 }
 
 // checkAdminServiceUnfreezeSyntax - validate all the passed arguments
-func checkAdminServiceUnfreezeSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminServiceUnfreezeSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminServiceUnfreeze(ctx *cli.Context) error {
+func mainAdminServiceUnfreeze(_ context.Context, cmd *cli.Command) error {
 	// Validate service unfreeze syntax.
-	checkAdminServiceUnfreezeSyntax(ctx)
+	checkAdminServiceUnfreezeSyntax(cmd)
 
 	// Set color.
 	console.SetColor("ServiceUnfreeze", color.New(color.FgGreen, color.Bold))
 	console.SetColor("FailedServiceUnfreeze", color.New(color.FgRed, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)

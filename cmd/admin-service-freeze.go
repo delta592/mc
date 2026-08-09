@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminServiceFreezeCmd = &cli.Command{
@@ -68,22 +70,22 @@ func (s serviceFreezeCommand) JSON() string {
 }
 
 // checkAdminServiceFreezeSyntax - validate all the passed arguments
-func checkAdminServiceFreezeSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminServiceFreezeSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminServiceFreeze(ctx *cli.Context) error {
+func mainAdminServiceFreeze(_ context.Context, cmd *cli.Command) error {
 	// Validate serivce freeze syntax.
-	checkAdminServiceFreezeSyntax(ctx)
+	checkAdminServiceFreezeSyntax(cmd)
 
 	// Set color.
 	console.SetColor("ServiceFreeze", color.New(color.FgGreen, color.Bold))
 	console.SetColor("FailedServiceFreeze", color.New(color.FgRed, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)

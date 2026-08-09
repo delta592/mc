@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var (
 	idpOpenidSubcommands = []*cli.Command{
@@ -37,12 +41,12 @@ var (
 		Action:          mainIDPOpenID,
 		Before:          setGlobalsFromContext,
 		Flags:           globalFlags,
-		Subcommands:     idpOpenidSubcommands,
+		Commands:        idpOpenidSubcommands,
 		HideHelpCommand: true,
 	}
 )
 
-func mainIDPOpenID(ctx *cli.Context) error {
-	commandNotFound(ctx, idpOpenidSubcommands)
+func mainIDPOpenID(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, idpOpenidSubcommands)
 	return nil
 }

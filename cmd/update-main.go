@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"crypto"
 	"crypto/tls"
 	"encoding/hex"
@@ -42,7 +43,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
 	"github.com/minio/pkg/v3/env"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Check for new software updates.
@@ -511,15 +512,15 @@ func (s updateMessage) JSON() string {
 	return string(updateJSONBytes)
 }
 
-func mainUpdate(ctx *cli.Context) error {
-	if ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, -1)
+func mainUpdate(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, -1)
 	}
 
-	globalQuiet = ctx.Bool("quiet")
-	globalJSON = ctx.Bool("json")
+	globalQuiet = cmd.Bool("quiet")
+	globalJSON = cmd.Bool("json")
 
-	customReleaseURL := ctx.Args().Get(0)
+	customReleaseURL := cmd.Args().Get(0)
 
 	updateMsg, sha256Hex, _, latestReleaseTime, releaseTag, err := getUpdateInfo(customReleaseURL, 10*time.Second)
 	if err != nil {

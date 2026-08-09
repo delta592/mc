@@ -25,7 +25,7 @@ import (
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmExportCmd = &cli.Command{
@@ -75,20 +75,20 @@ func (i ilmExportMessage) JSON() string {
 }
 
 // checkILMExportSyntax - validate arguments passed by user
-func checkILMExportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMExportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 }
 
-func mainILMExport(cliCtx *cli.Context) error {
+func mainILMExport(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelILMExport := context.WithCancel(globalContext)
 	defer cancelILMExport()
 
-	checkILMExportSyntax(cliCtx)
+	checkILMExportSyntax(cmd)
 	setILMDisplayColorScheme()
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)

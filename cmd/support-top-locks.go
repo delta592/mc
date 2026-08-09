@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"time"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var supportTopLocksFlag = []cli.Flag{
@@ -128,16 +129,16 @@ func (u lockMessage) JSON() string {
 }
 
 // checkAdminTopLocksSyntax - validate all the passed arguments
-func checkSupportTopLocksSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportTopLocksSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainSupportTopLocks(ctx *cli.Context) error {
-	checkSupportTopLocksSyntax(ctx)
+func mainSupportTopLocks(_ context.Context, cmd *cli.Command) error {
+	checkSupportTopLocksSyntax(cmd)
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	alias, _ := url2Alias(aliasedURL)
 	validateClusterRegistered(alias, false)
@@ -152,8 +153,8 @@ func mainSupportTopLocks(ctx *cli.Context) error {
 
 	// Call top locks API
 	entries, e := client.TopLocksWithOpts(globalContext, madmin.TopLockOpts{
-		Count: ctx.Int("count"),
-		Stale: ctx.Bool("stale"),
+		Count: cmd.Int("count"),
+		Stale: cmd.Bool("stale"),
 	})
 	fatalIf(probe.NewError(e), "Unable to get server locks list.")
 

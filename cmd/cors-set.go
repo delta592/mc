@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"io"
 	"os"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/cors"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var corsSetCmd = &cli.Command{
@@ -90,20 +91,20 @@ func (c corsMessage) JSON() string {
 }
 
 // checkCorsSetSyntax - validate all the passed arguments
-func checkCorsSetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkCorsSetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainCorsSet is the handle for "mc cors set" command.
-func mainCorsSet(ctx *cli.Context) error {
-	checkCorsSetSyntax(ctx)
+func mainCorsSet(_ context.Context, cmd *cli.Command) error {
+	checkCorsSetSyntax(cmd)
 
 	console.SetColor("CorsMessage", color.New(color.FgGreen))
 
 	// args[0] is the ALIAS/BUCKET argument.
-	args := ctx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	// args[1] is the CORSFILE which is a local file, or in the case of "-", stdin.

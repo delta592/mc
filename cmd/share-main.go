@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var shareFlags = []cli.Flag{}
@@ -42,7 +43,7 @@ var shareCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	Flags:           append(shareFlags, globalFlags...),
 	HideHelpCommand: true,
-	Subcommands:     shareSubcommands,
+	Commands:        shareSubcommands,
 }
 
 // migrateShare migrate to newest version sequentially.
@@ -62,8 +63,8 @@ func migrateShare() {
 }
 
 // mainShare - main handler for mc share command.
-func mainShare(ctx *cli.Context) error {
-	commandNotFound(ctx, shareSubcommands)
+func mainShare(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, shareSubcommands)
 	return nil
 	// Sub-commands like "upload" and "download" have their own main.
 }

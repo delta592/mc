@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var aliasImportCmd = &cli.Command{
@@ -64,15 +65,15 @@ EXAMPLES:
 }
 
 // checkAliasImportSyntax - verifies input arguments to 'alias import'.
-func checkAliasImportSyntax(ctx *cli.Context) {
-	args := ctx.Args()
+func checkAliasImportSyntax(cmd *cli.Command) {
+	args := cmd.Args()
 	argsNr := args.Len()
 
 	if argsNr == 0 {
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 	if argsNr > 2 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for alias Import command.")
 	}
 
@@ -128,13 +129,13 @@ func importAlias(alias string, aliasCfgV10 aliasConfigV10) aliasMessage {
 	}
 }
 
-func mainAliasImport(cli *cli.Context) error {
+func mainAliasImport(_ context.Context, cmd *cli.Command) error {
 	var (
-		args  = cli.Args()
+		args  = cmd.Args()
 		alias = cleanAlias(args.Get(0))
 	)
 
-	checkAliasImportSyntax(cli)
+	checkAliasImportSyntax(cmd)
 	var credentialsJSON aliasConfigV10
 
 	credsFile := strings.TrimSpace(args.Get(1))
@@ -148,7 +149,7 @@ func mainAliasImport(cli *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to parse input credentials")
 
 	msg := importAlias(alias, credentialsJSON)
-	msg.op = cli.Command.Name
+	msg.op = cmd.Name
 
 	printMsg(msg)
 

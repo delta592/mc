@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var tagRemoveFlags = []cli.Flag{
@@ -115,16 +115,16 @@ func (t tagRemoveMessage) JSON() string {
 	return string(msgBytes)
 }
 
-func parseRemoveTagSyntax(ctx *cli.Context) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func parseRemoveTagSyntax(_ context.Context, cmd *cli.Command) (targetURL, versionID string, timeRef time.Time, withVersions, recursive bool) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 
-	targetURL = ctx.Args().Get(0)
-	versionID = ctx.String("version-id")
-	withVersions = ctx.Bool("versions")
-	rewind := ctx.String("rewind")
-	recursive = ctx.Bool("recursive")
+	targetURL = cmd.Args().Get(0)
+	versionID = cmd.String("version-id")
+	withVersions = cmd.Bool("versions")
+	rewind := cmd.String("rewind")
+	recursive = cmd.Bool("recursive")
 
 	if versionID != "" && (rewind != "" || withVersions) {
 		fatalIf(errDummy().Trace(), "You cannot specify both --version-id and --rewind or --versions flags at the same time")
@@ -164,13 +164,13 @@ func deleteTagsSingle(ctx context.Context, alias, url, versionID string) *probe.
 	return nil
 }
 
-func mainRemoveTag(cliCtx *cli.Context) error {
+func mainRemoveTag(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelList := context.WithCancel(globalContext)
 	defer cancelList()
 
 	console.SetColor("Remove", color.New(color.FgGreen))
 
-	targetURL, versionID, timeRef, withVersions, recursive := parseRemoveTagSyntax(cliCtx)
+	targetURL, versionID, timeRef, withVersions, recursive := parseRemoveTagSyntax(ctx, cmd)
 	if timeRef.IsZero() && withVersions {
 		timeRef = time.Now().UTC()
 	}

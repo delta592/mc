@@ -32,7 +32,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var serviceRestartFlag = []cli.Flag{
@@ -225,15 +225,15 @@ func (s serviceRestartMessage) JSON() string {
 }
 
 // checkAdminServiceRestartSyntax - validate all the passed arguments
-func checkAdminServiceRestartSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminServiceRestartSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminServiceRestart(ctx *cli.Context) error {
+func mainAdminServiceRestart(_ context.Context, cmd *cli.Command) error {
 	// Validate serivce restart syntax.
-	checkAdminServiceRestartSyntax(ctx)
+	checkAdminServiceRestartSyntax(cmd)
 
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
@@ -245,14 +245,14 @@ func mainAdminServiceRestart(ctx *cli.Context) error {
 	console.SetColor("FailedServiceRestart", color.New(color.FgRed, color.Bold))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	rowCount := 2
-	toWait := ctx.Bool("wait")
+	toWait := cmd.Bool("wait")
 	if toWait {
 		rowCount = 3
 	}
@@ -266,7 +266,7 @@ func mainAdminServiceRestart(ctx *cli.Context) error {
 		// Restart the specified MinIO server
 		result, e := client.ServiceAction(ctxt, madmin.ServiceActionOpts{
 			Action: madmin.ServiceActionRestart,
-			DryRun: ctx.Bool("dry-run"),
+			DryRun: cmd.Bool("dry-run"),
 		})
 		if e != nil {
 			// Attempt an older API server might be old

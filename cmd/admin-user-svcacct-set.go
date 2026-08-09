@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserSvcAcctSetFlags = []cli.Flag{
@@ -79,28 +80,28 @@ EXAMPLES:
 }
 
 // checkAdminUserSvcAcctSetSyntax - validate all the passed arguments
-func checkAdminUserSvcAcctSetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAdminUserSvcAcctSetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
 // mainAdminUserSvcAcctSet is the handle for "mc admin user svcacct set" command.
-func mainAdminUserSvcAcctSet(ctx *cli.Context) error {
-	checkAdminUserSvcAcctSetSyntax(ctx)
+func mainAdminUserSvcAcctSet(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserSvcAcctSetSyntax(cmd)
 
 	console.SetColor("AccMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	svcAccount := args.Get(1)
 
-	secretKey := ctx.String("secret-key")
-	policyPath := ctx.String("policy")
-	name := ctx.String("name")
-	description := ctx.String("description")
-	expiry := ctx.String("expiry")
+	secretKey := cmd.String("secret-key")
+	policyPath := cmd.String("policy")
+	name := cmd.String("name")
+	description := cmd.String("description")
+	expiry := cmd.String("expiry")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)

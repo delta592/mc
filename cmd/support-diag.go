@@ -22,13 +22,11 @@ import (
 	"context"
 	gojson "encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -37,7 +35,7 @@ import (
 	"github.com/klauspost/compress/gzip"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -47,10 +45,10 @@ const (
 )
 
 var supportDiagFlags = append([]cli.Flag{
-	&HealthDataTypeFlag{
+	&cli.GenericFlag{
 		Name:   "test",
 		Usage:  "choose specific diagnostics to run [" + options.String() + "]",
-		Value:  nil,
+		Value:  &HealthDataTypeSlice{},
 		Hidden: true,
 	},
 	&cli.DurationFlag{
@@ -111,12 +109,12 @@ func (s supportDiagMessage) JSON() string {
 }
 
 // checkSupportDiagSyntax - validate arguments passed by a user
-func checkSupportDiagSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportDiagSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	anon := ctx.String(anonymizeFlag)
+	anon := cmd.String(anonymizeFlag)
 	if anon != anonymizeStandard && anon != anonymizeStrict {
 		fatal(errDummy().Trace(), "Invalid anonymization mode. Valid options are 'standard' or 'strict'.")
 	}
@@ -190,12 +188,12 @@ func warnText(s string) string {
 	return console.Colorize("WARN", s)
 }
 
-func mainSupportDiag(ctx *cli.Context) error {
-	checkSupportDiagSyntax(ctx)
+func mainSupportDiag(ctx context.Context, cmd *cli.Command) error {
+	checkSupportDiagSyntax(cmd)
 
 	// Get the alias parameter from cli
-	aliasedURL := ctx.Args().Get(0)
-	alias, apiKey := initSubnetConnectivity(ctx, aliasedURL, true)
+	aliasedURL := cmd.Args().Get(0)
+	alias, apiKey := initSubnetConnectivity(ctx, cmd, aliasedURL, true)
 	if len(apiKey) == 0 {
 		// api key not passed as flag. Check that the cluster is registered.
 		apiKey = validateClusterRegistered(alias, true)
@@ -205,12 +203,12 @@ func mainSupportDiag(ctx *cli.Context) error {
 	client := getClient(aliasedURL)
 
 	// Main execution
-	execSupportDiag(ctx, client, alias, apiKey)
+	execSupportDiag(ctx, cmd, client, alias, apiKey)
 
 	return nil
 }
 
-func execSupportDiag(ctx *cli.Context, client *madmin.AdminClient, alias, apiKey string) {
+func execSupportDiag(ctx context.Context, cmd *cli.Command, client *madmin.AdminClient, alias, apiKey string) {
 	var reqURL string
 	var headers map[string]string
 	setSuccessMessageColor()
@@ -223,7 +221,7 @@ func execSupportDiag(ctx *cli.Context, client *madmin.AdminClient, alias, apiKey
 		reqURL, headers = prepareSubnetUploadURL(uploadURL, alias, apiKey)
 	}
 
-	healthInfo, version, e := fetchServerDiagInfo(ctx, client)
+	healthInfo, version, e := fetchServerDiagInfo(ctx, cmd, client)
 	fatalIf(probe.NewError(e), "Unable to fetch health information.")
 
 	if globalJSON && globalAirgapped {
@@ -255,8 +253,8 @@ func execSupportDiag(ctx *cli.Context, client *madmin.AdminClient, alias, apiKey
 	}
 }
 
-func fetchServerDiagInfo(ctx *cli.Context, client *madmin.AdminClient) (any, string, error) {
-	opts := GetHealthDataTypeSlice(ctx, "test")
+func fetchServerDiagInfo(ctx context.Context, cmd *cli.Command, client *madmin.AdminClient) (any, string, error) {
+	opts := GetHealthDataTypeSlice(ctx, cmd, "test")
 	if len(*opts) == 0 {
 		opts = &options
 	}
@@ -374,7 +372,7 @@ func fetchServerDiagInfo(ctx *cli.Context, client *madmin.AdminClient) (any, str
 	}
 
 	// Fetch info of all servers (cluster or single server)
-	resp, version, e := client.ServerHealthInfo(cont, *opts, ctx.Duration("deadline"), ctx.String(anonymizeFlag))
+	resp, version, e := client.ServerHealthInfo(cont, *opts, cmd.Duration("deadline"), cmd.String(anonymizeFlag))
 	if e != nil {
 		cancel()
 		return nil, "", e
@@ -472,75 +470,22 @@ func (d *HealthDataTypeSlice) Get() any {
 	return *d
 }
 
-// HealthDataTypeFlag is a typed flag to represent health datatypes
-type HealthDataTypeFlag struct {
-	Name   string
-	Usage  string
-	EnvVar string
-	Hidden bool
-	Value  *HealthDataTypeSlice
-}
-
-// String - returns the string to be shown in the help message
-func (f *HealthDataTypeFlag) String() string {
-	return cli.FlagStringer(f)
-}
-
-// Names - returns the names of the flag
-func (f *HealthDataTypeFlag) Names() []string {
-	names := make([]string, 0)
-	for name := range strings.SplitSeq(f.Name, ",") {
-		names = append(names, strings.TrimSpace(name))
-	}
-	return names
-}
-
-// IsSet - returns true if the flag was set
-func (f *HealthDataTypeFlag) IsSet() bool {
-	return f.Value != nil && len(*f.Value) > 0
-}
-
 // GetHealthDataTypeSlice - returns the list of set health tests
-func GetHealthDataTypeSlice(c *cli.Context, name string) *HealthDataTypeSlice {
-	generic := c.Generic(name)
+func GetHealthDataTypeSlice(_ context.Context, cmd *cli.Command, name string) *HealthDataTypeSlice {
+	generic := cmd.Generic(name)
 	if generic == nil {
 		return nil
 	}
-	return generic.(*HealthDataTypeSlice)
+	slice, ok := generic.(*HealthDataTypeSlice)
+	if !ok {
+		return nil
+	}
+	return slice
 }
 
 // GetGlobalHealthDataTypeSlice - returns the list of set health tests set globally
-func GetGlobalHealthDataTypeSlice(c *cli.Context, name string) *HealthDataTypeSlice {
-	return GetHealthDataTypeSlice(c, name)
-}
-
-// Apply - applies the flag
-func (f *HealthDataTypeFlag) Apply(set *flag.FlagSet) error {
-	if f.EnvVar != "" {
-		for envVar := range strings.SplitSeq(f.EnvVar, ",") {
-			envVar = strings.TrimSpace(envVar)
-			if envVal, ok := syscall.Getenv(envVar); ok {
-				newVal := &HealthDataTypeSlice{}
-				for s := range strings.SplitSeq(envVal, ",") {
-					s = strings.TrimSpace(s)
-					if e := newVal.Set(s); e != nil {
-						return fmt.Errorf("could not parse %s as health datatype value for flag %s: %s", envVal, f.Name, e)
-					}
-				}
-				f.Value = newVal
-				break
-			}
-		}
-	}
-
-	for name := range strings.SplitSeq(f.Name, ",") {
-		name = strings.Trim(name, " ")
-		if f.Value == nil {
-			f.Value = &HealthDataTypeSlice{}
-		}
-		set.Var(f.Value, name, f.Usage)
-	}
-	return nil
+func GetGlobalHealthDataTypeSlice(ctx context.Context, cmd *cli.Command, name string) *HealthDataTypeSlice {
+	return GetHealthDataTypeSlice(ctx, cmd, name)
 }
 
 var options = HealthDataTypeSlice(madmin.HealthDataTypesList)

@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var supportTopSubcommands = []*cli.Command{
 	supportTopAPICmd,
@@ -33,13 +37,13 @@ var supportTopCmd = &cli.Command{
 	Action:          mainSupportTop,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     supportTopSubcommands,
+	Commands:        supportTopSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainSupportTop is the handle for "mc support top" command.
-func mainSupportTop(ctx *cli.Context) error {
-	commandNotFound(ctx, supportTopSubcommands)
+func mainSupportTop(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, supportTopSubcommands)
 	return nil
 	// Sub-commands like "locks" have their own main.
 }

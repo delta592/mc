@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var headFlags = []cli.Flag{
@@ -171,11 +171,11 @@ func headOut(r io.Reader, nlines int64) *probe.Error {
 }
 
 // parseHeadSyntax performs command-line input validation for head command.
-func parseHeadSyntax(ctx *cli.Context) (args []string, versionID string, timeRef time.Time) {
-	args = ctx.Args().Slice()
+func parseHeadSyntax(_ context.Context, cmd *cli.Command) (args []string, versionID string, timeRef time.Time) {
+	args = cmd.Args().Slice()
 
-	versionID = ctx.String("version-id")
-	rewind := ctx.String("rewind")
+	versionID = cmd.String("version-id")
+	rewind := cmd.String("rewind")
 
 	if versionID != "" && rewind != "" {
 		fatalIf(errInvalidArgument().Trace(), "You cannot specify --version-id and --rewind at the same time")
@@ -190,30 +190,30 @@ func parseHeadSyntax(ctx *cli.Context) (args []string, versionID string, timeRef
 }
 
 // mainHead is the main entry point for head command.
-func mainHead(ctx *cli.Context) error {
+func mainHead(ctx context.Context, cmd *cli.Command) error {
 	// Parse encryption keys per command.
-	encryptionKeys, err := validateAndCreateEncryptionKeys(ctx)
+	encryptionKeys, err := validateAndCreateEncryptionKeys(ctx, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
-	args, versionID, timeRef := parseHeadSyntax(ctx)
+	args, versionID, timeRef := parseHeadSyntax(ctx, cmd)
 
 	stdinMode := len(args) == 0
 
 	// handle std input data.
 	if stdinMode {
-		fatalIf(headOut(os.Stdin, ctx.Int64("lines")).Trace(), "Unable to read from standard input.")
+		fatalIf(headOut(os.Stdin, cmd.Int64("lines")).Trace(), "Unable to read from standard input.")
 		return nil
 	}
 
 	// Convert arguments to URLs: expand alias, fix format.
-	for _, url := range ctx.Args().Slice() {
+	for _, url := range cmd.Args().Slice() {
 		err = headURL(
 			url,
 			versionID,
 			timeRef,
 			encryptionKeys,
-			ctx.Int64("lines"),
-			ctx.Bool("zip"),
+			cmd.Int64("lines"),
+			cmd.Bool("zip"),
 		)
 		fatalIf(err.Trace(url), "Unable to read from `"+url+"`.")
 	}

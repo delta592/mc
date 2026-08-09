@@ -25,7 +25,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // put command flags.
@@ -105,17 +105,17 @@ EXAMPLES:
 }
 
 // mainPut is the entry point for put command.
-func mainPut(cliCtx *cli.Context) (e error) {
-	args := cliCtx.Args()
+func mainPut(_ context.Context, cmd *cli.Command) (e error) {
+	args := cmd.Args()
 	if args.Len() < 2 {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 
 	ctx, cancelPut := context.WithCancel(globalContext)
 	defer cancelPut()
 
 	// part size
-	size := cliCtx.String("s")
+	size := cmd.String("s")
 	if size == "" {
 		size = "32MiB"
 	}
@@ -125,27 +125,27 @@ func mainPut(cliCtx *cli.Context) (e error) {
 		fatalIf(probe.NewError(perr), "Unable to parse part size")
 	}
 	// threads
-	threads := cliCtx.Int("P")
+	threads := cmd.Int("P")
 	if threads < 1 {
 		fatalIf(errInvalidArgument().Trace(strconv.Itoa(threads)), "Invalid number of threads")
 	}
 
-	disableMultipart := cliCtx.Bool("disable-multipart")
+	disableMultipart := cmd.Bool("disable-multipart")
 
 	// Parse encryption keys per command.
-	encryptionKeys, err := validateAndCreateEncryptionKeys(cliCtx)
+	encryptionKeys, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	if err != nil {
-		err.Trace(cliCtx.Args().Slice()...)
+		err.Trace(cmd.Args().Slice()...)
 	}
 	fatalIf(err, "SSE Error")
-	md5, checksum := parseChecksum(cliCtx)
+	md5, checksum := parseChecksum(globalContext, cmd)
 
 	if args.Len() < 2 {
 		fatalIf(errInvalidArgument().Trace(args.Slice()...), "Invalid number of arguments.")
 	}
 
 	// Check and handle storage class if passed in command line args
-	storageClass := cliCtx.String("sc")
+	storageClass := cmd.String("sc")
 
 	// get source and target
 	argsSlice := args.Slice()
@@ -211,7 +211,7 @@ func mainPut(cliCtx *cli.Context) (e error) {
 				encryptionKeys:   encryptionKeys,
 				multipartSize:    size,
 				multipartThreads: strconv.Itoa(threads),
-				ifNotExists:      cliCtx.Bool("if-not-exists"),
+				ifNotExists:      cmd.Bool("if-not-exists"),
 			})
 			if urls.Error != nil {
 				showLastProgressBar(pg, urls.Error.ToGoError())

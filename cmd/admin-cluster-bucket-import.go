@@ -32,7 +32,7 @@ import (
 	"github.com/klauspost/compress/zip"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminClusterBucketImportCmd = &cli.Command{
@@ -58,16 +58,16 @@ EXAMPLES:
 `,
 }
 
-func checkBucketImportSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBucketImportSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainClusterBucketImport - bucket metadata import command
-func mainClusterBucketImport(ctx *cli.Context) error {
+func mainClusterBucketImport(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkBucketImportSyntax(ctx)
+	checkBucketImportSyntax(cmd)
 	console.SetColor("Name", color.New(color.Bold, color.FgCyan))
 	console.SetColor("success", color.New(color.Bold, color.FgGreen))
 	console.SetColor("warning", color.New(color.Bold, color.FgYellow))
@@ -77,7 +77,7 @@ func mainClusterBucketImport(ctx *cli.Context) error {
 	console.SetColor("passCell", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	var r io.Reader
 	var sz int64
@@ -117,7 +117,7 @@ func mainClusterBucketImport(ctx *cli.Context) error {
 		BucketMetaImportErrs: rpt,
 		Status:               "success",
 		URL:                  aliasedURL,
-		Op:                   ctx.Command.Name,
+		Op:                   cmd.Name,
 	})
 
 	return nil

@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyEnableCmd = &cli.Command{
@@ -45,16 +47,16 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapAccesskeyEnable(ctx *cli.Context) error {
-	return enableDisableAccesskey(ctx, true)
+func mainIDPLdapAccesskeyEnable(ctx context.Context, cmd *cli.Command) error {
+	return enableDisableAccesskey(ctx, cmd, true)
 }
 
-func enableDisableAccesskey(ctx *cli.Context, enable bool) error {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func enableDisableAccesskey(_ context.Context, cmd *cli.Command, enable bool) error {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	accessKey := args.Get(1)
 

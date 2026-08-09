@@ -31,7 +31,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // cp command flags.
@@ -311,7 +311,7 @@ func printCopyURLsError(cpURLs *URLs) {
 	}
 }
 
-func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.Context, encryptionKeys map[string][]prefixSSEPair, isMvCmd bool) error {
+func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.Command, encryptionKeys map[string][]prefixSSEPair, isMvCmd bool) error {
 	var isCopied func(string) bool
 	var totalObjects, totalBytes int64
 
@@ -339,7 +339,7 @@ func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.
 	newerThan := cli.String("newer-than")
 	rewind := cli.String("rewind")
 	versionID := cli.String("version-id")
-	md5, checksum := parseChecksum(cli)
+	md5, checksum := parseChecksum(ctx, cli)
 	if withLock {
 		// The Content-MD5 header is required for any request to upload an object with a retention period configured using Amazon S3 Object Lock.
 		md5, checksum = true, minio.ChecksumNone
@@ -547,23 +547,23 @@ loop:
 }
 
 // mainCopy is the entry point for cp command.
-func mainCopy(cliCtx *cli.Context) error {
+func mainCopy(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelCopy := context.WithCancel(globalContext)
 	defer cancelCopy()
 
-	checkCopySyntax(cliCtx)
+	checkCopySyntax(cmd)
 	console.SetColor("Copy", color.New(color.FgGreen, color.Bold))
 
 	var err *probe.Error
 
 	// Parse encryption keys per command.
-	encryptionKeyMap, err := validateAndCreateEncryptionKeys(cliCtx)
+	encryptionKeyMap, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	if err != nil {
-		err.Trace(cliCtx.Args().Slice()...)
+		err.Trace(cmd.Args().Slice()...)
 	}
 	fatalIf(err, "SSE Error")
 
-	return doCopySession(ctx, cancelCopy, cliCtx, encryptionKeyMap, false)
+	return doCopySession(ctx, cancelCopy, cmd, encryptionKeyMap, false)
 }
 
 type doCopyOpts struct {

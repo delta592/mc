@@ -29,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var anonymousFlags = []cli.Flag{
@@ -175,26 +175,26 @@ func (s anonymousLinksMessage) JSON() string {
 }
 
 // checkAnonymousSyntax check for incoming syntax.
-func checkAnonymousSyntax(ctx *cli.Context) {
-	argsLength := ctx.Args().Len()
+func checkAnonymousSyntax(cmd *cli.Command) {
+	argsLength := cmd.Args().Len()
 	// Always print a help message when we have extra arguments
 	if argsLength > 3 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 	// Always print a help message when no arguments specified
 	if argsLength < 1 {
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	firstArg := ctx.Args().Get(0)
-	secondArg := ctx.Args().Get(1)
+	firstArg := cmd.Args().Get(0)
+	secondArg := cmd.Args().Get(1)
 
 	// More syntax checking
 	switch accessPerms(firstArg) {
 	case "set":
 		// Always expect three arguments when setting a anonymous permission.
 		if argsLength != 3 {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 		if accessPerms(secondArg) != accessNone &&
 			accessPerms(secondArg) != accessDownload &&
@@ -208,25 +208,25 @@ func checkAnonymousSyntax(ctx *cli.Context) {
 	case "set-json":
 		// Always expect three arguments when setting a anonymous permission.
 		if argsLength != 3 {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 	case "get", "get-json":
 		// get or get-json always expects two arguments
 		if argsLength != 2 {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 	case "list":
 		// Always expect an argument after list cmd
 		if argsLength != 2 {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 	case "links":
 		// Always expect an argument after links cmd
 		if argsLength != 2 {
-			showCommandHelpAndExit(ctx, 1)
+			showCommandHelpAndExit(cmd, 1)
 		}
 	default:
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 }
 
@@ -479,29 +479,29 @@ func runAnonymousCmd(args cli.Args) {
 	})
 }
 
-func mainAnonymous(ctx *cli.Context) error {
+func mainAnonymous(_ context.Context, cmd *cli.Command) error {
 	// check 'anonymous' cli arguments.
-	checkAnonymousSyntax(ctx)
+	checkAnonymousSyntax(cmd)
 
 	// Additional command speific theme customization.
 	console.SetColor("Anonymous", color.New(color.FgGreen, color.Bold))
 
-	switch ctx.Args().First() {
+	switch cmd.Args().First() {
 	case "set", "set-json", "get", "get-json":
 		// anonymous set [private|public|download|upload] alias/bucket/prefix
 		// anonymous set-json path-to-anonymous-json-file alias/bucket/prefix
 		// anonymous get alias/bucket/prefix
 		// anonymous get-json alias/bucket/prefix
-		runAnonymousCmd(ctx.Args())
+		runAnonymousCmd(cmd.Args())
 	case "list":
 		// anonymous list alias/bucket/prefix
-		runAnonymousListCmd(ctx.Args().Tail())
+		runAnonymousListCmd(cmd.Args().Tail())
 	case "links":
 		// anonymous links alias/bucket/prefix
-		runAnonymousLinksCmd(ctx.Args().Tail(), ctx.Bool("recursive"))
+		runAnonymousLinksCmd(cmd.Args().Tail(), cmd.Bool("recursive"))
 	default:
 		// Shows command example and exit
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 	return nil
 }

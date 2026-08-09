@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminAccesskeyRemoveCmd = &cli.Command{
@@ -44,6 +46,6 @@ EXAMPLES:
 	`,
 }
 
-func mainAdminAccesskeyRemove(ctx *cli.Context) error {
-	return commonAccesskeyRemove(ctx)
+func mainAdminAccesskeyRemove(ctx context.Context, cmd *cli.Command) error {
+	return commonAccesskeyRemove(ctx, cmd)
 }

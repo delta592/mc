@@ -25,10 +25,10 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
-func mainAdminSpeedTestNetperf(ctx *cli.Context, aliasedURL string, outCh chan<- PerfTestResult) error {
+func mainAdminSpeedTestNetperf(_ context.Context, cmd *cli.Command, aliasedURL string, outCh chan<- PerfTestResult) error {
 	client, perr := newAdminClient(aliasedURL)
 	if perr != nil {
 		fatalIf(perr.Trace(aliasedURL), "Unable to initialize admin client.")
@@ -38,7 +38,7 @@ func mainAdminSpeedTestNetperf(ctx *cli.Context, aliasedURL string, outCh chan<-
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
-	duration, e := time.ParseDuration(ctx.String("duration"))
+	duration, e := time.ParseDuration(cmd.String("duration"))
 	if e != nil {
 		fatalIf(probe.NewError(e), "Unable to parse duration")
 		return nil

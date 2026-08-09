@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sort"
@@ -33,7 +34,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminInfoFlags = []cli.Flag{
@@ -370,17 +371,17 @@ func (u clusterStruct) JSON() string {
 }
 
 // checkAdminInfoSyntax - validate arguments passed by a user
-func checkAdminInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminInfo(ctx *cli.Context) error {
-	checkAdminInfoSyntax(ctx)
+func mainAdminInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminInfoSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -388,7 +389,7 @@ func mainAdminInfo(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	clusterInfo := clusterStruct{
-		onlyOffline: ctx.Bool("offline"),
+		onlyOffline: cmd.Bool("offline"),
 	}
 
 	// Fetch info of all servers (cluster or single server)

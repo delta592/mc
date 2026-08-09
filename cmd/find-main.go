@@ -27,7 +27,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // List of all flags supported by find command.
@@ -175,8 +175,8 @@ EXAMPLES:
 }
 
 // checkFindSyntax - validate the passed arguments
-func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
-	cliArgs := cliCtx.Args()
+func checkFindSyntax(ctx context.Context, cmd *cli.Command, encKeyDB map[string][]prefixSSEPair) {
+	cliArgs := cmd.Args()
 	urlArgs := cliArgs.Slice()
 	if !cliArgs.Present() {
 		urlArgs = []string{"./"} // No args just default to present directory.
@@ -195,7 +195,7 @@ func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 		_, _, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false})
 		if err != nil {
 			// Bucket name empty is a valid error for 'find myminio' unless we are using watch, treat it as such.
-			if _, ok := err.ToGoError().(BucketNameEmpty); ok && !cliCtx.Bool("watch") {
+			if _, ok := err.ToGoError().(BucketNameEmpty); ok && !cmd.Bool("watch") {
 				continue
 			}
 			fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
@@ -207,7 +207,7 @@ func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 // each parsed input is stored in its native typed form for
 // ease of repurposing.
 type findContext struct {
-	*cli.Context
+	*cli.Command
 	execCmd       string
 	ignorePattern string
 	namePattern   string
@@ -232,7 +232,7 @@ type findContext struct {
 }
 
 // mainFind - handler for mc find commands
-func mainFind(cliCtx *cli.Context) error {
+func mainFind(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelFind := context.WithCancel(globalContext)
 	defer cancelFind()
 
@@ -241,12 +241,12 @@ func mainFind(cliCtx *cli.Context) error {
 	console.SetColor("FindExecErr", color.New(color.FgRed, color.Italic, color.Bold))
 
 	// Parse encryption keys per command.
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
-	checkFindSyntax(ctx, cliCtx, encKeyDB)
+	checkFindSyntax(ctx, cmd, encKeyDB)
 
-	cliArgs := cliCtx.Args()
+	cliArgs := cmd.Args()
 	urlArgs := cliArgs.Slice()
 	if !cliArgs.Present() {
 		urlArgs = []string{"./"} // Not args present default to present directory.
@@ -259,11 +259,11 @@ func mainFind(cliCtx *cli.Context) error {
 
 	var olderThan, newerThan string
 
-	if cliCtx.String("older-than") != "" {
-		olderThan = cliCtx.String("older-than")
+	if cmd.String("older-than") != "" {
+		olderThan = cmd.String("older-than")
 	}
-	if cliCtx.String("newer-than") != "" {
-		newerThan = cliCtx.String("newer-than")
+	if cmd.String("newer-than") != "" {
+		newerThan = cmd.String("newer-than")
 	}
 
 	// Use 'e' to indicate Go error, this is a convention followed in `mc`. For probe.Error we call it
@@ -271,18 +271,18 @@ func mainFind(cliCtx *cli.Context) error {
 	var e error
 	var largerSize, smallerSize uint64
 
-	if cliCtx.String("larger") != "" {
-		largerSize, e = humanize.ParseBytes(cliCtx.String("larger"))
-		fatalIf(probe.NewError(e).Trace(cliCtx.String("larger")), "Unable to parse input bytes.")
+	if cmd.String("larger") != "" {
+		largerSize, e = humanize.ParseBytes(cmd.String("larger"))
+		fatalIf(probe.NewError(e).Trace(cmd.String("larger")), "Unable to parse input bytes.")
 	}
 
-	if cliCtx.String("smaller") != "" {
-		smallerSize, e = humanize.ParseBytes(cliCtx.String("smaller"))
-		fatalIf(probe.NewError(e).Trace(cliCtx.String("smaller")), "Unable to parse input bytes.")
+	if cmd.String("smaller") != "" {
+		smallerSize, e = humanize.ParseBytes(cmd.String("smaller"))
+		fatalIf(probe.NewError(e).Trace(cmd.String("smaller")), "Unable to parse input bytes.")
 	}
 
 	// Get --versions flag
-	withVersions := cliCtx.Bool("versions")
+	withVersions := cmd.Bool("versions")
 
 	targetAlias, _, hostCfg, err := expandAlias(urlArgs[0])
 	fatalIf(err.Trace(urlArgs[0]), "Unable to expand alias.")
@@ -292,30 +292,30 @@ func mainFind(cliCtx *cli.Context) error {
 		targetFullURL = hostCfg.URL
 	}
 	var regMatch *regexp.Regexp
-	if cliCtx.String("regex") != "" {
-		regMatch = regexp.MustCompile(cliCtx.String("regex"))
+	if cmd.String("regex") != "" {
+		regMatch = regexp.MustCompile(cmd.String("regex"))
 	}
 
 	return doFind(ctx, &findContext{
-		Context:       cliCtx,
-		maxDepth:      cliCtx.Uint("maxdepth"),
-		execCmd:       cliCtx.String("exec"),
-		printFmt:      cliCtx.String("print"),
-		namePattern:   cliCtx.String("name"),
-		pathPattern:   cliCtx.String("path"),
+		Command:       cmd,
+		maxDepth:      cmd.Uint("maxdepth"),
+		execCmd:       cmd.String("exec"),
+		printFmt:      cmd.String("print"),
+		namePattern:   cmd.String("name"),
+		pathPattern:   cmd.String("path"),
 		regexPattern:  regMatch,
-		ignorePattern: cliCtx.String("ignore"),
+		ignorePattern: cmd.String("ignore"),
 		withVersions:  withVersions,
 		olderThan:     olderThan,
 		newerThan:     newerThan,
 		largerSize:    largerSize,
 		smallerSize:   smallerSize,
-		watch:         cliCtx.Bool("watch"),
+		watch:         cmd.Bool("watch"),
 		targetAlias:   targetAlias,
 		targetURL:     urlArgs[0],
 		targetFullURL: targetFullURL,
 		clnt:          clnt,
-		matchMeta:     getRegexMap(cliCtx, "metadata"),
-		matchTags:     getRegexMap(cliCtx, "tags"),
+		matchMeta:     getRegexMap(ctx, cmd, "metadata"),
+		matchTags:     getRegexMap(ctx, cmd, "tags"),
 	})
 }

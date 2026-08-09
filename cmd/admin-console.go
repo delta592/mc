@@ -18,10 +18,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminConsoleFlags = []cli.Flag{
@@ -52,21 +53,21 @@ var adminConsoleCmd = &cli.Command{
 }
 
 // mainAdminConsole - the entry function of console command
-func mainAdminConsole(ctx *cli.Context) error {
+func mainAdminConsole(_ context.Context, cmd *cli.Command) error {
 	newCmd := []string{"mc admin logs"}
 
 	var flgStr string
 
-	if ctx.IsSet("limit") {
-		flgStr = fmt.Sprintf("%s %d", "--last", ctx.Int("limit"))
+	if cmd.IsSet("limit") {
+		flgStr = fmt.Sprintf("%s %d", "--last", cmd.Int("limit"))
 		newCmd = append(newCmd, flgStr)
 	}
 
-	if ctx.IsSet("type") {
-		flgStr = fmt.Sprintf("%s %s", "--type", strings.ToLower(ctx.String("type")))
+	if cmd.IsSet("type") {
+		flgStr = fmt.Sprintf("%s %s", "--type", strings.ToLower(cmd.String("type")))
 		newCmd = append(newCmd, flgStr)
 	}
-	newCmd = append(newCmd, ctx.Args().Slice()...)
+	newCmd = append(newCmd, cmd.Args().Slice()...)
 
 	deprecatedError(strings.Join(newCmd, " "))
 	return nil

@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -25,7 +26,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateRemoveFlags = []cli.Flag{
@@ -91,33 +92,33 @@ func (i srRemoveStatus) String() string {
 	return console.Colorize("UserMessage", fmt.Sprintf("Following site(s) %s were removed partially, some operations failed: \nERROR: '%s'", i.sites, i.ErrDetail))
 }
 
-func checkAdminReplicateRemoveSyntax(ctx *cli.Context) {
+func checkAdminReplicateRemoveSyntax(cmd *cli.Command) {
 	// Check argument count
-	argsNr := ctx.Args().Len()
-	if ctx.Bool("all") && argsNr > 1 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+	argsNr := cmd.Args().Len()
+	if cmd.Bool("all") && argsNr > 1 {
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"")
 	}
-	if argsNr < 2 && !ctx.Bool("all") {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+	if argsNr < 2 && !cmd.Bool("all") {
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Need at least two arguments to remove command.")
 	}
-	if !ctx.Bool("force") {
+	if !cmd.Bool("force") {
 		fatalIf(errDummy().Trace(),
 			"Site removal requires --force flag. This operation is *IRREVERSIBLE*. Please review carefully before performing this *DANGEROUS* operation.")
 	}
 }
 
-func mainAdminReplicationRemoveStatus(ctx *cli.Context) error {
-	checkAdminReplicateRemoveSyntax(ctx)
+func mainAdminReplicationRemoveStatus(_ context.Context, cmd *cli.Command) error {
+	checkAdminReplicateRemoveSyntax(cmd)
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	var rreq madmin.SRRemoveReq
 	rreq.SiteNames = append(rreq.SiteNames, args.Tail()...)
-	rreq.RemoveAll = ctx.Bool("all")
+	rreq.RemoveAll = cmd.Bool("all")
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")

@@ -33,7 +33,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -55,8 +55,8 @@ var aliasSetCmd = &cli.Command{
 	Name:    "set",
 	Aliases: []string{"s"},
 	Usage:   "set a new alias to configuration file",
-	Action: func(cli *cli.Context) error {
-		return mainAliasSet(cli, false)
+	Action: func(_ context.Context, cmd *cli.Command) error {
+		return mainAliasSet(globalContext, cmd, false)
 	},
 	OnUsageError:    onUsageError,
 	Before:          setGlobalsFromContext,
@@ -99,24 +99,24 @@ EXAMPLES:
 }
 
 // checkAliasSetSyntax - verifies input arguments to 'alias set'.
-func checkAliasSetSyntax(ctx *cli.Context, accessKey, secretKey string, deprecated bool) {
-	args := ctx.Args()
+func checkAliasSetSyntax(cmd *cli.Command, accessKey, secretKey string, deprecated bool) {
+	args := cmd.Args()
 	argsNr := args.Len()
 
 	if argsNr == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	if argsNr > 4 || argsNr < 2 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for alias set command.")
 	}
 
 	alias := cleanAlias(args.Get(0))
 	url := args.Get(1)
-	api := ctx.String("api")
-	path := ctx.String("path")
-	bucketLookup := ctx.String("lookup")
+	api := cmd.String("api")
+	path := cmd.String("path")
+	bucketLookup := cmd.String("lookup")
 
 	if !isValidAlias(alias) {
 		fatalIf(errInvalidAlias(alias), "Invalid alias.")
@@ -300,14 +300,14 @@ func fetchAliasKeys(args cli.Args) (string, string) {
 	return accessKey, secretKey
 }
 
-func mainAliasSet(cli *cli.Context, deprecated bool) error {
+func mainAliasSet(_ context.Context, cmd *cli.Command, deprecated bool) error {
 	console.SetColor("AliasMessage", color.New(color.FgGreen))
 	var (
-		args  = cli.Args()
+		args  = cmd.Args()
 		alias = cleanAlias(args.Get(0))
 		url   = trimTrailingSeparator(args.Get(1))
-		api   = cli.String("api")
-		path  = cli.String("path")
+		api   = cmd.String("api")
+		path  = cmd.String("path")
 
 		peerCert *x509.Certificate
 		err      *probe.Error
@@ -315,7 +315,7 @@ func mainAliasSet(cli *cli.Context, deprecated bool) error {
 
 	// Support deprecated lookup flag
 	if deprecated {
-		lookup := strings.ToLower(strings.TrimSpace(cli.String("lookup")))
+		lookup := strings.ToLower(strings.TrimSpace(cmd.String("lookup")))
 		switch lookup {
 		case "", "auto":
 			path = "auto"
@@ -328,7 +328,7 @@ func mainAliasSet(cli *cli.Context, deprecated bool) error {
 	}
 
 	accessKey, secretKey := fetchAliasKeys(args)
-	checkAliasSetSyntax(cli, accessKey, secretKey, deprecated)
+	checkAliasSetSyntax(cmd, accessKey, secretKey, deprecated)
 
 	ctx, cancelAliasAdd := context.WithCancel(globalContext)
 	defer cancelAliasAdd()

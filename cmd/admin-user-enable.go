@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminUserEnableCmd = &cli.Command{
@@ -48,20 +50,20 @@ EXAMPLES:
 }
 
 // checkAdminUserEnableSyntax - validate all the passed arguments
-func checkAdminUserEnableSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminUserEnableSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminUserEnable is the handle for "mc admin user enable" command.
-func mainAdminUserEnable(ctx *cli.Context) error {
-	checkAdminUserEnableSyntax(ctx)
+func mainAdminUserEnable(_ context.Context, cmd *cli.Command) error {
+	checkAdminUserEnableSyntax(cmd)
 
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -72,7 +74,7 @@ func mainAdminUserEnable(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to enable user")
 
 	printMsg(userMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		AccessKey: args.Get(1),
 	})
 

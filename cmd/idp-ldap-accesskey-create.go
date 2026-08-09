@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -27,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/policy"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyCreateFlags = []cli.Flag{
@@ -97,24 +98,24 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLdapAccesskeyCreate(ctx *cli.Context) error {
-	return commonAccesskeyCreate(ctx, true)
+func mainIDPLdapAccesskeyCreate(ctx context.Context, cmd *cli.Command) error {
+	return commonAccesskeyCreate(ctx, cmd, true)
 }
 
-func commonAccesskeyCreate(ctx *cli.Context, ldap bool) error {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func commonAccesskeyCreate(ctx context.Context, cmd *cli.Command, ldap bool) error {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	targetUser := args.Get(1)
 
-	if ctx.Bool("login") {
+	if cmd.Bool("login") {
 		deprecatedError("mc idp ldap accesskey create-with-login")
 	}
 
-	opts := accessKeyCreateOpts(ctx, targetUser)
+	opts := accessKeyCreateOpts(ctx, cmd, targetUser)
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
@@ -141,14 +142,14 @@ func commonAccesskeyCreate(ctx *cli.Context, ldap bool) error {
 	return nil
 }
 
-func accessKeyCreateOpts(ctx *cli.Context, targetUser string) madmin.AddServiceAccountReq {
-	name := ctx.String("name")
-	expVal := ctx.String("expiry")
-	policyPath := ctx.String("policy")
-	accessKey := ctx.String("access-key")
-	secretKey := ctx.String("secret-key")
-	description := ctx.String("description")
-	expDurVal := ctx.Duration("expiry-duration")
+func accessKeyCreateOpts(_ context.Context, cmd *cli.Command, targetUser string) madmin.AddServiceAccountReq {
+	name := cmd.String("name")
+	expVal := cmd.String("expiry")
+	policyPath := cmd.String("policy")
+	accessKey := cmd.String("access-key")
+	secretKey := cmd.String("secret-key")
+	description := cmd.String("description")
+	expDurVal := cmd.Duration("expiry-duration")
 
 	// generate access key and secret key
 	if len(accessKey) <= 0 || len(secretKey) <= 0 {

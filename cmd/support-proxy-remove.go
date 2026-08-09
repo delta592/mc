@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type supportProxyRemoveMessage struct {
@@ -61,20 +63,20 @@ EXAMPLES:
 `,
 }
 
-func checkSupportProxyRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportProxyRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainSupportProxyRemove is the handler for "mc support proxy remove" command.
-func mainSupportProxyRemove(ctx *cli.Context) error {
+func mainSupportProxyRemove(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkSupportProxyRemoveSyntax(ctx)
+	checkSupportProxyRemoveSyntax(cmd)
 	setSuccessMessageColor()
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	alias, _ := url2Alias(aliasedURL)
 

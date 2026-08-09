@@ -24,7 +24,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var mbFlags = []cli.Flag{
@@ -114,27 +114,27 @@ func (s makeBucketMessage) JSON() string {
 }
 
 // Validate command line arguments.
-func checkMakeBucketSyntax(cliCtx *cli.Context) {
-	if !cliCtx.Args().Present() {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code
+func checkMakeBucketSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainMakeBucket is entry point for mb command.
-func mainMakeBucket(cliCtx *cli.Context) error {
+func mainMakeBucket(_ context.Context, cmd *cli.Command) error {
 	// check 'mb' cli arguments.
-	checkMakeBucketSyntax(cliCtx)
+	checkMakeBucketSyntax(cmd)
 
 	// Additional command speific theme customization.
 	console.SetColor("MakeBucket", color.New(color.FgGreen, color.Bold))
 
 	// Save region.
-	region := cliCtx.String("region")
-	ignoreExisting := cliCtx.Bool("p")
-	withLock := cliCtx.Bool("l")
+	region := cmd.String("region")
+	ignoreExisting := cmd.Bool("p")
+	withLock := cmd.Bool("l")
 
 	var cErr error
-	for _, targetURL := range cliCtx.Args().Slice() {
+	for _, targetURL := range cmd.Args().Slice() {
 		// Instantiate client for URL.
 		clnt, err := newClient(targetURL)
 		if err != nil {
@@ -158,7 +158,7 @@ func mainMakeBucket(cliCtx *cli.Context) error {
 			continue
 		}
 
-		if cliCtx.Bool("with-versioning") {
+		if cmd.Bool("with-versioning") {
 			fatalIf(clnt.SetVersion(ctx, "enable", []string{}, false), "Unable to enable versioning")
 		}
 

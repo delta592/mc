@@ -29,7 +29,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var rbFlags = []cli.Flag{
@@ -95,16 +95,16 @@ func (s removeBucketMessage) JSON() string {
 }
 
 // Validate command line arguments.
-func checkRbSyntax(cliCtx *cli.Context) {
-	if !cliCtx.Args().Present() {
+func checkRbSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() {
 		exitCode := 1
-		showCommandHelpAndExit(cliCtx, exitCode)
+		showCommandHelpAndExit(cmd, exitCode)
 	}
 	// Set command flags from context.
-	isForce := cliCtx.Bool("force")
-	isDangerous := cliCtx.Bool("dangerous")
+	isForce := cmd.Bool("force")
+	isDangerous := cmd.Bool("dangerous")
 
-	for _, url := range cliCtx.Args().Slice() {
+	for _, url := range cmd.Args().Slice() {
 		if isS3NamespaceRemoval(url) {
 			if isForce && isDangerous {
 				continue
@@ -234,19 +234,19 @@ func isS3NamespaceRemoval(url string) bool {
 }
 
 // mainRemoveBucket is entry point for rb command.
-func mainRemoveBucket(cliCtx *cli.Context) error {
+func mainRemoveBucket(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelRemoveBucket := context.WithCancel(globalContext)
 	defer cancelRemoveBucket()
 
 	// check 'rb' cli arguments.
-	checkRbSyntax(cliCtx)
-	isForce := cliCtx.Bool("force")
+	checkRbSyntax(cmd)
+	isForce := cmd.Bool("force")
 
 	// Additional command specific theme customization.
 	console.SetColor("RemoveBucket", color.New(color.FgGreen, color.Bold))
 
 	var cErr error
-	for _, targetURL := range cliCtx.Args().Slice() {
+	for _, targetURL := range cmd.Args().Slice() {
 		// Instantiate client for URL.
 		clnt, err := newClient(targetURL)
 		if err != nil {

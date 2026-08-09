@@ -18,10 +18,12 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminGroupInfoCmd = &cli.Command{
@@ -47,20 +49,20 @@ EXAMPLES:
 }
 
 // checkAdminGroupInfoSyntax - validate all the passed arguments
-func checkAdminGroupInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminGroupInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminGroupInfo is the handle for "mc admin group info" command.
-func mainAdminGroupInfo(ctx *cli.Context) error {
-	checkAdminGroupInfoSyntax(ctx)
+func mainAdminGroupInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminGroupInfoSyntax(cmd)
 
 	console.SetColor("GroupMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -72,7 +74,7 @@ func mainAdminGroupInfo(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch group info")
 
 	printMsg(groupMessage{
-		op:          ctx.Command.Name,
+		op:          cmd.Name,
 		GroupName:   group,
 		GroupStatus: gd.Status,
 		GroupPolicy: gd.Policy,

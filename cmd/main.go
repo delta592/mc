@@ -19,8 +19,10 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
+	"net/mail"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -39,7 +41,7 @@ import (
 	"github.com/minio/pkg/v3/env"
 	"github.com/minio/pkg/v3/trie"
 	"github.com/minio/pkg/v3/words"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/term"
 )
 
@@ -123,7 +125,7 @@ func Main(args []string) error {
 	go trapSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
 
 	// Run the app
-	return registerApp(appName).Run(args)
+	return registerApp(appName).Run(globalContext, args)
 }
 
 func flagValue(f cli.Flag) reflect.Value {
@@ -146,7 +148,7 @@ func visibleFlags(fl []cli.Flag) []cli.Flag {
 }
 
 // Function invoked when invalid flag is passed
-func onUsageError(ctx *cli.Context, err error, _ bool) error {
+func onUsageError(_ context.Context, cmd *cli.Command, err error, _ bool) error {
 	type subCommandHelp struct {
 		flagName string
 		usage    string
@@ -154,7 +156,7 @@ func onUsageError(ctx *cli.Context, err error, _ bool) error {
 
 	// Calculate the maximum width of the flag name field
 	// for a good looking printing
-	vflags := visibleFlags(ctx.Command.Flags)
+	vflags := visibleFlags(cmd.Flags)
 	help := make([]subCommandHelp, len(vflags))
 	maxWidth := 0
 	for i, f := range vflags {
@@ -183,10 +185,10 @@ func onUsageError(ctx *cli.Context, err error, _ bool) error {
 }
 
 // Function invoked when invalid command is passed.
-func commandNotFound(ctx *cli.Context, cmds []*cli.Command) {
-	command := ctx.Args().First()
+func commandNotFound(cmd *cli.Command, cmds []*cli.Command) {
+	command := cmd.Args().First()
 	if command == "" {
-		cli.ShowCommandHelp(ctx, command)
+		cli.ShowCommandHelp(globalContext, cmd, command)
 		return
 	}
 	var msg strings.Builder
@@ -324,19 +326,18 @@ func installAutoCompletion() {
 	console.Infoln("enabled autocompletion in your '" + shellName + "' rc file. Please restart your shell.")
 }
 
-func registerBefore(ctx *cli.Context) error {
-	deprecatedFlagsWarning(ctx)
+func registerBefore(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+	deprecatedFlagsWarning(cmd)
 
-	if ctx.IsSet("config-dir") {
+	if cmd.IsSet("config-dir") {
 		// Set the config directory.
-		setMcConfigDir(ctx.String("config-dir"))
-	} else if ctx.IsSet("config-dir") {
-		// Set the config directory.
-		setMcConfigDir(ctx.String("config-dir"))
+		setMcConfigDir(cmd.String("config-dir"))
 	}
 
 	// Set global flags.
-	setGlobalsFromContext(ctx)
+	if _, err := setGlobalsFromContext(ctx, cmd); err != nil {
+		return ctx, err
+	}
 
 	// Migrate any old version of config / state files to newer format.
 	migrate()
@@ -347,7 +348,7 @@ func registerBefore(ctx *cli.Context) error {
 	// Check if config can be read.
 	checkConfig()
 
-	return nil
+	return ctx, nil
 }
 
 // findClosestCommands to match a given string with commands trie tree.
@@ -368,9 +369,9 @@ func findClosestCommands(commandsTree *trie.Trie, command string) []string {
 }
 
 // Check for updates and print a notification message
-func checkUpdate(ctx *cli.Context) {
+func checkUpdate(_ context.Context, cmd *cli.Command) {
 	// Do not print update messages, if quiet flag is set.
-	if !ctx.Bool("quiet") {
+	if !cmd.Bool("quiet") {
 		// Its OK to ignore any errors during doUpdate() here.
 		if updateMsg, _, currentReleaseTime, latestReleaseTime, _, err := getUpdateInfo("", 2*time.Second); err == nil {
 			printMsg(updateMessage{
@@ -432,14 +433,15 @@ var appCmds = []*cli.Command{
 	watchCmd,
 }
 
-func printMCVersion(c *cli.Context) {
-	fmt.Fprintf(c.App.Writer, "%s version %s (commit-id=%s)\n", c.App.Name, c.App.Version, CommitID)
-	fmt.Fprintf(c.App.Writer, "Runtime: %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH)
-	fmt.Fprintf(c.App.Writer, "Copyright (c) 2015-%s MinIO, Inc.\n", CopyrightYear)
-	fmt.Fprintf(c.App.Writer, "License GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>\n")
+func printMCVersion(c *cli.Command) {
+	root := c.Root()
+	fmt.Fprintf(root.Writer, "%s version %s (commit-id=%s)\n", root.Name, root.Version, CommitID)
+	fmt.Fprintf(root.Writer, "Runtime: %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH)
+	fmt.Fprintf(root.Writer, "Copyright (c) 2015-%s MinIO, Inc.\n", CopyrightYear)
+	fmt.Fprintf(root.Writer, "License GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>\n")
 }
 
-func registerApp(name string) *cli.App {
+func registerApp(name string) *cli.Command {
 	cli.HelpFlag = &cli.BoolFlag{
 		Name:    "help",
 		Aliases: []string{"h"},
@@ -449,55 +451,55 @@ func registerApp(name string) *cli.App {
 	// Override default cli version printer
 	cli.VersionPrinter = printMCVersion
 
-	app := cli.NewApp()
-	app.Name = name
-	app.Action = func(ctx *cli.Context) error {
+	app := &cli.Command{
+		Name:                          name,
+		Before:                        registerBefore,
+		HideHelpCommand:               true,
+		Usage:                         "MinIO Client for object storage and filesystems.",
+		Commands:                      appCmds,
+		Authors:                       []any{mail.Address{Name: "MinIO, Inc."}},
+		Version:                       ReleaseTag,
+		Flags:                         append(mcFlags, globalFlags...),
+		CustomRootCommandHelpTemplate: mcHelpTemplate,
+		EnableShellCompletion:         true,
+		OnUsageError:                  onUsageError,
+		After: func(_ context.Context, _ *cli.Command) error {
+			globalExpiringCerts.Range(func(k, v any) bool {
+				host := k.(string)
+				expires := v.(time.Time)
+				fmt.Fprintf(os.Stderr, "\n")
+				fmt.Fprintf(os.Stderr, "== WARN: `%s` certificate will expire in %s. Renew soon to avoid outage.\n", host, expires)
+				fmt.Fprintf(os.Stderr, "\n")
+				return true
+			})
+			return nil
+		},
+		Writer: os.Stdout,
+	}
+	app.Action = func(_ context.Context, cmd *cli.Command) error {
 		mcEnable := env.Get("MC_UPDATE", madmin.EnableOn)
 		minioEnable := env.Get("MINIO_UPDATE", madmin.EnableOn)
 
 		if strings.HasPrefix(ReleaseTag, "RELEASE.") && (mcEnable == madmin.EnableOn || minioEnable == madmin.EnableOn) {
 			// Check for new updates from dl.min.io.
-			checkUpdate(ctx)
+			checkUpdate(globalContext, cmd)
 		}
 
-		if ctx.Bool("autocompletion") {
+		if cmd.Bool("autocompletion") {
 			// Install shell completions
 			installAutoCompletion()
 			return nil
 		}
 
-		if ctx.Args().First() == "" {
-			showAppHelpAndExit(ctx)
+		if cmd.Args().First() == "" {
+			showAppHelpAndExit(cmd)
 		}
 
-		commandNotFound(ctx, app.Commands)
+		commandNotFound(cmd, app.Commands)
 		return exitStatus(globalErrorExitStatus)
 	}
 
-	app.Before = registerBefore
-	app.HideHelpCommand = true
-	app.Usage = "MinIO Client for object storage and filesystems."
-	app.Commands = appCmds
-	app.Authors = []*cli.Author{{Name: "MinIO, Inc."}}
-	app.Version = ReleaseTag
-	app.Flags = append(mcFlags, globalFlags...)
-	app.CustomAppHelpTemplate = mcHelpTemplate
-	app.EnableBashCompletion = true
 	wireShellCompletions(app.Commands, "")
-	app.OnUsageError = onUsageError
-	app.After = func(*cli.Context) error {
-		globalExpiringCerts.Range(func(k, v any) bool {
-			host := k.(string)
-			expires := v.(time.Time)
-			fmt.Fprintf(os.Stderr, "\n")
-			fmt.Fprintf(os.Stderr, "== WARN: `%s` certificate will expire in %s. Renew soon to avoid outage.\n", host, expires)
-			fmt.Fprintf(os.Stderr, "\n")
-			return true
-		})
-		return nil
-	}
-
-	app.Writer = os.Stdout
 
 	return app
 }
@@ -507,12 +509,10 @@ func mustGetProfileDir() string {
 	return filepath.Join(mustGetMcConfigDir(), globalProfileDir)
 }
 
-func showCommandHelpAndExit(cliCtx *cli.Context, code int) {
-	cli.ShowCommandHelp(cliCtx, cliCtx.Command.Name)
-	os.Exit(code)
+func showCommandHelpAndExit(cmd *cli.Command, code int) {
+	cli.ShowCommandHelpAndExit(globalContext, cmd, cmd.Name, code)
 }
 
-func showAppHelpAndExit(cliCtx *cli.Context) {
-	cli.ShowAppHelp(cliCtx)
-	os.Exit(globalErrorExitStatus)
+func showAppHelpAndExit(cmd *cli.Command) {
+	cli.ShowRootCommandHelpAndExit(cmd.Root(), globalErrorExitStatus)
 }

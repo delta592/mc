@@ -18,12 +18,13 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"strings"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAddCmd = &cli.Command{
@@ -55,12 +56,12 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPAdd(ctx *cli.Context) error {
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPAdd(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	aliasedURL := args.Get(0)
 
@@ -118,12 +119,12 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPUpdate(ctx *cli.Context) error {
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPUpdate(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 
 	aliasedURL := args.Get(0)
 
@@ -180,13 +181,13 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPRemove(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPRemove(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	cfgName := madmin.Default
-	return idpRemove(ctx, false, cfgName)
+	return idpRemove(ctx, cmd, false, cfgName)
 }
 
 var idpLdapListCmd = &cli.Command{
@@ -212,12 +213,12 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPList(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPList(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
-	return idpListCommon(ctx, false)
+	return idpListCommon(ctx, cmd, false)
 }
 
 var idpLdapInfoCmd = &cli.Command{
@@ -242,13 +243,13 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPInfo(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPInfo(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	cfgName := madmin.Default
-	return idpInfo(ctx, false, cfgName)
+	return idpInfo(ctx, cmd, false, cfgName)
 }
 
 var idpLdapEnableCmd = &cli.Command{
@@ -273,13 +274,13 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPEnable(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPEnable(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	isOpenID, enable := false, true
-	return idpEnableDisable(ctx, isOpenID, enable)
+	return idpEnableDisable(ctx, cmd, isOpenID, enable)
 }
 
 var idpLdapDisableCmd = &cli.Command{
@@ -304,11 +305,11 @@ EXAMPLES:
 `,
 }
 
-func mainIDPLDAPDisable(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1)
+func mainIDPLDAPDisable(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	isOpenID, enable := false, false
-	return idpEnableDisable(ctx, isOpenID, enable)
+	return idpEnableDisable(ctx, cmd, isOpenID, enable)
 }

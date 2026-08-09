@@ -18,11 +18,12 @@
 package cmd
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type supportProxySetMessage struct {
@@ -64,20 +65,20 @@ EXAMPLES:
 `,
 }
 
-func checkSupportProxySetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkSupportProxySetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainSupportProxySet is the handle for "mc support proxy set" command.
-func mainSupportProxySet(ctx *cli.Context) error {
+func mainSupportProxySet(_ context.Context, cmd *cli.Command) error {
 	// Check for command syntax
-	checkSupportProxySetSyntax(ctx)
+	checkSupportProxySetSyntax(cmd)
 	setSuccessMessageColor()
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	alias, _ := url2Alias(aliasedURL)
 

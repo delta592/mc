@@ -28,7 +28,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/minio-go/v7/pkg/replication"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var replicateResyncStatusFlags = []cli.Flag{
@@ -64,9 +64,9 @@ EXAMPLES:
 }
 
 // checkreplicateResyncStatusSyntax - validate all the passed arguments
-func checkreplicateResyncStatusSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkreplicateResyncStatusSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -127,7 +127,7 @@ func (r replicateResyncStatusMessage) String() string {
 	return rows.String()
 }
 
-func mainreplicateResyncStatus(cliCtx *cli.Context) error {
+func mainreplicateResyncStatus(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelreplicateResyncStatus := context.WithCancel(globalContext)
 	defer cancelreplicateResyncStatus()
 
@@ -141,22 +141,22 @@ func mainreplicateResyncStatus(cliCtx *cli.Context) error {
 	console.SetColor("Failed", color.New(color.Bold, color.FgRed))
 	console.SetColor("Completed", color.New(color.Bold, color.FgGreen))
 
-	checkreplicateResyncStatusSyntax(cliCtx)
+	checkreplicateResyncStatusSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	// Create a new Client
 	client, err := newClient(aliasedURL)
 	fatalIf(err, "Unable to initialize connection.")
 
-	rinfo, err := client.ReplicationResyncStatus(ctx, cliCtx.String("remote-bucket"))
+	rinfo, err := client.ReplicationResyncStatus(ctx, cmd.String("remote-bucket"))
 	fatalIf(err.Trace(args.Slice()...), "Unable to get replication resync status")
 	printMsg(replicateResyncStatusMessage{
-		Op:                cliCtx.Command.Name,
+		Op:                cmd.Name,
 		URL:               aliasedURL,
 		ResyncTargetsInfo: rinfo,
-		TargetArn:         cliCtx.String("remote-bucket"),
+		TargetArn:         cmd.String("remote-bucket"),
 	})
 	return nil
 }

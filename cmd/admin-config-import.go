@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -25,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminConfigImportCmd = &cli.Command{
@@ -76,20 +77,20 @@ func (u configImportMessage) JSON() string {
 }
 
 // checkAdminConfigImportSyntax - validate all the passed arguments
-func checkAdminConfigImportSyntax(ctx *cli.Context) {
-	if !ctx.Args().Present() || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminConfigImportSyntax(cmd *cli.Command) {
+	if !cmd.Args().Present() || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainAdminConfigImport(ctx *cli.Context) error {
-	checkAdminConfigImportSyntax(ctx)
+func mainAdminConfigImport(_ context.Context, cmd *cli.Command) error {
+	checkAdminConfigImportSyntax(cmd)
 
 	// Set color preference of command outputs
 	console.SetColor("SetConfigSuccess", color.New(color.FgGreen, color.Bold))
 
 	// Import the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client

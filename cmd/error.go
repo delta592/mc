@@ -27,7 +27,7 @@ import (
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // causeMessage container for golang error messages
@@ -124,7 +124,7 @@ func fatal(err *probe.Error, msg string, data ...any) {
 // after an action. Which woud allow cli package to
 // exit with the specified `exitStatus`.
 func exitStatus(status int) error {
-	return cli.NewExitError("", status)
+	return cli.Exit("", status)
 }
 
 // errorIf synonymous with fatalIf but doesn't exit on error != nil
@@ -185,8 +185,8 @@ func deprecatedFlagError(oldFlag, newFlag string) {
 	fatal(err, "a deprecated Flag")
 }
 
-func deprecatedFlagsWarning(cliCtx *cli.Context) {
-	for _, v := range cliCtx.Args().Slice() {
+func deprecatedFlagsWarning(cmd *cli.Command) {
+	for _, v := range cmd.Args().Slice() {
 		switch v {
 		case "--encrypt", "-encrypt":
 			deprecatedFlagError("--encrypt", "--enc-s3 or --enc-kms")

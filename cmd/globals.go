@@ -34,7 +34,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"golang.org/x/net/http/httpguts"
 )
 
@@ -106,14 +106,14 @@ var (
 )
 
 // Set global states. NOTE: It is deliberately kept monolithic to ensure we dont miss out any flags.
-func setGlobalsFromContext(ctx *cli.Context) error {
-	quiet := ctx.Bool("quiet")
-	debug := ctx.Bool("debug")
-	json := ctx.Bool("json")
-	noColor := ctx.Bool("no-color")
-	insecure := ctx.Bool("insecure")
-	devMode := ctx.Bool("dev")
-	airgapped := ctx.Bool("airgap")
+func setGlobalsFromContext(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+	quiet := cmd.Bool("quiet")
+	debug := cmd.Bool("debug")
+	json := cmd.Bool("json")
+	noColor := cmd.Bool("no-color")
+	insecure := cmd.Bool("insecure")
+	devMode := cmd.Bool("dev")
+	airgapped := cmd.Bool("airgap")
 
 	globalQuiet = globalQuiet || quiet
 	globalDebug = globalDebug || debug
@@ -130,42 +130,42 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 		lipgloss.Writer.Profile = colorprofile.ASCII
 	}
 
-	globalConnReadDeadline = ctx.Duration("conn-read-deadline")
+	globalConnReadDeadline = cmd.Duration("conn-read-deadline")
 	if globalConnReadDeadline <= 0 {
-		globalConnReadDeadline = ctx.Duration("conn-read-deadline")
+		globalConnReadDeadline = cmd.Duration("conn-read-deadline")
 	}
 
-	globalConnWriteDeadline = ctx.Duration("conn-write-deadline")
+	globalConnWriteDeadline = cmd.Duration("conn-write-deadline")
 	if globalConnWriteDeadline <= 0 {
-		globalConnWriteDeadline = ctx.Duration("conn-write-deadline")
+		globalConnWriteDeadline = cmd.Duration("conn-write-deadline")
 	}
 
-	limitUploadStr := ctx.String("limit-upload")
+	limitUploadStr := cmd.String("limit-upload")
 	if limitUploadStr == "" {
-		limitUploadStr = ctx.String("limit-upload")
+		limitUploadStr = cmd.String("limit-upload")
 	}
 	if limitUploadStr != "" {
 		var e error
 		globalLimitUpload, e = humanize.ParseBytes(limitUploadStr)
 		if e != nil {
-			return e
+			return ctx, e
 		}
 	}
 
-	limitDownloadStr := ctx.String("limit-download")
+	limitDownloadStr := cmd.String("limit-download")
 	if limitDownloadStr == "" {
-		limitDownloadStr = ctx.String("limit-download")
+		limitDownloadStr = cmd.String("limit-download")
 	}
 
 	if limitDownloadStr != "" {
 		var e error
 		globalLimitDownload, e = humanize.ParseBytes(limitDownloadStr)
 		if e != nil {
-			return e
+			return ctx, e
 		}
 	}
 
-	dnsEntries := ctx.StringSlice("resolve")
+	dnsEntries := cmd.StringSlice("resolve")
 	if len(dnsEntries) > 0 {
 		globalResolvers = make(map[string]netip.Addr, len(dnsEntries))
 
@@ -173,40 +173,40 @@ func setGlobalsFromContext(ctx *cli.Context) error {
 		for _, e := range dnsEntries {
 			before, after, ok := strings.Cut(e, "=")
 			if !ok {
-				return fmt.Errorf("invalid DNS resolve entry %s", e)
+				return ctx, fmt.Errorf("invalid DNS resolve entry %s", e)
 			}
 
 			if strings.ContainsRune(before, ':') {
 				if _, _, err := net.SplitHostPort(before); err != nil {
-					return fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
+					return ctx, fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
 				}
 			}
 
 			host := before
 			addr, err := netip.ParseAddr(after)
 			if err != nil {
-				return fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
+				return ctx, fmt.Errorf("invalid DNS resolve entry %s: %v", e, err)
 			}
 			globalResolvers[host] = addr
 		}
 	}
 
-	customHeaders := ctx.StringSlice("custom-header")
+	customHeaders := cmd.StringSlice("custom-header")
 	if len(customHeaders) > 0 {
 		globalCustomHeader = make(http.Header)
 		for _, header := range customHeaders {
 			i := strings.IndexByte(header, ':')
 			if i <= 0 {
-				return fmt.Errorf("invalid custom header entry %s", header)
+				return ctx, fmt.Errorf("invalid custom header entry %s", header)
 			}
 			h := strings.TrimSpace(header[:i])
 			hv := strings.TrimSpace(header[i+1:])
 			if !httpguts.ValidHeaderFieldName(h) || !httpguts.ValidHeaderFieldValue(hv) {
-				return fmt.Errorf("invalid custom header entry %s", header)
+				return ctx, fmt.Errorf("invalid custom header entry %s", header)
 			}
 			globalCustomHeader.Add(h, hv)
 		}
 	}
 
-	return nil
+	return ctx, nil
 }

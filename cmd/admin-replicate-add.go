@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"strings"
 
 	json "github.com/delta592/mc/pkg/colorjson"
@@ -25,7 +26,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateAddFlags = []cli.Flag{
@@ -82,12 +83,12 @@ func (m successMessage) String() string {
 	return console.Colorize("UserMessage", strings.Join(messages, "\n"))
 }
 
-func mainAdminReplicateAdd(ctx *cli.Context) error {
+func mainAdminReplicateAdd(_ context.Context, cmd *cli.Command) error {
 	{
 		// Check argument count
-		argsNr := ctx.Args().Len()
+		argsNr := cmd.Args().Len()
 		if argsNr < 2 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+			fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 				"Need at least two arguments to add command.")
 		}
 	}
@@ -95,15 +96,15 @@ func mainAdminReplicateAdd(ctx *cli.Context) error {
 	console.SetColor("UserMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err, "Unable to initialize admin connection.")
 
-	ps := make([]madmin.PeerSite, 0, ctx.Args().Len())
-	for _, clusterName := range ctx.Args().Slice() {
+	ps := make([]madmin.PeerSite, 0, cmd.Args().Len())
+	for _, clusterName := range cmd.Args().Slice() {
 		admClient, err := newAdminClient(clusterName)
 		fatalIf(err, "unable to initialize admin connection")
 
@@ -117,7 +118,7 @@ func mainAdminReplicateAdd(ctx *cli.Context) error {
 	}
 
 	var opts madmin.SRAddOptions
-	opts.ReplicateILMExpiry = ctx.Bool("replicate-ilm-expiry")
+	opts.ReplicateILMExpiry = cmd.Bool("replicate-ilm-expiry")
 	res, e := client.SiteReplicationAdd(globalContext, ps, opts)
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to add sites for replication")
 

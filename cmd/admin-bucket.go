@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminBucketSubcommands = []*cli.Command{
 	adminBucketRemoteCmd,
@@ -31,14 +35,14 @@ var adminBucketCmd = &cli.Command{
 	Action:          mainAdminBucket,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminBucketSubcommands,
+	Commands:        adminBucketSubcommands,
 	HideHelpCommand: true,
 	Hidden:          true,
 }
 
 // mainAdminBucket is the handle for "mc admin bucket" command.
-func mainAdminBucket(ctx *cli.Context) error {
-	commandNotFound(ctx, adminBucketSubcommands)
+func mainAdminBucket(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminBucketSubcommands)
 	return nil
 	// Sub-commands like "quota", "remote" have their own main.
 }

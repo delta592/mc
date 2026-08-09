@@ -16,7 +16,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var batchStatusCmd = &cli.Command{
@@ -61,17 +61,17 @@ func (c batchJobStatusMessage) String() string {
 }
 
 // checkBatchStatusSyntax - validate all the passed arguments
-func checkBatchStatusSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkBatchStatusSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func mainBatchStatus(ctx *cli.Context) error {
-	checkBatchStatusSyntax(ctx)
+func mainBatchStatus(_ context.Context, cmd *cli.Command) error {
+	checkBatchStatusSyntax(cmd)
 
-	aliasedURL := ctx.Args().Get(0)
-	jobID := ctx.Args().Get(1)
+	aliasedURL := cmd.Args().Get(0)
+	jobID := cmd.Args().Get(1)
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
@@ -150,7 +150,7 @@ func mainBatchStatus(ctx *cli.Context) error {
 				}
 			})
 			if e != nil && !errors.Is(e, context.Canceled) {
-				fatalIf(probe.NewError(e).Trace(ctx.Args().Slice()...), "Unable to get current batch status")
+				fatalIf(probe.NewError(e).Trace(cmd.Args().Slice()...), "Unable to get current batch status")
 			}
 		}()
 	}

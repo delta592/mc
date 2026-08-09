@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var quotaSubcommands = []*cli.Command{
 	quotaSetCmd,
@@ -31,13 +35,13 @@ var quotaCmd = &cli.Command{
 	Action:          mainQuota,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     quotaSubcommands,
+	Commands:        quotaSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainQuota is the handle for "mc quota" command.
-func mainQuota(ctx *cli.Context) error {
-	commandNotFound(ctx, quotaSubcommands)
+func mainQuota(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, quotaSubcommands)
 	return nil
 	// Sub-commands like "set", "clear", "info" have their own main.
 }

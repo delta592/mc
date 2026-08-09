@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminClusterBucketSubcommands = []*cli.Command{
 	adminClusterBucketImportCmd,
@@ -30,13 +34,13 @@ var adminClusterBucketCmd = &cli.Command{
 	Action:          mainAdminClusterBucket,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminClusterBucketSubcommands,
+	Commands:        adminClusterBucketSubcommands,
 	HideHelpCommand: true,
 }
 
 // mainAdminClusterBucket is the handle for "mc admin cluster bucket" command.
-func mainAdminClusterBucket(ctx *cli.Context) error {
-	commandNotFound(ctx, adminClusterBucketSubcommands)
+func mainAdminClusterBucket(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminClusterBucketSubcommands)
 	return nil
 	// Sub-commands like "export", "import" have their own main.
 }

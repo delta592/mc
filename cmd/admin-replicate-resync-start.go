@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateResyncStartCmd = &cli.Command{
@@ -74,18 +75,18 @@ func (m resyncMessage) String() string {
 	return console.Colorize(th, strings.Join(messages, "\n"))
 }
 
-func mainAdminReplicateResyncStart(ctx *cli.Context) error {
+func mainAdminReplicateResyncStart(_ context.Context, cmd *cli.Command) error {
 	// Check argument count
-	argsNr := ctx.Args().Len()
+	argsNr := cmd.Args().Len()
 	if argsNr != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	console.SetColor("ResyncMessage", color.New(color.FgGreen))
 	console.SetColor("ResyncErr", color.New(color.FgRed))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(args.Get(0))
@@ -104,7 +105,7 @@ func mainAdminReplicateResyncStart(ctx *cli.Context) error {
 		}
 	}
 	if peer.DeploymentID == "" {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"alias provided is not part of cluster replication.")
 	}
 	res, e := client.SiteReplicationResyncOp(globalContext, peer, madmin.SiteResyncStart)

@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var encryptSubcommands = []*cli.Command{
 	encryptSetCmd,
@@ -32,12 +36,12 @@ var encryptCmd = &cli.Command{
 	Action:          mainEncrypt,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     encryptSubcommands,
+	Commands:        encryptSubcommands,
 }
 
 // mainEncrypt is the handle for "mc encrypt" command.
-func mainEncrypt(ctx *cli.Context) error {
-	commandNotFound(ctx, encryptSubcommands)
+func mainEncrypt(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, encryptSubcommands)
 	return nil
 	// Sub-commands like "info", "set", "clear" have their own main.
 }

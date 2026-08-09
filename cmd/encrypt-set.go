@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var encryptSetCmd = &cli.Command{
@@ -55,9 +55,9 @@ EXAMPLES:
 }
 
 // checkEncryptSetSyntax - validate all the passed arguments
-func checkEncryptSetSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() < 2 || ctx.Args().Len() > 3 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkEncryptSetSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() < 2 || cmd.Args().Len() > 3 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -82,16 +82,16 @@ func (v encryptSetMessage) String() string {
 	return console.Colorize("encryptSetMessage", fmt.Sprintf("Auto encryption configuration has been set successfully for %s", v.URL))
 }
 
-func mainEncryptSet(cliCtx *cli.Context) error {
+func mainEncryptSet(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelencryptSet := context.WithCancel(globalContext)
 	defer cancelencryptSet()
 
 	console.SetColor("encryptSetMessage", color.New(color.FgGreen))
 
-	checkEncryptSetSyntax(cliCtx)
+	checkEncryptSetSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := cliCtx.Args()
+	args := cmd.Args()
 	argsSlice := args.Slice()
 	aliasedURL := args.Get(args.Len() - 1)
 	// Create a new Client
@@ -110,7 +110,7 @@ func mainEncryptSet(cliCtx *cli.Context) error {
 	}
 	fatalIf(client.SetEncryption(ctx, algorithm, keyID), "Unable to enable auto encryption")
 	msg := encryptSetMessage{
-		Op:     cliCtx.Command.Name,
+		Op:     cmd.Name,
 		Status: "success",
 		URL:    aliasedURL,
 	}

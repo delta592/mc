@@ -25,7 +25,7 @@ import (
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // ilm restore specific flags.
@@ -93,16 +93,16 @@ EXAMPLES:
 }
 
 // checkILMRestoreSyntax - validate arguments passed by user
-func checkILMRestoreSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMRestoreSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 
-	if ctx.Int("days") <= 0 {
+	if cmd.Int("days") <= 0 {
 		fatalIf(errDummy().Trace(), "--days should be equal or greater than 1")
 	}
 
-	if ctx.Bool("version-id") && (ctx.Bool("recursive") || ctx.Bool("versions")) {
+	if cmd.Bool("version-id") && (cmd.Bool("recursive") || cmd.Bool("versions")) {
 		fatalIf(errDummy().Trace(), "You cannot combine --version-id with --recursive or --versions flags.")
 	}
 }
@@ -299,21 +299,21 @@ func showRestoreStatus(restoreReqStatus, restoreFinishedStatus chan *probe.Error
 	close(doneCh)
 }
 
-func mainILMRestore(cliCtx *cli.Context) (cErr error) {
+func mainILMRestore(_ context.Context, cmd *cli.Command) (cErr error) {
 	ctx, cancelILMRestore := context.WithCancel(globalContext)
 	defer cancelILMRestore()
 
-	checkILMRestoreSyntax(cliCtx)
+	checkILMRestoreSyntax(cmd)
 
-	args := cliCtx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
-	versionID := cliCtx.String("version-id")
-	recursive := cliCtx.Bool("recursive")
-	includeVersions := cliCtx.Bool("versions")
-	days := cliCtx.Int("days")
+	versionID := cmd.String("version-id")
+	recursive := cmd.Bool("recursive")
+	includeVersions := cmd.Bool("versions")
+	days := cmd.Int("days")
 
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	targetAlias, targetURL, _ := mustExpandAlias(aliasedURL)

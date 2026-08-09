@@ -18,6 +18,7 @@
 package ilm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -28,7 +29,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7/pkg/lifecycle"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const defaultILMDateFormat string = "2006-01-02"
@@ -216,7 +217,7 @@ func boolPtr(b bool) *bool {
 }
 
 // GetLifecycleOptions create LifeCycleOptions based on cli inputs
-func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
+func GetLifecycleOptions(_ context.Context, cmd *cli.Command) (LifecycleOptions, *probe.Error) {
 	var (
 		id string
 
@@ -241,24 +242,24 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 		expiredObjectAllversions          *bool
 	)
 
-	id = ctx.String("id")
+	id = cmd.String("id")
 	if id == "" {
 		id = uuid.NewString()
 	}
 
 	switch {
-	case ctx.IsSet("disable"):
-		status = boolPtr(!ctx.Bool("disable"))
-	case ctx.IsSet("enable"):
-		status = boolPtr(ctx.Bool("enable"))
+	case cmd.IsSet("disable"):
+		status = boolPtr(!cmd.Bool("disable"))
+	case cmd.IsSet("enable"):
+		status = boolPtr(cmd.Bool("enable"))
 	}
 
-	if ctx.IsSet("prefix") {
-		prefix = strPtr(ctx.String("prefix"))
+	if cmd.IsSet("prefix") {
+		prefix = strPtr(cmd.String("prefix"))
 	} else {
 		// Calculating the prefix for the aliased URL is deprecated in Aug 2022
 		// split the first arg i.e. path into alias, bucket and prefix
-		result := strings.SplitN(ctx.Args().First(), "/", 3)
+		result := strings.SplitN(cmd.Args().First(), "/", 3)
 		// get the prefix from path
 		if len(result) > 2 {
 			p := result[len(result)-1]
@@ -270,8 +271,8 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 
 	expiryRulesCount := 0
 
-	if ctx.IsSet("size-lt") {
-		szStr := ctx.String("size-lt")
+	if cmd.IsSet("size-lt") {
+		szStr := cmd.String("size-lt")
 		szLt, err := humanize.ParseBytes(szStr)
 		if err != nil || szLt > math.MaxInt64 {
 			return LifecycleOptions{}, probe.NewError(fmt.Errorf("size-lt value %s is invalid", szStr))
@@ -279,8 +280,8 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 
 		sizeLt = new(int64(szLt))
 	}
-	if ctx.IsSet("size-gt") {
-		szStr := ctx.String("size-gt")
+	if cmd.IsSet("size-gt") {
+		szStr := cmd.String("size-gt")
 		szGt, err := humanize.ParseBytes(szStr)
 		if err != nil || szGt > math.MaxInt64 {
 			return LifecycleOptions{}, probe.NewError(fmt.Errorf("size-gt value %s is invalid", szStr))
@@ -289,90 +290,90 @@ func GetLifecycleOptions(ctx *cli.Context) (LifecycleOptions, *probe.Error) {
 	}
 
 	// For backward-compatibility
-	if ctx.IsSet("storage-class") {
-		tier = strPtr(strings.ToUpper(ctx.String("storage-class")))
+	if cmd.IsSet("storage-class") {
+		tier = strPtr(strings.ToUpper(cmd.String("storage-class")))
 	}
-	if ctx.IsSet("noncurrentversion-transition-storage-class") {
-		noncurrentTier = strPtr(strings.ToUpper(ctx.String("noncurrentversion-transition-storage-class")))
+	if cmd.IsSet("noncurrentversion-transition-storage-class") {
+		noncurrentTier = strPtr(strings.ToUpper(cmd.String("noncurrentversion-transition-storage-class")))
 	}
-	if ctx.IsSet("tier") {
-		tier = strPtr(strings.ToUpper(ctx.String("tier")))
+	if cmd.IsSet("tier") {
+		tier = strPtr(strings.ToUpper(cmd.String("tier")))
 	}
-	if f := "transition-tier"; ctx.IsSet(f) {
-		tier = strPtr(strings.ToUpper(ctx.String(f)))
+	if f := "transition-tier"; cmd.IsSet(f) {
+		tier = strPtr(strings.ToUpper(cmd.String(f)))
 	}
-	if ctx.IsSet("noncurrentversion-tier") {
-		noncurrentTier = strPtr(strings.ToUpper(ctx.String("noncurrentversion-tier")))
+	if cmd.IsSet("noncurrentversion-tier") {
+		noncurrentTier = strPtr(strings.ToUpper(cmd.String("noncurrentversion-tier")))
 	}
-	if f := "noncurrent-transition-tier"; ctx.IsSet(f) {
-		noncurrentTier = strPtr(strings.ToUpper(ctx.String(f)))
+	if f := "noncurrent-transition-tier"; cmd.IsSet(f) {
+		noncurrentTier = strPtr(strings.ToUpper(cmd.String(f)))
 	}
-	if tier != nil && !ctx.IsSet("transition-days") && !ctx.IsSet("transition-date") {
+	if tier != nil && !cmd.IsSet("transition-days") && !cmd.IsSet("transition-date") {
 		return LifecycleOptions{}, probe.NewError(errors.New("transition-date or transition-days must be set"))
 	}
-	if noncurrentTier != nil && !ctx.IsSet("noncurrentversion-transition-days") && !ctx.IsSet("noncurrent-transition-days") {
+	if noncurrentTier != nil && !cmd.IsSet("noncurrentversion-transition-days") && !cmd.IsSet("noncurrent-transition-days") {
 		return LifecycleOptions{}, probe.NewError(errors.New("noncurrentversion-transition-days must be set"))
 	}
 	// for MinIO transition storage-class is same as label defined on
 	// `mc admin bucket remote add --service ilm --label` command
-	if ctx.IsSet("tags") {
-		tags = strPtr(ctx.String("tags"))
+	if cmd.IsSet("tags") {
+		tags = strPtr(cmd.String("tags"))
 	}
-	if ctx.IsSet("expiry-date") {
+	if cmd.IsSet("expiry-date") {
 		expiryRulesCount++
-		expiryDate = strPtr(ctx.String("expiry-date"))
+		expiryDate = strPtr(cmd.String("expiry-date"))
 	}
-	if ctx.IsSet("expiry-days") {
+	if cmd.IsSet("expiry-days") {
 		expiryRulesCount++
-		expiryDays = strPtr(ctx.String("expiry-days"))
+		expiryDays = strPtr(cmd.String("expiry-days"))
 	}
-	if f := "expire-days"; ctx.IsSet(f) {
-		expiryDays = strPtr(ctx.String(f))
+	if f := "expire-days"; cmd.IsSet(f) {
+		expiryDays = strPtr(cmd.String(f))
 	}
-	if ctx.IsSet("transition-date") {
-		transitionDate = strPtr(ctx.String("transition-date"))
+	if cmd.IsSet("transition-date") {
+		transitionDate = strPtr(cmd.String("transition-date"))
 	}
-	if ctx.IsSet("transition-days") {
-		transitionDays = strPtr(ctx.String("transition-days"))
+	if cmd.IsSet("transition-days") {
+		transitionDays = strPtr(cmd.String("transition-days"))
 	}
-	if ctx.IsSet("expired-object-delete-marker") {
-		expiredObjectDeleteMarker = boolPtr(ctx.Bool("expired-object-delete-marker"))
+	if cmd.IsSet("expired-object-delete-marker") {
+		expiredObjectDeleteMarker = boolPtr(cmd.Bool("expired-object-delete-marker"))
 	}
-	if f := "expire-delete-marker"; ctx.IsSet(f) {
+	if f := "expire-delete-marker"; cmd.IsSet(f) {
 		expiryRulesCount++
-		expiredObjectDeleteMarker = boolPtr(ctx.Bool(f))
+		expiredObjectDeleteMarker = boolPtr(cmd.Bool(f))
 	}
-	if ctx.IsSet("noncurrentversion-expiration-days") {
-		noncurrentVersionExpirationDays = intPtr(ctx.Int("noncurrentversion-expiration-days"))
+	if cmd.IsSet("noncurrentversion-expiration-days") {
+		noncurrentVersionExpirationDays = intPtr(cmd.Int("noncurrentversion-expiration-days"))
 	}
-	if f := "noncurrent-expire-days"; ctx.IsSet(f) {
-		ndaysStr := ctx.String(f)
+	if f := "noncurrent-expire-days"; cmd.IsSet(f) {
+		ndaysStr := cmd.String(f)
 		ndays, err := strconv.Atoi(ndaysStr)
 		if err != nil {
 			return LifecycleOptions{}, probe.NewError(fmt.Errorf("failed to parse %s: %v", f, err))
 		}
 		noncurrentVersionExpirationDays = &ndays
 	}
-	if ctx.IsSet("newer-noncurrentversions-expiration") {
-		newerNoncurrentExpirationVersions = intPtr(ctx.Int("newer-noncurrentversions-expiration"))
+	if cmd.IsSet("newer-noncurrentversions-expiration") {
+		newerNoncurrentExpirationVersions = intPtr(cmd.Int("newer-noncurrentversions-expiration"))
 	}
-	if f := "noncurrent-expire-newer"; ctx.IsSet(f) {
-		newerNoncurrentExpirationVersions = intPtr(ctx.Int(f))
+	if f := "noncurrent-expire-newer"; cmd.IsSet(f) {
+		newerNoncurrentExpirationVersions = intPtr(cmd.Int(f))
 	}
-	if ctx.IsSet("noncurrentversion-transition-days") {
-		noncurrentVersionTransitionDays = intPtr(ctx.Int("noncurrentversion-transition-days"))
+	if cmd.IsSet("noncurrentversion-transition-days") {
+		noncurrentVersionTransitionDays = intPtr(cmd.Int("noncurrentversion-transition-days"))
 	}
-	if f := "noncurrent-transition-days"; ctx.IsSet(f) {
-		noncurrentVersionTransitionDays = intPtr(ctx.Int(f))
+	if f := "noncurrent-transition-days"; cmd.IsSet(f) {
+		noncurrentVersionTransitionDays = intPtr(cmd.Int(f))
 	}
-	if ctx.IsSet("newer-noncurrentversions-transition") {
-		newerNoncurrentTransitionVersions = intPtr(ctx.Int("newer-noncurrentversions-transition"))
+	if cmd.IsSet("newer-noncurrentversions-transition") {
+		newerNoncurrentTransitionVersions = intPtr(cmd.Int("newer-noncurrentversions-transition"))
 	}
-	if f := "noncurrent-transition-newer"; ctx.IsSet(f) {
-		newerNoncurrentTransitionVersions = intPtr(ctx.Int(f))
+	if f := "noncurrent-transition-newer"; cmd.IsSet(f) {
+		newerNoncurrentTransitionVersions = intPtr(cmd.Int(f))
 	}
-	if ctx.IsSet("expire-all-object-versions") {
-		expiredObjectAllversions = boolPtr(ctx.Bool("expire-all-object-versions"))
+	if cmd.IsSet("expire-all-object-versions") {
+		expiredObjectAllversions = boolPtr(cmd.Bool("expire-all-object-versions"))
 	}
 
 	if expiryRulesCount > 1 {

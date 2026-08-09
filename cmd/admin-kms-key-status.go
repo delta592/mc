@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminKMSKeyStatusCmd = &cli.Command{
@@ -52,21 +53,21 @@ EXAMPLES:
 }
 
 // adminKMSKeyCmd is the handle for the "mc admin kms key" command.
-func mainAdminKMSKeyStatus(ctx *cli.Context) error {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func mainAdminKMSKeyStatus(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	console.SetColor("StatusSuccess", color.New(color.FgGreen, color.Bold))
 	console.SetColor("StatusError", color.New(color.FgRed, color.Bold))
 	console.SetColor("StatusUnknown", color.New(color.FgYellow, color.Bold))
 
-	client, err := newAdminClient(ctx.Args().Get(0))
+	client, err := newAdminClient(cmd.Args().Get(0))
 	fatalIf(err, "Unable to get a configured admin connection.")
 
 	var keyID string
-	if ctx.Args().Len() == 2 {
-		keyID = ctx.Args().Get(1)
+	if cmd.Args().Len() == 2 {
+		keyID = cmd.Args().Get(1)
 	}
 	status, e := client.GetKeyStatus(globalContext, keyID)
 	fatalIf(probe.NewError(e), "Failed to get status information")

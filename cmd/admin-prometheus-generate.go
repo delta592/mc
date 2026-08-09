@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"net/url"
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	yaml "go.yaml.in/yaml/v3"
@@ -175,15 +176,15 @@ const (
 )
 
 // checkAdminPrometheusSyntax - validate all the passed arguments
-func checkAdminPrometheusSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminPrometheusSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
-func generatePrometheusConfig(ctx *cli.Context) error {
+func generatePrometheusConfig(ctx context.Context, cmd *cli.Command) error {
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	alias := cleanAlias(args.Get(0))
 
 	if !isValidAlias(alias) {
@@ -202,7 +203,7 @@ func generatePrometheusConfig(ctx *cli.Context) error {
 	}
 
 	metricsSubSystem := args.Get(1)
-	apiVer := ctx.String("api-version")
+	apiVer := cmd.String("api-version")
 	jobName := defaultJobName
 	metricsPath := ""
 
@@ -211,13 +212,13 @@ func generatePrometheusConfig(ctx *cli.Context) error {
 		if metricsSubSystem == "" {
 			metricsSubSystem = "cluster"
 		}
-		validateV2Args(ctx, metricsSubSystem)
+		validateV2Args(ctx, cmd, metricsSubSystem)
 		if metricsSubSystem != "cluster" {
 			jobName = defaultJobName + "-" + metricsSubSystem
 		}
 		metricsPath = metricsV2BasePath + "/" + metricsSubSystem
 	case "v3":
-		bucket := ctx.String("bucket")
+		bucket := cmd.String("bucket")
 		validateV3Args(metricsSubSystem, bucket)
 		metricsPath = getMetricsV3Path(metricsSubSystem, bucket)
 		if metricsSubSystem != "" {
@@ -241,7 +242,7 @@ func generatePrometheusConfig(ctx *cli.Context) error {
 		},
 	}
 
-	if !ctx.Bool("public") {
+	if !cmd.Bool("public") {
 		token, e := getPrometheusToken(hostConfig)
 		if e != nil {
 			return e
@@ -258,12 +259,12 @@ func generatePrometheusConfig(ctx *cli.Context) error {
 }
 
 // mainAdminPrometheus is the handle for "mc admin prometheus generate" sub-command.
-func mainAdminPrometheusGenerate(ctx *cli.Context) error {
+func mainAdminPrometheusGenerate(ctx context.Context, cmd *cli.Command) error {
 	console.SetColor("yaml", color.New(color.FgGreen))
 
-	checkAdminPrometheusSyntax(ctx)
+	checkAdminPrometheusSyntax(cmd)
 
-	if err := generatePrometheusConfig(ctx); err != nil {
+	if err := generatePrometheusConfig(ctx, cmd); err != nil {
 		return nil
 	}
 

@@ -18,13 +18,14 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var policyInfoFlags = []cli.Flag{
@@ -64,9 +65,9 @@ EXAMPLES:
 }
 
 // checkAdminPolicyInfoSyntax - validate all the passed arguments
-func checkAdminPolicyInfoSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminPolicyInfoSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -75,14 +76,14 @@ func getPolicyInfo(client *madmin.AdminClient, policyName string) (*madmin.Polic
 }
 
 // mainAdminPolicyInfo is the handler for "mc admin policy info" command.
-func mainAdminPolicyInfo(ctx *cli.Context) error {
-	checkAdminPolicyInfoSyntax(ctx)
+func mainAdminPolicyInfo(_ context.Context, cmd *cli.Command) error {
+	checkAdminPolicyInfoSyntax(cmd)
 
 	console.SetColor("PolicyMessage", color.New(color.FgGreen))
 	console.SetColor("Policy", color.New(color.FgBlue))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	policyName := args.Get(1)
 
@@ -93,7 +94,7 @@ func mainAdminPolicyInfo(ctx *cli.Context) error {
 	pinfo, e := getPolicyInfo(client, policyName)
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to fetch policy")
 
-	policyFile := ctx.String("policy-file")
+	policyFile := cmd.String("policy-file")
 	if policyFile != "" {
 		f, e := os.Create(policyFile)
 		fatalIf(probe.NewError(e).Trace(args.Slice()...), "Could not open given policy file")
@@ -103,7 +104,7 @@ func mainAdminPolicyInfo(ctx *cli.Context) error {
 	}
 
 	printMsg(userPolicyMessage{
-		op:         ctx.Command.Name,
+		op:         cmd.Name,
 		Policy:     policyName,
 		PolicyInfo: *pinfo,
 	})

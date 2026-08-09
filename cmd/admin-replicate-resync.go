@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var adminReplicateResyncSubcommands = []*cli.Command{
 	adminReplicateResyncStartCmd,
@@ -31,11 +35,11 @@ var adminReplicateResyncCmd = &cli.Command{
 	Action:          mainAdminReplicateResync,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     adminReplicateResyncSubcommands,
+	Commands:        adminReplicateResyncSubcommands,
 	HideHelpCommand: true,
 }
 
-func mainAdminReplicateResync(ctx *cli.Context) error {
-	commandNotFound(ctx, adminReplicateResyncSubcommands)
+func mainAdminReplicateResync(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, adminReplicateResyncSubcommands)
 	return nil
 }

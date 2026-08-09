@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/delta592/mc/pkg/probe"
@@ -25,7 +26,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminDecommissionCancelCmd = &cli.Command{
@@ -54,18 +55,18 @@ EXAMPLES:
 }
 
 // checkAdminDecommissionCancelSyntax - validate all the passed arguments
-func checkAdminDecommissionCancelSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() > 2 || ctx.Args().Len() == 0 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminDecommissionCancelSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() > 2 || cmd.Args().Len() == 0 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminDecommissionCancel is the handle for "mc admin decommission cancel" command.
-func mainAdminDecommissionCancel(ctx *cli.Context) error {
-	checkAdminDecommissionCancelSyntax(ctx)
+func mainAdminDecommissionCancel(_ context.Context, cmd *cli.Command) error {
+	checkAdminDecommissionCancelSyntax(cmd)
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	aliasedURL = filepath.Clean(aliasedURL)
 

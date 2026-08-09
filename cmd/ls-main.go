@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // ls specific flags.
@@ -161,12 +161,12 @@ func parseRewindFlag(rewind string) (timeRef time.Time) {
 }
 
 // checkListSyntax - validate all the passed arguments
-func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
+func checkListSyntax(cmd *cli.Command) ([]string, doListOptions) {
 	var urlArgs []string
-	if !cliCtx.Args().Present() {
+	if !cmd.Args().Present() {
 		urlArgs = []string{"."}
 	} else {
-		urlArgs = cliCtx.Args().Slice()
+		urlArgs = cmd.Args().Slice()
 	}
 	for _, arg := range urlArgs {
 		if strings.TrimSpace(arg) == "" {
@@ -174,18 +174,18 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 		}
 	}
 
-	isRecursive := cliCtx.Bool("recursive")
-	isIncomplete := cliCtx.Bool("incomplete")
-	withVersions := cliCtx.Bool("versions")
-	isSummary := cliCtx.Bool("summarize")
-	listZip := cliCtx.Bool("zip")
+	isRecursive := cmd.Bool("recursive")
+	isIncomplete := cmd.Bool("incomplete")
+	withVersions := cmd.Bool("versions")
+	isSummary := cmd.Bool("summarize")
+	listZip := cmd.Bool("zip")
 
-	timeRef := parseRewindFlag(cliCtx.String("rewind"))
+	timeRef := parseRewindFlag(cmd.String("rewind"))
 
 	if listZip && (withVersions || !timeRef.IsZero()) {
 		fatalIf(errInvalidArgument().Trace(urlArgs...), "Zip file listing can only be performed on the latest version")
 	}
-	storageClasss := cliCtx.String("storage-class")
+	storageClasss := cmd.String("storage-class")
 	opts := doListOptions{
 		timeRef:      timeRef,
 		isRecursive:  isRecursive,
@@ -199,7 +199,7 @@ func checkListSyntax(cliCtx *cli.Context) ([]string, doListOptions) {
 }
 
 // mainList - is a handler for mc ls command
-func mainList(cliCtx *cli.Context) error {
+func mainList(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelList := context.WithCancel(globalContext)
 	defer cancelList()
 
@@ -215,8 +215,8 @@ func mainList(cliCtx *cli.Context) error {
 	console.SetColor("Summarize", color.New(color.Bold))
 	console.SetColor("SC", color.New(color.FgBlue))
 
-	// check 'ls' cliCtx arguments.
-	args, opts := checkListSyntax(cliCtx)
+	// check 'ls' cmd arguments.
+	args, opts := checkListSyntax(cmd)
 
 	var cErr error
 	for _, targetURL := range args {

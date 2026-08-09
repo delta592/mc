@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var supportRegisterFlags = append([]cli.Flag{
@@ -38,7 +40,7 @@ var supportRegisterCmd = &cli.Command{
 	CustomHelpTemplate: "Please use 'mc license register'",
 }
 
-func mainSupportRegister(_ *cli.Context) error {
+func mainSupportRegister(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc license register")
 	return nil
 }

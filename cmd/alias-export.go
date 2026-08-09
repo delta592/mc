@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"context"
+
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var aliasExportCmd = &cli.Command{
@@ -45,13 +47,13 @@ EXAMPLES:
 }
 
 // checkAliasExportSyntax - verifies input arguments to 'alias export'.
-func checkAliasExportSyntax(ctx *cli.Context) {
-	args := ctx.Args()
-	if ctx.NArg() == 0 {
-		showCommandHelpAndExit(ctx, 1)
+func checkAliasExportSyntax(cmd *cli.Command) {
+	args := cmd.Args()
+	if cmd.NArg() == 0 {
+		showCommandHelpAndExit(cmd, 1)
 	}
-	if ctx.NArg() > 1 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+	if cmd.NArg() > 1 {
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"Incorrect number of arguments for alias export command.")
 	}
 
@@ -77,10 +79,10 @@ func exportAlias(alias string) {
 	console.Println(string(buf))
 }
 
-func mainAliasExport(cli *cli.Context) error {
-	args := cli.Args()
+func mainAliasExport(_ context.Context, cmd *cli.Command) error {
+	args := cmd.Args()
 
-	checkAliasExportSyntax(cli)
+	checkAliasExportSyntax(cmd)
 
 	exportAlias(cleanAlias(args.Get(0)))
 

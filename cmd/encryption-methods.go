@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -28,7 +29,7 @@ import (
 
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/minio-go/v7/pkg/encrypt"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type sseKeyType int
@@ -70,27 +71,27 @@ func getSSE(resource string, encKeys []prefixSSEPair) encrypt.ServerSide {
 	return nil
 }
 
-func validateAndCreateEncryptionKeys(ctx *cli.Context) (encMap map[string][]prefixSSEPair, err *probe.Error) {
+func validateAndCreateEncryptionKeys(ctx context.Context, cmd *cli.Command) (encMap map[string][]prefixSSEPair, err *probe.Error) {
 	encMap = make(map[string][]prefixSSEPair, 0)
 
-	for _, v := range ctx.StringSlice("enc-kms") {
-		prefixPair, alias, err := validateAndParseKey(ctx, v, sseKMS)
+	for _, v := range cmd.StringSlice("enc-kms") {
+		prefixPair, alias, err := validateAndParseKey(ctx, cmd, v, sseKMS)
 		if err != nil {
 			return nil, err
 		}
 		encMap[alias] = append(encMap[alias], *prefixPair)
 	}
 
-	for _, v := range ctx.StringSlice("enc-s3") {
-		prefixPair, alias, err := validateAndParseKey(ctx, v, sseS3)
+	for _, v := range cmd.StringSlice("enc-s3") {
+		prefixPair, alias, err := validateAndParseKey(ctx, cmd, v, sseS3)
 		if err != nil {
 			return nil, err
 		}
 		encMap[alias] = append(encMap[alias], *prefixPair)
 	}
 
-	for _, v := range ctx.StringSlice("enc-c") {
-		prefixPair, alias, err := validateAndParseKey(ctx, v, sseC)
+	for _, v := range cmd.StringSlice("enc-c") {
+		prefixPair, alias, err := validateAndParseKey(ctx, cmd, v, sseC)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +120,7 @@ func validateAndCreateEncryptionKeys(ctx *cli.Context) (encMap map[string][]pref
 	return encMap, nil
 }
 
-func validateAndParseKey(ctx *cli.Context, key string, keyType sseKeyType) (SSEPair *prefixSSEPair, alias string, perr *probe.Error) {
+func validateAndParseKey(_ context.Context, cmd *cli.Command, key string, keyType sseKeyType) (SSEPair *prefixSSEPair, alias string, perr *probe.Error) {
 	matchedCount := 0
 	alias, prefix, encKey, keyErr := parseSSEKey(key, keyType)
 	if keyErr != nil {
@@ -135,7 +136,7 @@ func validateAndParseKey(ctx *cli.Context, key string, keyType sseKeyType) (SSEP
 
 	ssePairPrefix := alias + "/" + prefix
 
-	for _, arg := range ctx.Args().Slice() {
+	for _, arg := range cmd.Args().Slice() {
 		if strings.HasPrefix(arg, ssePairPrefix) {
 			matchedCount++
 		} else if strings.HasPrefix(ssePairPrefix, arg) {

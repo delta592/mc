@@ -24,7 +24,7 @@ import (
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var ilmRemoveFlags = []cli.Flag{
@@ -94,35 +94,35 @@ func (i ilmRmMessage) JSON() string {
 	return string(msgBytes)
 }
 
-func checkILMRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, globalErrorExitStatus)
+func checkILMRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, globalErrorExitStatus)
 	}
 
-	ilmAll := ctx.Bool("all")
-	ilmForce := ctx.Bool("force")
+	ilmAll := cmd.Bool("all")
+	ilmForce := cmd.Bool("force")
 	forceChk := (ilmAll && ilmForce) || (!ilmAll && !ilmForce)
 	if !forceChk {
 		fatalIf(errInvalidArgument(),
-			"It is mandatory to specify --all and --force flag together for mc "+ctx.Command.FullName()+".")
+			"It is mandatory to specify --all and --force flag together for mc "+cmd.FullName()+".")
 	}
 	if ilmAll && ilmForce {
 		return
 	}
 
-	ilmID := ctx.String("id")
+	ilmID := cmd.String("id")
 	if ilmID == "" {
 		fatalIf(errInvalidArgument().Trace(ilmID), "ilm ID cannot be empty")
 	}
 }
 
-func mainILMRemove(cliCtx *cli.Context) error {
+func mainILMRemove(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelILMImport := context.WithCancel(globalContext)
 	defer cancelILMImport()
 
-	checkILMRemoveSyntax(cliCtx)
+	checkILMRemoveSyntax(cmd)
 	setILMDisplayColorScheme()
-	args := cliCtx.Args()
+	args := cmd.Args()
 	urlStr := args.Get(0)
 
 	client, err := newClient(urlStr)
@@ -131,21 +131,21 @@ func mainILMRemove(cliCtx *cli.Context) error {
 	ilmCfg, _, err := client.GetLifecycle(ctx)
 	fatalIf(err.Trace(urlStr), "Unable to fetch lifecycle rules")
 
-	ilmAll := cliCtx.Bool("all")
-	ilmForce := cliCtx.Bool("force")
+	ilmAll := cmd.Bool("all")
+	ilmForce := cmd.Bool("force")
 
 	if ilmAll && ilmForce {
 		ilmCfg.Rules = nil // Remove all rules
 	} else {
-		ilmCfg, err = ilm.RemoveILMRule(ilmCfg, cliCtx.String("id"))
-		fatalIf(err.Trace(urlStr, cliCtx.String("id")), "Unable to remove rule by id")
+		ilmCfg, err = ilm.RemoveILMRule(ilmCfg, cmd.String("id"))
+		fatalIf(err.Trace(urlStr, cmd.String("id")), "Unable to remove rule by id")
 	}
 
 	fatalIf(client.SetLifecycle(ctx, ilmCfg).Trace(urlStr), "Unable to set lifecycle rules")
 
 	printMsg(ilmRmMessage{
 		Status: "success",
-		ID:     cliCtx.String("id"),
+		ID:     cmd.String("id"),
 		All:    ilmAll,
 		Target: urlStr,
 	})

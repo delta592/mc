@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -29,7 +30,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func defaultPartSize() string {
@@ -139,9 +140,9 @@ func (p pipeMessage) JSON() string {
 	return string(pipeMessageBytes)
 }
 
-func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPair, meta map[string]string, quiet bool, json bool) *probe.Error {
+func pipe(ctx context.Context, cmd *cli.Command, targetURL string, encKeyDB map[string][]prefixSSEPair, meta map[string]string, quiet bool, json bool) *probe.Error {
 	// If possible increase the pipe buffer size
-	if e := increasePipeBufferSize(os.Stdin, ctx.Int("pipe-max-size")); e != nil {
+	if e := increasePipeBufferSize(os.Stdin, cmd.Int("pipe-max-size")); e != nil {
 		fatalIf(probe.NewError(e), "Unable to increase custom pipe-max-size")
 	}
 
@@ -149,12 +150,12 @@ func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPai
 		// When no target is specified, pipe cat's stdin to stdout.
 		return catOut(os.Stdin, -1).Trace()
 	}
-	md5, checksum := parseChecksum(ctx)
-	storageClass := ctx.String("storage-class")
+	md5, checksum := parseChecksum(ctx, cmd)
+	storageClass := cmd.String("storage-class")
 	alias, _ := url2Alias(targetURL)
 	sseKey := getSSE(targetURL, encKeyDB[alias])
 
-	multipartThreads := ctx.Int("concurrent")
+	multipartThreads := cmd.Int("concurrent")
 	if multipartThreads > 1 {
 		// We will be allocating large buffers, reduce default GC overhead
 		debug.SetGCPercent(20)
@@ -162,7 +163,7 @@ func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPai
 
 	var multipartSize uint64
 	var e error
-	if partSizeStr := ctx.String("part-size"); partSizeStr != "" {
+	if partSizeStr := cmd.String("part-size"); partSizeStr != "" {
 		multipartSize, e = humanize.ParseBytes(partSizeStr)
 		if e != nil {
 			return probe.NewError(e)
@@ -178,7 +179,7 @@ func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPai
 		metadata:         meta,
 		multipartSize:    multipartSize,
 		multipartThreads: uint(multipartThreads),
-		concurrentStream: ctx.IsSet("concurrent"),
+		concurrentStream: cmd.IsSet("concurrent"),
 		md5:              md5,
 		checksum:         checksum,
 	}
@@ -209,40 +210,40 @@ func pipe(ctx *cli.Context, targetURL string, encKeyDB map[string][]prefixSSEPai
 }
 
 // checkPipeSyntax - validate arguments passed by user
-func checkPipeSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code.
+func checkPipeSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 }
 
 // mainPipe is the main entry point for pipe command.
-func mainPipe(ctx *cli.Context) error {
+func mainPipe(ctx context.Context, cmd *cli.Command) error {
 	// validate pipe input arguments.
-	checkPipeSyntax(ctx)
+	checkPipeSyntax(cmd)
 
-	encKeyDB, err := validateAndCreateEncryptionKeys(ctx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(ctx, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// globalQuiet is true for no window size to get.
 	// We just need --quiet and --json here.
-	quiet := ctx.Bool("quiet")
-	json := ctx.Bool("json")
+	quiet := cmd.Bool("quiet")
+	json := cmd.Bool("json")
 
 	meta := map[string]string{}
-	if attr := ctx.String("attr"); attr != "" {
+	if attr := cmd.String("attr"); attr != "" {
 		meta, err = getMetaDataEntry(attr)
 		fatalIf(err.Trace(attr), "Unable to parse --attr value")
 	}
-	if tags := ctx.String("tags"); tags != "" {
+	if tags := cmd.String("tags"); tags != "" {
 		meta["X-Amz-Tagging"] = tags
 	}
-	if ctx.Args().Len() == 0 {
-		err = pipe(ctx, "", nil, meta, quiet, json)
+	if cmd.Args().Len() == 0 {
+		err = pipe(ctx, cmd, "", nil, meta, quiet, json)
 		fatalIf(err.Trace("stdout"), "Unable to write to one or more targets.")
 	} else {
 		// extract URLs.
-		URLs := ctx.Args().Slice()
-		err = pipe(ctx, URLs[0], encKeyDB, meta, quiet, json)
+		URLs := cmd.Args().Slice()
+		err = pipe(ctx, cmd, URLs[0], encKeyDB, meta, quiet, json)
 		fatalIf(err.Trace(URLs[0]), "Unable to write to one or more targets.")
 	}
 

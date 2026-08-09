@@ -18,9 +18,11 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminTierRmFlags = []cli.Flag{
@@ -62,11 +64,11 @@ EXAMPLES:
 `,
 }
 
-func mainAdminTierRm(ctx *cli.Context) error {
-	args := ctx.Args()
+func mainAdminTierRm(_ context.Context, cmd *cli.Command) error {
+	args := cmd.Args()
 	nArgs := args.Len()
 	if nArgs < 2 {
-		showCommandHelpAndExit(ctx, 1)
+		showCommandHelpAndExit(cmd, 1)
 	}
 	if nArgs != 2 {
 		fatalIf(errInvalidArgument().Trace(args.Tail()...),
@@ -79,7 +81,7 @@ func mainAdminTierRm(ctx *cli.Context) error {
 		fatalIf(errInvalidArgument(), "Tier name can't be empty")
 	}
 
-	if ctx.Bool("force") && !ctx.Bool("dangerous") {
+	if cmd.Bool("force") && !cmd.Bool("dangerous") {
 		fatalIf(errInvalidArgument(), "This operation results in an irreversible disconnection from the specified remote tier. If you are really sure, retry this command with ‘--force’ and ‘--dangerous’ flags.")
 	}
 
@@ -87,11 +89,11 @@ func mainAdminTierRm(ctx *cli.Context) error {
 	client, cerr := newAdminClient(aliasedURL)
 	fatalIf(cerr, "Unable to initialize admin connection.")
 
-	e := client.RemoveTierV2(globalContext, tierName, madmin.RemoveTierOpts{Force: ctx.Bool("force")})
+	e := client.RemoveTierV2(globalContext, tierName, madmin.RemoveTierOpts{Force: cmd.Bool("force")})
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Unable to remove remote tier target")
 
 	printMsg(&tierMessage{
-		op:       ctx.Command.Name,
+		op:       cmd.Name,
 		Status:   "success",
 		TierName: tierName,
 	})

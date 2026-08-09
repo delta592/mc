@@ -30,7 +30,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // du specific flags.
@@ -209,9 +209,9 @@ func du(ctx context.Context, urlStr string, timeRef time.Time, withVersions bool
 }
 
 // main for du command.
-func mainDu(cliCtx *cli.Context) error {
-	if !cliCtx.Args().Present() {
-		showCommandHelpAndExit(cliCtx, 1)
+func mainDu(_ context.Context, cmd *cli.Command) error {
+	if !cmd.Args().Present() {
+		showCommandHelpAndExit(cmd, 1)
 	}
 
 	// Set colors.
@@ -224,10 +224,10 @@ func mainDu(cliCtx *cli.Context) error {
 	defer cancelRm()
 
 	// du specific flags.
-	depth := cliCtx.Int("depth")
+	depth := cmd.Int("depth")
 	if depth == 0 {
-		if cliCtx.Bool("recursive") {
-			if !cliCtx.IsSet("depth") {
+		if cmd.Bool("recursive") {
+			if !cmd.IsSet("depth") {
 				depth = -1
 			}
 		} else {
@@ -235,12 +235,12 @@ func mainDu(cliCtx *cli.Context) error {
 		}
 	}
 
-	withVersions := cliCtx.Bool("versions")
-	timeRef := parseRewindFlag(cliCtx.String("rewind"))
+	withVersions := cmd.Bool("versions")
+	timeRef := parseRewindFlag(cmd.String("rewind"))
 
 	var duErr error
 	var isDir bool
-	for _, urlStr := range cliCtx.Args().Slice() {
+	for _, urlStr := range cmd.Args().Slice() {
 		isDir, _ = isAliasURLDir(ctx, urlStr, nil, time.Time{}, false)
 		if !isDir {
 			fatalIf(errInvalidArgument().Trace(urlStr), fmt.Sprintf("Source `%s` is not a folder. Only folders are supported by 'du' command.", urlStr))

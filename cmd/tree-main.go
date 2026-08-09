@@ -28,7 +28,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -115,15 +115,15 @@ EXAMPLES:
 }
 
 // parseTreeSyntax - validate all the passed arguments
-func parseTreeSyntax(ctx context.Context, cliCtx *cli.Context) (args []string, depth int, files bool, timeRef time.Time) {
-	args = cliCtx.Args().Slice()
-	depth = cliCtx.Int("depth")
-	files = cliCtx.Bool("files")
+func parseTreeSyntax(ctx context.Context, cmd *cli.Command) (args []string, depth int, files bool, timeRef time.Time) {
+	args = cmd.Args().Slice()
+	depth = cmd.Int("depth")
+	files = cmd.Bool("files")
 
-	rewind := cliCtx.String("rewind")
+	rewind := cmd.String("rewind")
 	timeRef = parseRewindFlag(rewind)
 
-	if depth < -1 || cliCtx.Int("depth") == 0 {
+	if depth < -1 || cmd.Int("depth") == 0 {
 		fatalIf(errInvalidArgument().Trace(args...),
 			"please set a proper depth, for example: '--depth 1' to limit the tree output, default (-1) output displays everything")
 	}
@@ -267,15 +267,15 @@ func doTree(ctx context.Context, url string, timeRef time.Time, level int, branc
 }
 
 // mainTree - is a handler for mc tree command
-func mainTree(cliCtx *cli.Context) error {
+func mainTree(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelList := context.WithCancel(globalContext)
 	defer cancelList()
 
 	console.SetColor("File", color.New(color.Bold))
 	console.SetColor("Dir", color.New(color.FgCyan, color.Bold))
 
-	// parse 'tree' cliCtx arguments.
-	args, depth, includeFiles, timeRef := parseTreeSyntax(ctx, cliCtx)
+	// parse 'tree' cmd arguments.
+	args, depth, includeFiles, timeRef := parseTreeSyntax(ctx, cmd)
 
 	// mimic operating system tool behavior.
 	if len(args) == 0 {

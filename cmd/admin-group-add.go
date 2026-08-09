@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -26,7 +27,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminGroupAddCmd = &cli.Command{
@@ -56,9 +57,9 @@ EXAMPLES:
 }
 
 // checkAdminGroupAddSyntax - validate all the passed arguments
-func checkAdminGroupAddSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() < 3 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminGroupAddSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() < 3 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -115,13 +116,13 @@ func (u groupMessage) JSON() string {
 }
 
 // mainAdminGroupAdd is the handle for "mc admin group add" command.
-func mainAdminGroupAdd(ctx *cli.Context) error {
-	checkAdminGroupAddSyntax(ctx)
+func mainAdminGroupAdd(_ context.Context, cmd *cli.Command) error {
+	checkAdminGroupAddSyntax(cmd)
 
 	console.SetColor("GroupMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -129,7 +130,7 @@ func mainAdminGroupAdd(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	members := []string{}
-	for i := 2; i < ctx.NArg(); i++ {
+	for i := 2; i < cmd.NArg(); i++ {
 		members = append(members, args.Get(i))
 	}
 	gAddRemove := madmin.GroupAddRemove{
@@ -140,7 +141,7 @@ func mainAdminGroupAdd(ctx *cli.Context) error {
 	fatalIf(probe.NewError(client.UpdateGroupMembers(globalContext, gAddRemove)).Trace(args.Slice()...), "Unable to add new group")
 
 	printMsg(groupMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		GroupName: args.Get(1),
 		Members:   members,
 	})

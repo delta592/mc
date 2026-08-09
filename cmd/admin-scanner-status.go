@@ -41,7 +41,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminScannerInfoFlags = []cli.Flag{
@@ -99,12 +99,12 @@ EXAMPLES:
 }
 
 // checkAdminTopAPISyntax - validate all the passed arguments
-func checkAdminScannerInfoSyntax(ctx *cli.Context) {
-	if ctx.String("in") != "" {
+func checkAdminScannerInfoSyntax(cmd *cli.Command) {
+	if cmd.String("in") != "" {
 		return
 	}
-	if ctx.Args().Len() == 0 || ctx.Args().Len() > 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+	if cmd.Args().Len() == 0 || cmd.Args().Len() > 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
@@ -188,18 +188,18 @@ func (b bucketScanMsg) JSON() string {
 	return string(jsonMessageBytes)
 }
 
-func mainAdminScannerInfo(ctx *cli.Context) error {
+func mainAdminScannerInfo(_ context.Context, cmd *cli.Command) error {
 	console.SetColor("Headers", color.New(color.Bold, color.FgHiGreen))
 	console.SetColor("FullScan", color.New(color.Bold, color.FgHiGreen))
 
-	checkAdminScannerInfoSyntax(ctx)
+	checkAdminScannerInfoSyntax(cmd)
 
-	ui := tea.NewProgram(initScannerMetricsUI(ctx.Int("max-paths")))
+	ui := tea.NewProgram(initScannerMetricsUI(cmd.Int("max-paths")))
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
 	// Replay from file
-	if inFile := ctx.String("in"); inFile != "" {
+	if inFile := cmd.String("in"); inFile != "" {
 		go func() {
 			if _, e := ui.Run(); e != nil {
 				cancel()
@@ -242,11 +242,11 @@ func mainAdminScannerInfo(ctx *cli.Context) error {
 	}
 
 	// Create a new MinIO Admin Client
-	aliasedURL := ctx.Args().Get(0)
+	aliasedURL := cmd.Args().Get(0)
 	client, err := newAdminClient(aliasedURL)
 	fatalIf(err.Trace(aliasedURL), "Unable to initialize admin client.")
 
-	if bucket := ctx.String("bucket"); bucket != "" {
+	if bucket := cmd.String("bucket"); bucket != "" {
 		bucketStats, err := client.BucketScanInfo(globalContext, bucket)
 		fatalIf(probe.NewError(err).Trace(aliasedURL), "Unable to get bucket stats.")
 		printMsg(bucketScanMsg{Stats: bucketStats})
@@ -255,9 +255,9 @@ func mainAdminScannerInfo(ctx *cli.Context) error {
 
 	opts := madmin.MetricsOptions{
 		Type:     madmin.MetricsScanner,
-		N:        ctx.Int("n"),
-		Interval: time.Duration(ctx.Int("interval")) * time.Second,
-		Hosts:    strings.Split(ctx.String("nodes"), ","),
+		N:        cmd.Int("n"),
+		Interval: time.Duration(cmd.Int("interval")) * time.Second,
+		Hosts:    strings.Split(cmd.String("nodes"), ","),
 		ByHost:   false,
 	}
 	if globalJSON {

@@ -26,7 +26,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/dustin/go-humanize"
 	"github.com/minio/madmin-go/v4"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminSpeedtestCmd = &cli.Command{
@@ -40,12 +40,12 @@ var adminSpeedtestCmd = &cli.Command{
 	CustomHelpTemplate: "Please use 'mc support perf'",
 }
 
-func mainAdminSpeedtest(_ *cli.Context) error {
+func mainAdminSpeedtest(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support perf")
 	return nil
 }
 
-func mainAdminSpeedTestObject(ctx *cli.Context, aliasedURL string, outCh chan<- PerfTestResult) error {
+func mainAdminSpeedTestObject(_ context.Context, cmd *cli.Command, aliasedURL string, outCh chan<- PerfTestResult) error {
 	client, perr := newAdminClient(aliasedURL)
 	if perr != nil {
 		fatalIf(perr.Trace(aliasedURL), "Unable to initialize admin client.")
@@ -55,7 +55,7 @@ func mainAdminSpeedTestObject(ctx *cli.Context, aliasedURL string, outCh chan<- 
 	ctxt, cancel := context.WithCancel(globalContext)
 	defer cancel()
 
-	duration, e := time.ParseDuration(ctx.String("duration"))
+	duration, e := time.ParseDuration(cmd.String("duration"))
 	if e != nil {
 		fatalIf(probe.NewError(e), "Unable to parse duration")
 		return nil
@@ -64,7 +64,7 @@ func mainAdminSpeedTestObject(ctx *cli.Context, aliasedURL string, outCh chan<- 
 		fatalIf(errInvalidArgument(), "duration cannot be 0 or negative")
 		return nil
 	}
-	size, e := humanize.ParseBytes(ctx.String("size"))
+	size, e := humanize.ParseBytes(cmd.String("size"))
 	if e != nil {
 		fatalIf(probe.NewError(e), "Unable to parse object size")
 		return nil
@@ -73,24 +73,24 @@ func mainAdminSpeedTestObject(ctx *cli.Context, aliasedURL string, outCh chan<- 
 		fatalIf(errInvalidArgument(), "size is expected to be more than 0 bytes")
 		return nil
 	}
-	concurrent := ctx.Int("concurrent")
+	concurrent := cmd.Int("concurrent")
 	if concurrent <= 0 {
 		fatalIf(errInvalidArgument(), "concurrency cannot be '0' or negative")
 		return nil
 	}
-	globalPerfTestVerbose = ctx.Bool("verbose")
+	globalPerfTestVerbose = cmd.Bool("verbose")
 
 	// Turn-off autotuning only when "concurrent" is specified
 	// in all other scenarios keep auto-tuning on.
-	autotune := !ctx.IsSet("concurrent")
+	autotune := !cmd.IsSet("concurrent")
 
 	resultCh, e := client.Speedtest(ctxt, madmin.SpeedtestOpts{
 		Size:        int(size),
 		Duration:    duration,
 		Concurrency: concurrent,
 		Autotune:    autotune,
-		Bucket:      ctx.String("bucket"), // This is a hidden flag.
-		NoClear:     ctx.Bool("noclear"),
+		Bucket:      cmd.String("bucket"), // This is a hidden flag.
+		NoClear:     cmd.Bool("noclear"),
 	})
 
 	if globalJSON {

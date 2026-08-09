@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var shareDownloadFlags = []cli.Flag{
@@ -73,15 +73,15 @@ EXAMPLES:
 }
 
 // checkShareDownloadSyntax - validate command-line args.
-func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
-	args := cliCtx.Args()
+func checkShareDownloadSyntax(ctx context.Context, cmd *cli.Command, encKeyDB map[string][]prefixSSEPair) {
+	args := cmd.Args()
 	if !args.Present() {
-		showCommandHelpAndExit(cliCtx, 1) // last argument is exit code.
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code.
 	}
 
 	// Parse expiry.
 	expiry := shareDefaultExpiry
-	expireArg := cliCtx.String("expire")
+	expireArg := cmd.String("expire")
 	if expireArg != "" {
 		var e error
 		expiry, e = time.ParseDuration(expireArg)
@@ -96,16 +96,16 @@ func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB
 		fatalIf(errDummy().Trace(expiry.String()), "Expiry cannot be larger than 7 days.")
 	}
 
-	isRecursive := cliCtx.Bool("recursive")
+	isRecursive := cmd.Bool("recursive")
 
-	versionID := cliCtx.String("version-id")
+	versionID := cmd.String("version-id")
 	if versionID != "" && isRecursive {
 		fatalIf(errDummy().Trace(), "--version-id cannot be specified with --recursive flag.")
 	}
 
 	// Validate if object exists only if the `--recursive` flag was NOT specified
 	if !isRecursive {
-		for _, url := range cliCtx.Args().Slice() {
+		for _, url := range cmd.Args().Slice() {
 			_, _, err := url2Stat(ctx, url2StatOptions{urlStr: url, versionID: "", fileAttr: false, encKeyDB: encKeyDB, timeRef: time.Time{}, isZip: false, ignoreBucketExistsCheck: false})
 			if err != nil {
 				fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
@@ -202,16 +202,16 @@ func doShareDownloadURL(ctx context.Context, targetURL, versionID string, isRecu
 }
 
 // main for share download.
-func mainShareDownload(cliCtx *cli.Context) error {
+func mainShareDownload(_ context.Context, cmd *cli.Command) error {
 	ctx, cancelShareDownload := context.WithCancel(globalContext)
 	defer cancelShareDownload()
 
 	// Parse encryption keys per command.
-	encKeyDB, err := validateAndCreateEncryptionKeys(cliCtx)
+	encKeyDB, err := validateAndCreateEncryptionKeys(globalContext, cmd)
 	fatalIf(err, "Unable to parse encryption keys.")
 
 	// check input arguments.
-	checkShareDownloadSyntax(ctx, cliCtx, encKeyDB)
+	checkShareDownloadSyntax(ctx, cmd, encKeyDB)
 
 	// Initialize share config folder.
 	initShareConfig()
@@ -220,16 +220,16 @@ func mainShareDownload(cliCtx *cli.Context) error {
 	shareSetColor()
 
 	// Set command flags from context.
-	isRecursive := cliCtx.Bool("recursive")
-	versionID := cliCtx.String("version-id")
+	isRecursive := cmd.Bool("recursive")
+	versionID := cmd.String("version-id")
 	expiry := shareDefaultExpiry
-	if cliCtx.String("expire") != "" {
+	if cmd.String("expire") != "" {
 		var e error
-		expiry, e = time.ParseDuration(cliCtx.String("expire"))
-		fatalIf(probe.NewError(e), "Unable to parse expire=`"+cliCtx.String("expire")+"`.")
+		expiry, e = time.ParseDuration(cmd.String("expire"))
+		fatalIf(probe.NewError(e), "Unable to parse expire=`"+cmd.String("expire")+"`.")
 	}
 
-	for _, targetURL := range cliCtx.Args().Slice() {
+	for _, targetURL := range cmd.Args().Slice() {
 		err := doShareDownloadURL(ctx, targetURL, versionID, isRecursive, expiry)
 		if err != nil {
 			switch err.ToGoError().(type) {

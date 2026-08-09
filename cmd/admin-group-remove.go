@@ -18,11 +18,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminGroupRemoveCmd = &cli.Command{
@@ -52,20 +54,20 @@ EXAMPLES:
 }
 
 // checkAdminGroupRemoveSyntax - validate all the passed arguments
-func checkAdminGroupRemoveSyntax(ctx *cli.Context) {
-	if ctx.Args().Len() < 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func checkAdminGroupRemoveSyntax(cmd *cli.Command) {
+	if cmd.Args().Len() < 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 }
 
 // mainAdminGroupRemove is the handle for "mc admin group remove" command.
-func mainAdminGroupRemove(ctx *cli.Context) error {
-	checkAdminGroupRemoveSyntax(ctx)
+func mainAdminGroupRemove(_ context.Context, cmd *cli.Command) error {
+	checkAdminGroupRemoveSyntax(cmd)
 
 	console.SetColor("GroupMessage", color.New(color.FgGreen))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -73,7 +75,7 @@ func mainAdminGroupRemove(ctx *cli.Context) error {
 	fatalIf(err, "Unable to initialize admin connection.")
 
 	members := []string{}
-	for i := 2; i < ctx.NArg(); i++ {
+	for i := 2; i < cmd.NArg(); i++ {
 		members = append(members, args.Get(i))
 	}
 	gAddRemove := madmin.GroupAddRemove{
@@ -86,7 +88,7 @@ func mainAdminGroupRemove(ctx *cli.Context) error {
 	fatalIf(probe.NewError(e).Trace(args.Slice()...), "Could not perform remove operation")
 
 	printMsg(groupMessage{
-		op:        ctx.Command.Name,
+		op:        cmd.Name,
 		GroupName: args.Get(1),
 		Members:   members,
 	})

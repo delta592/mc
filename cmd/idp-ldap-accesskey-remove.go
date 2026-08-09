@@ -18,8 +18,10 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/delta592/mc/pkg/probe"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var idpLdapAccesskeyRemoveCmd = &cli.Command{
@@ -45,17 +47,17 @@ EXAMPLES:
 	`,
 }
 
-func mainIDPLdapAccesskeyRemove(ctx *cli.Context) error {
-	return commonAccesskeyRemove(ctx)
+func mainIDPLdapAccesskeyRemove(ctx context.Context, cmd *cli.Command) error {
+	return commonAccesskeyRemove(ctx, cmd)
 }
 
 // No difference between ldap and builtin accesskey remove for now
-func commonAccesskeyRemove(ctx *cli.Context) error {
-	if ctx.Args().Len() != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func commonAccesskeyRemove(_ context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 2 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 	accessKey := args.Get(1)
 

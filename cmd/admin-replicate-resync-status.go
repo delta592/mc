@@ -33,7 +33,7 @@ import (
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var adminReplicateResyncStatusCmd = &cli.Command{
@@ -59,11 +59,11 @@ EXAMPLES:
 `,
 }
 
-func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
+func mainAdminReplicationResyncStatus(_ context.Context, cmd *cli.Command) error {
 	// Check argument count
-	argsNr := ctx.Args().Len()
+	argsNr := cmd.Args().Len()
 	if argsNr != 2 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	console.SetColor("ResyncMessage", color.New(color.FgGreen))
@@ -72,7 +72,7 @@ func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
 	console.SetColor("TDetail", color.New(color.Bold, color.FgCyan))
 
 	// Get the alias parameter from cli
-	args := ctx.Args()
+	args := cmd.Args()
 	aliasedURL := args.Get(0)
 
 	// Create a new MinIO Admin Client
@@ -96,7 +96,7 @@ func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
 		}
 	}
 	if peer.DeploymentID == "" {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		fatalIf(errInvalidArgument().Trace(cmd.Args().Tail()...),
 			"alias provided is not part of cluster replication.")
 	}
 	ctxt, cancel := context.WithCancel(globalContext)
@@ -123,7 +123,7 @@ func mainAdminReplicationResyncStatus(ctx *cli.Context) error {
 			}
 		})
 		if e != nil && !errors.Is(e, context.Canceled) {
-			fatalIf(probe.NewError(e).Trace(ctx.Args().Slice()...), "Unable to get resync status")
+			fatalIf(probe.NewError(e).Trace(cmd.Args().Slice()...), "Unable to get resync status")
 		}
 	}()
 

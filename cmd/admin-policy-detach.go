@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminDetachPolicyFlags = []cli.Flag{
@@ -64,6 +66,6 @@ EXAMPLES:
 }
 
 // mainAdmihPolicyDetach is the handler for "mc admin policy detach" command.
-func mainAdminPolicyDetach(ctx *cli.Context) error {
-	return userAttachOrDetachPolicy(ctx, false)
+func mainAdminPolicyDetach(ctx context.Context, cmd *cli.Command) error {
+	return userAttachOrDetachPolicy(ctx, cmd, false)
 }

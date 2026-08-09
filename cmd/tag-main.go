@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var tagSubcommands = []*cli.Command{
@@ -34,10 +36,10 @@ var tagCmd = &cli.Command{
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
 	HideHelpCommand: true,
-	Subcommands:     tagSubcommands,
+	Commands:        tagSubcommands,
 }
 
-func mainTag(ctx *cli.Context) error {
-	commandNotFound(ctx, tagSubcommands)
+func mainTag(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, tagSubcommands)
 	return nil
 }

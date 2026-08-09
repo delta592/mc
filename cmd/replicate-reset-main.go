@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var replicateResyncSubcommands = []*cli.Command{
 	replicateResyncStartCmd,
@@ -31,13 +35,13 @@ var replicateResyncCmd = &cli.Command{
 	Action:          mainReplicateResync,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     replicateResyncSubcommands,
+	Commands:        replicateResyncSubcommands,
 	Aliases:         []string{"reset"},
 }
 
 // mainReplicateResync is the handle for "mc replicate resync" command.
-func mainReplicateResync(ctx *cli.Context) error {
-	commandNotFound(ctx, replicateResyncSubcommands)
+func mainReplicateResync(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, replicateResyncSubcommands)
 	return nil
 	// Sub-commands like "status", "start", have their own main.
 }

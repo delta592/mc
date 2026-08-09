@@ -18,7 +18,9 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
+	"context"
+
+	"github.com/urfave/cli/v3"
 )
 
 var adminTopAPIFlags = []cli.Flag{
@@ -54,7 +56,7 @@ var adminTopAPICmd = &cli.Command{
 `,
 }
 
-func mainAdminTopAPI(_ *cli.Context) error {
+func mainAdminTopAPI(_ context.Context, _ *cli.Command) error {
 	deprecatedError("mc support top api")
 	return nil
 }

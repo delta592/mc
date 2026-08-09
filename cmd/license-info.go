@@ -18,6 +18,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -28,7 +29,7 @@ import (
 	"github.com/delta592/mc/pkg/probe"
 	"github.com/fatih/color"
 	"github.com/minio/pkg/v3/console"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var licenseInfoCmd = &cli.Command{
@@ -171,15 +172,15 @@ func initLicInfoColors() {
 	console.SetColor(licInfoValTag, color.New(color.FgWhite))
 }
 
-func mainLicenseInfo(ctx *cli.Context) error {
-	if ctx.Args().Len() != 1 {
-		showCommandHelpAndExit(ctx, 1) // last argument is exit code
+func mainLicenseInfo(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() != 1 {
+		showCommandHelpAndExit(cmd, 1) // last argument is exit code
 	}
 
 	initLicInfoColors()
 
-	aliasedURL := ctx.Args().Get(0)
-	alias, _ := initSubnetConnectivity(ctx, aliasedURL, true)
+	aliasedURL := cmd.Args().Get(0)
+	alias, _ := initSubnetConnectivity(ctx, cmd, aliasedURL, true)
 
 	apiKey, lic, e := getSubnetCreds(alias)
 	fatalIf(probe.NewError(e), "Error in checking cluster registration status")

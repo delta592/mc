@@ -17,7 +17,11 @@
 
 package cmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 var idpOpenidAccesskeySubcommands = []*cli.Command{
 	idpOpenidAccesskeyListCmd,
@@ -34,11 +38,11 @@ var idpOpenIDAccesskeyCmd = &cli.Command{
 	Action:          mainIDPOpenIDAccesskey,
 	Before:          setGlobalsFromContext,
 	Flags:           globalFlags,
-	Subcommands:     idpOpenidAccesskeySubcommands,
+	Commands:        idpOpenidAccesskeySubcommands,
 	HideHelpCommand: true,
 }
 
-func mainIDPOpenIDAccesskey(ctx *cli.Context) error {
-	commandNotFound(ctx, idpOpenidAccesskeySubcommands)
+func mainIDPOpenIDAccesskey(_ context.Context, cmd *cli.Command) error {
+	commandNotFound(cmd, idpOpenidAccesskeySubcommands)
 	return nil
 }
