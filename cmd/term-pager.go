@@ -26,7 +26,8 @@ import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/muesli/reflow/wordwrap"
+
+	"github.com/delta592/mc/pkg/textutil"
 )
 
 var percentStyle = lipgloss.NewStyle().Width(4).Align(lipgloss.Left)
@@ -52,7 +53,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case string:
 		m.content += msg
-		m.viewport.SetContent(wordwrap.String(m.content, m.viewport.Width()-2))
+		m.viewport.SetContent(textutil.WordWrap(m.content, m.viewport.Width()-2))
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":

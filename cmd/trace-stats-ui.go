@@ -32,7 +32,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/minio/madmin-go/v4"
 	"github.com/minio/pkg/v3/console"
-	"github.com/muesli/reflow/truncate"
+	"github.com/delta592/mc/pkg/textutil"
 	"github.com/olekukonko/tablewriter/tw"
 	"golang.org/x/term"
 )
@@ -288,7 +288,7 @@ func (m *traceStatsUI) View() tea.View {
 	}
 	split := strings.Split(s.String(), "\n")
 	for i, line := range split {
-		split[i] = truncate.StringWithTail(line, uint(w), "»")
+		split[i] = textutil.TruncateWithTail(line, uint(w), "»")
 	}
 	return tea.NewView(strings.Join(split, "\n"))
 }
