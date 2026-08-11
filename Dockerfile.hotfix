@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.25.0
+# syntax=docker/dockerfile:1.26.0@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.8-1785906621@sha256:dd334afa72444fa46238fcf9e6bd399245adf746378735348cf84b9dfdca38f1 AS build
 
