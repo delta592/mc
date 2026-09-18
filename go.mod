@@ -30,7 +30,7 @@ require (
 	github.com/minio/madmin-go/v4 v4.10.5
 	github.com/minio/minio-go/v7 v7.3.0
 	github.com/minio/pkg/v3 v3.11.0
-	github.com/olekukonko/tablewriter v1.1.4
+	github.com/olekukonko/tablewriter v1.1.5
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/procfs v0.22.0
 	github.com/shirou/gopsutil/v4 v4.26.8
