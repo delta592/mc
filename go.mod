@@ -17,7 +17,7 @@ require (
 	charm.land/lipgloss/v2 v2.0.6
 	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/cheggaaa/pb v1.0.30
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/fatih/color v1.19.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
@@ -30,7 +30,7 @@ require (
 	github.com/minio/madmin-go/v4 v4.10.5
 	github.com/minio/minio-go/v7 v7.3.0
 	github.com/minio/pkg/v3 v3.11.0
-	github.com/olekukonko/tablewriter v1.1.4
+	github.com/olekukonko/tablewriter v1.1.5
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/procfs v0.22.0
 	github.com/shirou/gopsutil/v4 v4.26.8
