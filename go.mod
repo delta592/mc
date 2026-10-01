@@ -13,7 +13,7 @@ tool (
 require (
 	aead.dev/minisign v0.3.0
 	charm.land/bubbles/v2 v2.2.1
-	charm.land/bubbletea/v2 v2.0.9
+	charm.land/bubbletea/v2 v2.0.10
 	charm.land/lipgloss/v2 v2.0.6
 	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/cheggaaa/pb v1.0.30
@@ -22,7 +22,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.8.3
-	github.com/klauspost/compress v1.20.0
+	github.com/klauspost/compress v1.20.1
 	github.com/mattn/go-ieproxy v0.0.12
 	github.com/mattn/go-isatty v0.0.24
 	github.com/mattn/go-runewidth v0.0.30
@@ -36,8 +36,8 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.8
 	github.com/stretchr/testify v1.12.1
 	github.com/tidwall/gjson v1.19.0
-	github.com/urfave/cli/v3 v3.12.0
-	github.com/vbauerster/mpb/v8 v8.16.1
+	github.com/urfave/cli/v3 v3.13.0
+	github.com/vbauerster/mpb/v8 v8.16.2
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/net v0.59.0
 	golang.org/x/sys v0.48.0
@@ -269,7 +269,7 @@ require (
 	github.com/uudashr/gocognit v1.2.1 // indirect
 	github.com/uudashr/iface v1.5.1 // indirect
 	github.com/valyala/fastjson v1.6.10 // indirect
-	github.com/vbauerster/cupwriter v0.0.4 // indirect
+	github.com/vbauerster/cupwriter v0.0.5 // indirect
 	github.com/xen0n/gosmopolitan v1.3.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
