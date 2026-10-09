@@ -39,7 +39,7 @@ require (
 	github.com/urfave/cli/v3 v3.12.0
 	github.com/vbauerster/mpb/v8 v8.16.1
 	go.yaml.in/yaml/v3 v3.0.5
-	golang.org/x/net v0.59.0
+	golang.org/x/net v0.60.0
 	golang.org/x/sys v0.48.0
 	golang.org/x/term v0.46.0
 	golang.org/x/text v0.42.0
