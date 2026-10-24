@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1.27.0@sha256:bde3983e9c939224420ddaf6b784cc30e09b035a4dea01f581230c50809f372e
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1785825911@sha256:cb964eb2bf491814a681bc9887c83d32d6d4eac7b491c5c8c7fe641a5c586a09 AS build
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1792742827@sha256:2bd312096a71bf37dbc449f380d8b74cbdf385db2f48e07accc3d43c5e7be747 AS build
 
 RUN microdnf update --nodocs --assumeyes && \
     microdnf install ca-certificates --nodocs --assumeyes
 
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-1785301496@sha256:aebee49fbdff1791e32f483bfcff17e0be20dd36b2034d535076fd9d0e34ff89
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-1791891094@sha256:23d98f832c40318cf9534cb6bdc85694de74fa8c50049195b113ef03d4c456f4
 
 ARG TARGETPLATFORM
 
