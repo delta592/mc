@@ -27,7 +27,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/mattn/go-runewidth v0.0.31
 	github.com/minio/filepath v1.0.0
-	github.com/minio/madmin-go/v4 v4.10.5
+	github.com/minio/madmin-go/v4 v4.10.6
 	github.com/minio/minio-go/v7 v7.4.1
 	github.com/minio/pkg/v3 v3.11.0
 	github.com/olekukonko/tablewriter v1.1.5
