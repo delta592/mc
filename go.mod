@@ -13,7 +13,7 @@ tool (
 require (
 	aead.dev/minisign v0.3.0
 	charm.land/bubbles/v2 v2.2.1
-	charm.land/bubbletea/v2 v2.1.0
+	charm.land/bubbletea/v2 v2.1.1
 	charm.land/lipgloss/v2 v2.0.6
 	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/cheggaaa/pb v1.0.30
@@ -33,12 +33,12 @@ require (
 	github.com/olekukonko/tablewriter v1.1.5
 	github.com/prometheus/client_golang v1.25.0
 	github.com/prometheus/procfs v0.23.0
-	github.com/shirou/gopsutil/v4 v4.26.9
+	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/stretchr/testify v1.12.1
 	github.com/tidwall/gjson v1.20.0
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/vbauerster/mpb/v8 v8.16.3
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/net v0.61.0
 	golang.org/x/sys v0.49.0
 	golang.org/x/term v0.47.0
