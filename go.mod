@@ -13,8 +13,8 @@ tool (
 require (
 	aead.dev/minisign v0.3.0
 	charm.land/bubbles/v2 v2.2.1
-	charm.land/bubbletea/v2 v2.1.0
-	charm.land/lipgloss/v2 v2.0.6
+	charm.land/bubbletea/v2 v2.1.1
+	charm.land/lipgloss/v2 v2.1.0
 	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/cheggaaa/pb v1.0.30
 	github.com/dustin/go-humanize v1.1.0
@@ -22,7 +22,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.8.3
-	github.com/klauspost/compress v1.20.3
+	github.com/klauspost/compress v1.20.4
 	github.com/mattn/go-ieproxy v0.0.12
 	github.com/mattn/go-isatty v0.0.24
 	github.com/mattn/go-runewidth v0.0.31
@@ -33,12 +33,12 @@ require (
 	github.com/olekukonko/tablewriter v1.1.5
 	github.com/prometheus/client_golang v1.25.0
 	github.com/prometheus/procfs v0.23.0
-	github.com/shirou/gopsutil/v4 v4.26.9
+	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/gjson v1.20.0
+	github.com/tidwall/gjson v1.20.2
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/vbauerster/mpb/v8 v8.16.3
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/net v0.61.0
 	golang.org/x/sys v0.49.0
 	golang.org/x/term v0.47.0
@@ -252,7 +252,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tetafro/godot v1.5.6 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
-	github.com/tidwall/pretty v1.2.2 // indirect
+	github.com/tidwall/pretty v1.3.0 // indirect
 	github.com/timakin/bodyclose v0.0.0-20260923065923-98ded9ab4ef2 // indirect
 	github.com/timonwong/loggercheck v0.13.1 // indirect
 	github.com/tinylib/msgp v1.6.5 // indirect
