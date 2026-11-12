@@ -20,6 +20,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	json "github.com/delta592/mc/pkg/colorjson"
 	"github.com/delta592/mc/pkg/probe"
@@ -35,7 +36,10 @@ const (
 	supportErrorMsgTag   = "SupportErrorMessage"
 )
 
-var supportGlobalFlags = append(globalFlags,
+// Use slices.Concat so this does not share a backing array with globalFlags.
+// urfave/cli appends HelpFlag onto Flags at runtime; shared capacity can
+// make "help" appear twice on commands that use derived flag slices.
+var supportGlobalFlags = slices.Concat(globalFlags, []cli.Flag{
 	&cli.BoolFlag{
 		Name:   "dev",
 		Usage:  "Development mode",
@@ -45,7 +49,7 @@ var supportGlobalFlags = append(globalFlags,
 		Name:  "airgap",
 		Usage: "use in environments without network access to SUBNET (e.g. airgapped, firewalled, etc.)",
 	},
-)
+})
 
 var supportSubcommands = []*cli.Command{
 	supportRegisterCmd,

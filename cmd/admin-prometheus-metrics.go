@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -33,12 +34,13 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-var metricsFlags = append(metricsV3Flags,
+var metricsFlags = slices.Concat(metricsV3Flags, []cli.Flag{
 	&cli.StringFlag{
 		Name:  "api-version",
 		Usage: "version of metrics api to use. valid values are ['v2', 'v3']. defaults to 'v2' if not specified.",
 		Value: "v2",
-	})
+	},
+})
 
 var metricsV2SubSystems = set.CreateStringSet("node", "bucket", "cluster", "resource")
 

@@ -86,8 +86,13 @@ declare FILE_1_MB_MD5SUM
 declare FILE_65_MB_MD5SUM
 
 ENDPOINT="https://$SERVER_ENDPOINT"
+# -k: functional tests often use a self-signed MinIO cert; system CA install
+# is Linux-only in CI, so curl must skip verify for HTTPS endpoints.
+CURL_INSECURE_FLAG=""
 if [ "$ENABLE_HTTPS" != "1" ]; then
 	ENDPOINT="http://$SERVER_ENDPOINT"
+else
+	CURL_INSECURE_FLAG="-k"
 fi
 
 SERVER_ALIAS="myminio"
@@ -446,20 +451,20 @@ function test_presigned_post_policy_error() {
 	endpoint=$(echo "$ENDPOINT" | sed 's|[][]|\\&|g')
 
 	# Extract share field of json output, and append object name to the URL
-	upload=$(echo "$out" | jq -r .share | sed "s|<FILE>|$FILE_1_MB|g" | sed "s|curl|curl -sSg|g" | sed "s|${endpoint}/${BUCKET_NAME}/|${endpoint}/${BUCKET_NAME}/${object_name}|g")
+	upload=$(echo "$out" | jq -r .share | sed "s|<FILE>|$FILE_1_MB|g" | sed "s|curl|curl -sSg ${CURL_INSECURE_FLAG}|g" | sed "s|${endpoint}/${BUCKET_NAME}/|${endpoint}/${BUCKET_NAME}/${object_name}|g")
 
 	# In case of virtual host style URL path, the previous replace would have failed.
 	# One of the following two commands will append the object name in that scenario.
 	upload=$(echo "$upload" | sed "s|http://${BUCKET_NAME}.${SERVER_ENDPOINT}/|http://${BUCKET_NAME}.${SERVER_ENDPOINT}/${object_name}|g")
 	upload=$(echo "$upload" | sed "s|https://${BUCKET_NAME}.${SERVER_ENDPOINT}/|https://${BUCKET_NAME}.${SERVER_ENDPOINT}/${object_name}|g")
 
-	ret=$($upload 2>&1 | grep -oP '(?<=Code>)[^<]+')
-	# Check if the command execution failed.
-	assert_success "$start_time" "${FUNCNAME[0]}" show_on_failure $? "unknown failure in upload of $FILE_1_MB using presigned post policy"
+	# Capture output with || true so pipefail does not hide the S3 error body
+	# when curl returns non-zero for other reasons. BSD grep lacks -P, use sed.
+	upload_out=$($upload 2>&1) || true
+	ret=$(printf '%s' "$upload_out" | sed -n 's/.*<Code>\([^<]*\)<\/Code>.*/\1/p' | head -n 1)
 	if [ -z "$ret" ]; then
-
 		# Check if the upload succeeded. We expect it to fail.
-		assert_failure "$start_time" "${FUNCNAME[0]}" show_on_success 0 "upload of $FILE_1_MB using presigned post policy should have failed"
+		assert_failure "$start_time" "${FUNCNAME[0]}" show_on_success 0 "upload of $FILE_1_MB using presigned post policy should have failed (curl output: ${upload_out})"
 	fi
 
 	if [ "$ret" != "MethodNotAllowed" ]; then
@@ -476,7 +481,7 @@ function test_presigned_put_object() {
 
 	out=$("${MC_CMD[@]}" --json share upload "${SERVER_ALIAS}/${BUCKET_NAME}/${object_name}")
 	assert_success "$start_time" "${FUNCNAME[0]}" show_on_failure $? "unable to get presigned put object url"
-	upload=$(echo "$out" | jq -r .share | sed "s|<FILE>|$FILE_1_MB|g" | sed "s|curl|curl -sSg|g")
+	upload=$(echo "$out" | jq -r .share | sed "s|<FILE>|$FILE_1_MB|g" | sed "s|curl|curl -sSg ${CURL_INSECURE_FLAG}|g")
 	$upload >/dev/null 2>&1
 	assert_success "$start_time" "${FUNCNAME[0]}" show_on_failure $? "unable to upload $FILE_1_MB presigned put object url"
 
@@ -497,7 +502,8 @@ function test_presigned_get_object() {
 	out=$("${MC_CMD[@]}" --json share download "${SERVER_ALIAS}/${BUCKET_NAME}/${object_name}")
 	assert_success "$start_time" "${FUNCNAME[0]}" show_on_failure $? "unable to get presigned get object url"
 	download_url=$(echo "$out" | jq -r .share)
-	curl -sSg --output "${object_name}.downloaded" -X GET "$download_url"
+	# shellcheck disable=SC2086
+	curl -sSg ${CURL_INSECURE_FLAG} --output "${object_name}.downloaded" -X GET "$download_url"
 	assert_success "$start_time" "${FUNCNAME[0]}" show_on_failure $? "unable to download $download_url"
 
 	assert_success "$start_time" "${FUNCNAME[0]}" check_md5sum "$FILE_1_MB_MD5SUM" "${object_name}.downloaded"

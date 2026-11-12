@@ -20,6 +20,7 @@ package cmd
 import (
 	"context"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/delta592/mc/pkg/probe"
@@ -36,11 +37,12 @@ const (
 	metricsV2BasePath = "/minio/v2/metrics"
 )
 
-var prometheusFlags = append(metricsFlags,
+var prometheusFlags = slices.Concat(metricsFlags, []cli.Flag{
 	&cli.BoolFlag{
 		Name:  "public",
 		Usage: "disable bearer token generation for scrape_configs",
-	})
+	},
+})
 
 var adminPrometheusGenerateCmd = &cli.Command{
 	Name:            "generate",

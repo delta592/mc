@@ -31,6 +31,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -51,10 +52,13 @@ const (
 	minioDeploymentIDHeader = "x-minio-deployment-id"
 )
 
-var subnetCommonFlags = append(supportGlobalFlags, &cli.StringFlag{
-	Name:    "api-key",
-	Usage:   "API Key of the account on SUBNET",
-	Sources: cli.EnvVars("_MC_SUBNET_API_KEY"),
+// Independent of supportGlobalFlags' backing array (see supportGlobalFlags).
+var subnetCommonFlags = slices.Concat(supportGlobalFlags, []cli.Flag{
+	&cli.StringFlag{
+		Name:    "api-key",
+		Usage:   "API Key of the account on SUBNET",
+		Sources: cli.EnvVars("_MC_SUBNET_API_KEY"),
+	},
 })
 
 // SubnetBaseURL - returns the base URL of SUBNET
