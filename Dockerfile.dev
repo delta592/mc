@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.28.0@sha256:bb22d9815c728170f72750f4e5b0d672e06176142e1d602c7e66c050100b7e5b
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1792742827@sha256:2bd312096a71bf37dbc449f380d8b74cbdf385db2f48e07accc3d43c5e7be747
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10-1794442960@sha256:b3314c5f8d009ee6df04ead732bca6d3eaf011750185e348f55fce2678fb30d0
 
 LABEL maintainer="MinIO Inc <dev@min.io>"
 
