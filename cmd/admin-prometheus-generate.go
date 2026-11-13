@@ -29,7 +29,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	json "github.com/delta592/mc/pkg/colorjson"
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 const (
