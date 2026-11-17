@@ -21,7 +21,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/jedib0t/go-pretty/v6 v6.9.0
+	github.com/jedib0t/go-pretty/v6 v6.9.1
 	github.com/klauspost/compress v1.20.4
 	github.com/mattn/go-ieproxy v0.0.12
 	github.com/mattn/go-isatty v0.0.24
@@ -35,7 +35,7 @@ require (
 	github.com/prometheus/procfs v0.23.0
 	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/gjson v1.20.2
+	github.com/tidwall/gjson v1.20.3
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/vbauerster/mpb/v8 v8.16.3
 	go.yaml.in/yaml/v4 v4.0.0
