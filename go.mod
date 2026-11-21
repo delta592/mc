@@ -13,7 +13,7 @@ tool (
 require (
 	aead.dev/minisign v0.3.0
 	charm.land/bubbles/v2 v2.2.1
-	charm.land/bubbletea/v2 v2.1.1
+	charm.land/bubbletea/v2 v2.1.2
 	charm.land/lipgloss/v2 v2.1.1
 	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/cheggaaa/pb v1.0.30
@@ -35,7 +35,7 @@ require (
 	github.com/prometheus/procfs v0.23.0
 	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/gjson v1.20.3
+	github.com/tidwall/gjson v1.20.4
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/vbauerster/mpb/v8 v8.16.3
 	go.yaml.in/yaml/v4 v4.0.0
